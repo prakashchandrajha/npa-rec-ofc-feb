@@ -38,7 +38,7 @@ export class ViewUsers implements OnInit, OnDestroy, OnChanges, AfterViewInit {
       .subscribe((event: any) => {
         if (event instanceof NavigationEnd) {
           // Check if we're navigating to the view-users route
-          if (event.url.includes('/dashboard/view-users')) {
+          if (event.urlAfterRedirects.includes('/dashboard/view-users')) {
             console.log('Navigated to view-users route, reloading data');
             // Reload data when navigating to this route
             this.loadUsers();
