@@ -51,10 +51,7 @@
 
         <!-- Password Field -->
         <div class="space-y-2">
-          <div class="flex items-center justify-between ml-1">
-            <label class="block text-sm font-medium text-white/90">Password</label>
-            <a href="#" class="text-xs text-orange-300 hover:text-orange-200 transition-colors">Forgot password?</a>
-          </div>
+          
           <div class="relative group">
             <div class="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
               <svg class="h-5 w-5 text-white/50 group-focus-within:text-orange-400 transition-colors" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -86,17 +83,7 @@
           </div>
         </div>
 
-        <!-- Remember Me -->
-        <div class="flex items-center">
-          <input 
-            id="remember" 
-            type="checkbox" 
-            [(ngModel)]="rememberMe" 
-            name="rememberMe"
-            class="w-4 h-4 rounded border-white/20 bg-white/5 text-orange-500 focus:ring-orange-400/20 focus:ring-offset-0"
-          >
-          <label for="remember" class="ml-2 text-sm text-white/70 cursor-pointer select-none">Remember me for 30 days</label>
-        </div>
+  
 
         <!-- Submit Button -->
         <button 
@@ -114,12 +101,7 @@
         </button>
 
         <!-- Sign Up Link -->
-        <div class="text-center pt-4 border-t border-white/10">
-          <p class="text-white/60 text-sm">
-            Don't have an account? 
-            <a href="#" class="text-orange-300 hover:text-orange-200 font-medium transition-colors ml-1">Create account</a>
-          </p>
-        </div>
+        
       </form>
     </div>
 
