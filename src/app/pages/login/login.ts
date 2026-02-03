@@ -28,6 +28,14 @@ export class Login {
         console.log('Login successful:', response);
         this.authService.setToken(response.token);
         localStorage.setItem('isLoggedIn', 'true');
+        
+        // Save user info
+        const userInfo = {
+          username: response.username || this.username,
+          division: response.division || 'NPA'
+        };
+        this.authService.setUserInfo(userInfo);
+        
         this.router.navigate(['/dashboard/dashboard-home']);
       },
       error: (error) => {

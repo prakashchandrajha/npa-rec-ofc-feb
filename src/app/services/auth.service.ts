@@ -3,6 +3,11 @@ import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { Router } from '@angular/router';
 import { Observable } from 'rxjs';
 
+export interface UserInfo {
+  username: string;
+  division: string;
+}
+
 @Injectable({
   providedIn: 'root'
 })
@@ -31,11 +36,23 @@ export class AuthService {
     return this.token;
   }
 
+  setUserInfo(userInfo: UserInfo): void {
+    localStorage.setItem('userInfo', JSON.stringify(userInfo));
+  }
+
+  getUserInfo(): UserInfo | null {
+    const userInfo = localStorage.getItem('userInfo');
+    return userInfo ? JSON.parse(userInfo) : null;
+  }
+
   logout(): void {
+    console.log('AuthService logout called');
     this.token = null;
     localStorage.removeItem('token');
     localStorage.removeItem('isLoggedIn');
-    this.router.navigate(['/login']);
+    localStorage.removeItem('userInfo');
+    console.log('Navigating to /');
+    this.router.navigate(['/']);
   }
 
   isLoggedIn(): boolean {
