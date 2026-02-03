@@ -1,6 +1,19 @@
 import { Routes } from '@angular/router';
 import { Login } from './pages/login/login';
+import { Dashboard } from './pages/dashboard/dashboard';
+import { ViewUsers } from './pages/view-users/view-users';
+import { CreateUser } from './pages/create-user/create-user';
+import { AllNpa } from './pages/all-npa/all-npa';
+import { MyDesk } from './pages/my-desk/my-desk';
+import { CreateNpa } from './pages/create-npa/create-npa';
+
 
 export const routes: Routes = [
-    {path:'',component: Login}
+    {path:'',component: Login},
+    {path:'dashboard',component: Dashboard},
+    {path:'view-users',component: ViewUsers},
+    {path:'create-user',component: CreateUser},
+    {path:'create-npa',component: CreateNpa},
+    {path:'all-npa',component: AllNpa},
+    {path:'my-desk',component: MyDesk}
 ];
