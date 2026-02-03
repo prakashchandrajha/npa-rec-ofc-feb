@@ -15,30 +15,30 @@ export class BasicDetailsOfTheBorrower01Component implements OnInit {
 
   ngOnInit(): void {
     this.form = this.fb.group({
-      // a. Name of Division and Regional Office
+      // Only these two fields are mandatory
       divisionName: ['', Validators.required],
       regionalOffice: ['', Validators.required],
       
       // b. Name of Account and date of classification as NPA
-      accountName: ['', Validators.required],
+      accountName: [''],
       npaClassificationDate: ['', Validators.required],
       
       // c. Business Activity of the society
-      businessActivity: ['', Validators.required],
+      businessActivity: [''],
       
       // d. Contact Details (Board Members) - handled via FormArray
       
       // e. Registered Address, Corporate office, Factory Address
-      registeredAddress: ['', Validators.required],
-      corporateOffice: ['', Validators.required],
-      factoryAddress: ['', Validators.required],
+      registeredAddress: [''],
+      corporateOffice: [''],
+      factoryAddress: [''],
       
       // f. Whether Factory/Mill is in running condition
-      factoryRunningCondition: ['', Validators.required],
+      factoryRunningCondition: [''],
       factoryNotRunningSince: [''],
       
       // g. Whether Factory/Mill is leased out/ rented
-      factoryLeasedOut: ['', Validators.required],
+      factoryLeasedOut: [''],
       lesseeName: [''],
       lesseeContactDetails: [''],
       
@@ -54,10 +54,10 @@ export class BasicDetailsOfTheBorrower01Component implements OnInit {
 
   addMember(): void {
     this.boardMembers.push(this.fb.group({
-      name: ['', Validators.required],
-      designation: ['', Validators.required],
-      contactDetails: ['', Validators.required],
-      address: ['', Validators.required]
+      name: [''],
+      designation: [''],
+      contactDetails: [''],
+      address: ['']
     }));
   }
 

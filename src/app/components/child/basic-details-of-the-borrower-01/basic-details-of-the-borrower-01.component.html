@@ -1,5 +1,6 @@
 <div class="section-div p-4 bg-white rounded-lg shadow">
   <h3 class="text-lg font-semibold mb-4">Basic Details of the Borrower</h3>
+  
   <form [formGroup]="form" class="space-y-4">
     
     <!-- a. Name of Division and Regional Office -->
@@ -17,7 +18,7 @@
     <!-- b. Name of Account and date of classification as NPA -->
     <div class="grid grid-cols-2 gap-4">
       <div>
-        <label class="block text-sm font-medium mb-1">b. Name of Account *</label>
+        <label class="block text-sm font-medium mb-1">b. Name of Account</label>
         <input formControlName="accountName" type="text" class="w-full p-2 border rounded" placeholder="Enter account name">
       </div>
       <div>
@@ -28,7 +29,7 @@
 
     <!-- c. Business Activity of the society -->
     <div>
-      <label class="block text-sm font-medium mb-1">c. Business Activity of the Society *</label>
+      <label class="block text-sm font-medium mb-1">c. Business Activity of the Society</label>
       <input formControlName="businessActivity" type="text" class="w-full p-2 border rounded" placeholder="Enter business activity">
     </div>
 
@@ -75,15 +76,15 @@
     <!-- e. Registered Address, Corporate office, Factory Address -->
     <div class="grid grid-cols-1 gap-4 mt-6">
       <div>
-        <label class="block text-sm font-medium mb-1">e. Registered Address of the Society *</label>
+        <label class="block text-sm font-medium mb-1">e. Registered Address of the Society</label>
         <input formControlName="registeredAddress" type="text" class="w-full p-2 border rounded" placeholder="Enter registered address">
       </div>
       <div>
-        <label class="block text-sm font-medium mb-1">Corporate Office of the Society *</label>
+        <label class="block text-sm font-medium mb-1">Corporate Office of the Society</label>
         <input formControlName="corporateOffice" type="text" class="w-full p-2 border rounded" placeholder="Enter corporate office address">
       </div>
       <div>
-        <label class="block text-sm font-medium mb-1">Factory Address *</label>
+        <label class="block text-sm font-medium mb-1">Factory Address</label>
         <input formControlName="factoryAddress" type="text" class="w-full p-2 border rounded" placeholder="Enter factory address">
       </div>
     </div>
@@ -91,7 +92,7 @@
     <!-- f. Whether Factory/Mill is in running condition -->
     <div class="grid grid-cols-2 gap-4 mt-6">
       <div>
-        <label class="block text-sm font-medium mb-1">f. Whether Factory/Mill is in running condition: *</label>
+        <label class="block text-sm font-medium mb-1">f. Whether Factory/Mill is in running condition:</label>
         <select formControlName="factoryRunningCondition" class="w-full p-2 border rounded">
           <option value="">Select</option>
           <option value="yes">Yes</option>
@@ -99,7 +100,7 @@
         </select>
       </div>
       <div *ngIf="form.get('factoryRunningCondition')?.value === 'no'">
-        <label class="block text-sm font-medium mb-1">If No, since when *</label>
+        <label class="block text-sm font-medium mb-1">If No, since when</label>
         <input formControlName="factoryNotRunningSince" type="text" class="w-full p-2 border rounded" placeholder="Enter date">
       </div>
     </div>
@@ -107,7 +108,7 @@
     <!-- g. Whether Factory/Mill is leased out/ rented -->
     <div class="grid grid-cols-3 gap-4 mt-6">
       <div>
-        <label class="block text-sm font-medium mb-1">g. Whether Factory/Mill is leased out/rented: *</label>
+        <label class="block text-sm font-medium mb-1">g. Whether Factory/Mill is leased out/rented:</label>
         <select formControlName="factoryLeasedOut" class="w-full p-2 border rounded">
           <option value="">Select</option>
           <option value="yes">Yes</option>
@@ -115,11 +116,11 @@
         </select>
       </div>
       <div *ngIf="form.get('factoryLeasedOut')?.value === 'yes'">
-        <label class="block text-sm font-medium mb-1">Name of Lessee *</label>
+        <label class="block text-sm font-medium mb-1">Name of Lessee</label>
         <input formControlName="lesseeName" type="text" class="w-full p-2 border rounded" placeholder="Enter lessee name">
       </div>
       <div *ngIf="form.get('factoryLeasedOut')?.value === 'yes'">
-        <label class="block text-sm font-medium mb-1">Contact Details of Lessee *</label>
+        <label class="block text-sm font-medium mb-1">Contact Details of Lessee</label>
         <input formControlName="lesseeContactDetails" type="text" class="w-full p-2 border rounded" placeholder="Enter lessee contact">
       </div>
     </div>
