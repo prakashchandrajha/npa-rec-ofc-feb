@@ -1,4 +1,6 @@
-<div class="flex h-screen bg-gray-100">
-  <app-sidebar></app-sidebar>
-  <app-content-view-page></app-content-view-page>
+<div class="flex flex-col h-screen bg-gray-100">
+  <div class="flex flex-1 overflow-hidden">
+    <app-sidebar class="h-full"></app-sidebar>
+    <app-content-view-page class="flex-1 h-full overflow-auto"></app-content-view-page>
+  </div>
 </div>

@@ -1,6 +1,7 @@
 import { CommonModule } from '@angular/common';
 import { Component } from '@angular/core';
 import { FormsModule } from '@angular/forms';
+import { Router } from '@angular/router';
 
 @Component({
   selector: 'app-login',
@@ -17,6 +18,8 @@ export class Login {
     this.showPassword = !this.showPassword;
   }
 
+  constructor(private router: Router) {}
+
   onSubmit(): void {
     // Handle form submission
     console.log('Login attempt:', {
@@ -24,7 +27,10 @@ export class Login {
       password: this.password,
     });
     
+    // For now, we'll simulate successful login
     // Add your authentication logic here
+    localStorage.setItem('isLoggedIn', 'true'); // Simple way to track login state
+    this.router.navigate(['/dashboard/dashboard-content']);
   }
 
 }
