@@ -13,17 +13,17 @@ export class ViewUsers implements OnInit {
   users: User[] = [];
   loading = false;
   error: string | null = null;
-  
-  constructor(private userService: UserService) {}
-  
+
+  constructor(private userService: UserService) { }
+
   ngOnInit(): void {
     this.loadUsers();
   }
-  
+
   loadUsers(): void {
     this.loading = true;
     this.error = null;
-    
+
     this.userService.getUsers().subscribe({
       next: (users) => {
         this.users = users;
@@ -36,8 +36,8 @@ export class ViewUsers implements OnInit {
       }
     });
   }
-  
+
   trackByUserId(index: number, user: User): number {
-    return user.id || index;
+    return user.userId || index;
   }
 }
