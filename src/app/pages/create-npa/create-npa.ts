@@ -1,7 +1,5 @@
 import { Component } from '@angular/core';
 import { RouterModule } from '@angular/router';
-import { Sidebar } from '../../components/sidebar/sidebar';
-import { ContentViewPage } from '../../components/content-view-page/content-view-page';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 
@@ -21,7 +19,7 @@ interface Npa {
 
 @Component({
   selector: 'app-create-npa',
-  imports: [RouterModule, Sidebar, ContentViewPage,FormsModule],
+  imports: [RouterModule, CommonModule, FormsModule],
   templateUrl: './create-npa.html',
   styleUrl: './create-npa.css',
 })
