@@ -19,45 +19,10 @@ interface Npa {
 
 @Component({
   selector: 'app-create-npa',
-  imports: [RouterModule, CommonModule, FormsModule],
+  imports: [RouterModule],
   templateUrl: './create-npa.html',
   styleUrl: './create-npa.css',
 })
 export class CreateNpa {
-  npa: Npa = {
-    accountNumber: '',
-    accountType: '',
-    customerName: '',
-    customerId: '',
-    contactNumber: '',
-    npaDate: '',
-    npaCategory: '',
-    outstandingPrincipal: 0,
-    interestDue: 0,
-    totalAmountDue: 0,
-    remarks: ''
-  };
-
-  onSubmit(): void {
-    console.log('NPA Form Submitted:', this.npa);
-    // Here you would typically call a service to save the NPA data
-    alert('NPA created successfully!\n\n' + JSON.stringify(this.npa, null, 2));
-    this.resetForm();
-  }
-
-  resetForm(): void {
-    this.npa = {
-      accountNumber: '',
-      accountType: '',
-      customerName: '',
-      customerId: '',
-      contactNumber: '',
-      npaDate: '',
-      npaCategory: '',
-      outstandingPrincipal: 0,
-      interestDue: 0,
-      totalAmountDue: 0,
-      remarks: ''
-    };
-  }
+ 
 }
