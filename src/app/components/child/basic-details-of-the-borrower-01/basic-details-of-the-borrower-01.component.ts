@@ -17,7 +17,7 @@ export class BasicDetailsOfTheBorrower01Component implements OnInit {
     this.form = this.fb.group({
       // Only these two fields are mandatory
       divisionName: ['', Validators.required],
-      regionalOffice: ['', Validators.required],
+      regionalOffice: [''],
       
       // b. Name of Account and date of classification as NPA
       accountName: [''],
