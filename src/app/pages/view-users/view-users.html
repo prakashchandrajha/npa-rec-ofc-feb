@@ -1,5 +1,13 @@
 <div class="p-4 max-w-6xl mx-auto">
-  <h1 class="text-2xl font-bold mb-6">View Users</h1>
+  <div class="flex justify-between items-center mb-6">
+    <h1 class="text-2xl font-bold">View Users</h1>
+    <button 
+      (click)="loadUsers()" 
+      [disabled]="loading"
+      class="px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600 disabled:opacity-50 disabled:cursor-not-allowed">
+      {{ loading ? 'Loading...' : 'Refresh' }}
+    </button>
+  </div>
 
   <!-- Loading indicator -->
   <div *ngIf="loading" class="flex justify-center items-center py-8">

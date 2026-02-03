@@ -9,15 +9,17 @@ import { CreateNpa } from './pages/create-npa/create-npa';
 import { AuthGuard } from './auth.guard';
 
 
+import { DashboardHome } from './pages/dashboard/dashboard-home/dashboard-home';
+
 export const routes: Routes = [
     {path:'',component: Login},
     {
-        path: 'dashboard', 
-        component: Dashboard, 
+        path: 'dashboard',
+        component: Dashboard,
         canActivate: [AuthGuard],
         children: [
-            { path: '', redirectTo: '/dashboard/dashboard-content', pathMatch: 'full' },
-            { path: 'dashboard-content', component: ViewUsers }, // Default dashboard content
+            { path: '', redirectTo: 'dashboard-home', pathMatch: 'full' },
+            { path: 'dashboard-home', component: DashboardHome }, // Default dashboard content
             { path: 'view-users', component: ViewUsers },
             { path: 'create-user', component: CreateUser },
             { path: 'create-npa', component: CreateNpa },
