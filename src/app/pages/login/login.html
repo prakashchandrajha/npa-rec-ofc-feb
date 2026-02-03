@@ -29,6 +29,11 @@
       <!-- Form -->
       <form class="px-8 pb-8 space-y-6" (ngSubmit)="onSubmit()">
         
+        <!-- Error Message -->
+        <div *ngIf="loginError" class="mb-4 p-3 bg-red-500/20 border border-red-500/30 rounded-lg text-red-200 text-sm">
+          {{ loginError }}
+        </div>
+
         <!-- Username Field -->
         <div class="space-y-2">
           <label class="block text-sm font-medium text-white/90 ml-1">Username</label>
@@ -83,7 +88,7 @@
           </div>
         </div>
 
-  
+    
 
         <!-- Submit Button -->
         <button 
