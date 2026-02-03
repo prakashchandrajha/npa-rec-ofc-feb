@@ -1,4 +1,102 @@
-<div class="p-4">
-  <h1 class="text-2xl font-bold">Create User</h1>
-  <p class="mt-2 text-gray-600">This page allows creating new users.</p>
+<div class="p-4 max-w-md mx-auto bg-white p-6 rounded-lg shadow-md">
+  <h1 class="text-2xl font-bold mb-6">Create User</h1>
+  
+  <form (ngSubmit)="onSubmit()" #userForm="ngForm" class="space-y-4">
+    <!-- Username Field -->
+    <div class="mb-4">
+      <label for="username" class="block text-sm font-medium text-gray-700 mb-1">Username *</label>
+      <input 
+        type="text" 
+        id="username" 
+        name="username"
+        [(ngModel)]="formData.username" 
+        required
+        class="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500">
+      <div *ngIf="userForm.submitted && !formData.username" class="text-red-500 text-sm mt-1">
+        Username is required
+      </div>
+    </div>
+    
+    <!-- Password Field -->
+    <div class="mb-4">
+      <label for="password" class="block text-sm font-medium text-gray-700 mb-1">Password *</label>
+      <input 
+        type="password" 
+        id="password" 
+        name="password"
+        [(ngModel)]="formData.password" 
+        required
+        class="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500">
+      <div *ngIf="userForm.submitted && !formData.password" class="text-red-500 text-sm mt-1">
+        Password is required
+      </div>
+    </div>
+    
+    <!-- User Type Selection -->
+    <div class="mb-4">
+      <label for="userType" class="block text-sm font-medium text-gray-700 mb-1">User Type *</label>
+      <select 
+        id="userType" 
+        name="userType"
+        [(ngModel)]="formData.userType" 
+        required
+        class="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500">
+        <option value="">Select User Type</option>
+        <option *ngFor="let type of userTypes" [value]="type.value">{{ type.label }}</option>
+      </select>
+      <div *ngIf="userForm.submitted && !formData.userType" class="text-red-500 text-sm mt-1">
+        User Type is required
+      </div>
+    </div>
+    
+    <!-- Division Field - Shown only when user type is DIVISION -->
+    <div class="mb-4" *ngIf="shouldShowDivisionField">
+      <label for="divisionName" class="block text-sm font-medium text-gray-700 mb-1">Division Name *</label>
+      <select 
+        id="divisionName" 
+        name="divisionName"
+        [(ngModel)]="formData.divisionName" 
+        required
+        [disabled]="!shouldShowDivisionField"
+        class="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500">
+        <option value="">Select Division</option>
+        <option *ngFor="let div of divisions" [value]="div.value">{{ div.label }}</option>
+      </select>
+      <div *ngIf="userForm.submitted && !formData.divisionName && shouldShowDivisionField" class="text-red-500 text-sm mt-1">
+        Division Name is required
+      </div>
+    </div>
+    
+    <!-- Regional Office Field - Shown only when user type is REGIONAL_OFFICE -->
+    <div class="mb-4" *ngIf="shouldShowRegionalOfficeField">
+      <label for="regionalOfficeName" class="block text-sm font-medium text-gray-700 mb-1">Regional Office Name *</label>
+      <input 
+        type="text" 
+        id="regionalOfficeName" 
+        name="regionalOfficeName"
+        [(ngModel)]="formData.regionalOfficeName" 
+        required
+        [disabled]="!shouldShowRegionalOfficeField"
+        class="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500"
+        placeholder="Enter Regional Office Name">
+      <div *ngIf="userForm.submitted && !formData.regionalOfficeName && shouldShowRegionalOfficeField" class="text-red-500 text-sm mt-1">
+        Regional Office Name is required
+      </div>
+    </div>
+    
+    <!-- Note for Legal and Recovery users -->
+    <div class="mb-4" *ngIf="formData.userType === 'LEGAL' || formData.userType === 'RECOVERY'">
+      <p class="text-sm text-gray-600 italic">Note: {{ formData.userType === 'LEGAL' ? 'Legal' : 'Recovery' }} users do not require division or regional office assignment.</p>
+    </div>
+    
+    <!-- Submit Button -->
+    <div class="mt-6">
+      <button 
+        type="submit" 
+        [disabled]="!userForm.form.valid || (shouldShowDivisionField && !formData.divisionName) || (shouldShowRegionalOfficeField && !formData.regionalOfficeName)"
+        class="w-full flex justify-center py-2 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 disabled:opacity-50 disabled:cursor-not-allowed">
+        Create User
+      </button>
+    </div>
+  </form>
 </div>

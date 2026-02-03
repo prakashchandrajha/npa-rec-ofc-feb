@@ -1,4 +1,58 @@
-<div class="p-4">
-  <h1 class="text-2xl font-bold">View Users</h1>
-  <p class="mt-2 text-gray-600">This page displays all users in the system.</p>
+<div class="p-4 max-w-6xl mx-auto">
+  <h1 class="text-2xl font-bold mb-6">View Users</h1>
+  
+  <!-- Loading indicator -->
+  <div *ngIf="loading" class="flex justify-center items-center py-8">
+    <div class="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-500"></div>
+    <span class="ml-2">Loading users...</span>
+  </div>
+  
+  <!-- Error message -->
+  <div *ngIf="error && !loading" class="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded mb-4">
+    {{ error }}
+  </div>
+  
+  <!-- Users table -->
+  <div *ngIf="!loading && !error" class="overflow-x-auto bg-white rounded-lg shadow">
+    <table class="min-w-full divide-y divide-gray-200">
+      <thead class="bg-gray-50">
+        <tr>
+          <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">User ID</th>
+          <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Username</th>
+          <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">User Type</th>
+          <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Division/Region</th>
+          <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Admin Status</th>
+        </tr>
+      </thead>
+      <tbody class="bg-white divide-y divide-gray-200">
+        <tr *ngFor="let user of users" class="hover:bg-gray-50">
+          <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{{ user.id }}</td>
+          <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">{{ user.username }}</td>
+          <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+            <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-blue-100 text-blue-800">
+              {{ user.userType }}
+            </span>
+          </td>
+          <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+            <span *ngIf="user.divisionName" class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-green-100 text-green-800">
+              {{ user.divisionName }}
+            </span>
+            <span *ngIf="user.regionalOfficeName" class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-purple-100 text-purple-800">
+              {{ user.regionalOfficeName }}
+            </span>
+            <span *ngIf="!user.divisionName && !user.regionalOfficeName" class="text-gray-400">-</span>
+          </td>
+          <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+            <span *ngIf="user.id === 1" class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-yellow-100 text-yellow-800">
+              Admin
+            </span>
+            <span *ngIf="user.id !== 1" class="text-gray-400">User</span>
+          </td>
+        </tr>
+        <tr *ngIf="users.length === 0">
+          <td colspan="5" class="px-6 py-4 text-center text-sm text-gray-500">No users found.</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
 </div>
