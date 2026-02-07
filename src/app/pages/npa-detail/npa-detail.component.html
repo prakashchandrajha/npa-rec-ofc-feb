@@ -1,0 +1,160 @@
+<div class="container mx-auto p-4">
+  <!-- Header -->
+  <div class="flex justify-between items-center mb-6">
+    <h1 class="text-2xl font-bold text-gray-800">NPA Details</h1>
+    <div class="flex gap-2">
+      <button 
+        (click)="goBack()" 
+        class="px-4 py-2 bg-gray-500 text-white rounded hover:bg-gray-600 transition-colors">
+        Back to List
+      </button>
+      <button 
+        (click)="editNpa()" 
+        class="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700 transition-colors">
+        Edit NPA
+      </button>
+    </div>
+  </div>
+
+  <!-- Loading State -->
+  <div *ngIf="loading" class="text-center py-8">
+    <div class="inline-block animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600"></div>
+    <p class="mt-2 text-gray-600">Loading NPA details...</p>
+  </div>
+
+  <!-- Error State -->
+  <div *ngIf="error" class="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded">
+    <p class="font-medium">Error:</p>
+    <p>{{ error }}</p>
+  </div>
+
+  <!-- NPA Details -->
+  <div *ngIf="npaData && !loading" class="bg-white shadow-lg rounded-lg overflow-hidden">
+    <!-- NPA ID Header -->
+    <div class="bg-blue-50 px-6 py-4 border-b">
+      <h2 class="text-lg font-semibold text-blue-800">NPA ID: {{ npaId }}</h2>
+    </div>
+
+    <!-- Basic Details Section -->
+    <div class="p-6">
+      <h3 class="text-lg font-semibold mb-4 text-gray-800">Basic Details</h3>
+      
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+        <div>
+          <label class="block text-sm font-medium text-gray-700">Division Name</label>
+          <p class="mt-1 text-gray-900">{{ npaData.divisionName || '-' }}</p>
+        </div>
+        
+        <div>
+          <label class="block text-sm font-medium text-gray-700">Regional Office</label>
+          <p class="mt-1 text-gray-900">{{ npaData.regionalOffice || '-' }}</p>
+        </div>
+        
+        <div>
+          <label class="block text-sm font-medium text-gray-700">Account Name</label>
+          <p class="mt-1 text-gray-900">{{ npaData.accountName || '-' }}</p>
+        </div>
+        
+        <div>
+          <label class="block text-sm font-medium text-gray-700">NPA Classification Date</label>
+          <p class="mt-1 text-gray-900">{{ npaData.npaClassificationDate || '-' }}</p>
+        </div>
+        
+        <div>
+          <label class="block text-sm font-medium text-gray-700">Business Activity</label>
+          <p class="mt-1 text-gray-900">{{ npaData.businessActivity || '-' }}</p>
+        </div>
+        
+        <div>
+          <label class="block text-sm font-medium text-gray-700">Factory Running Condition</label>
+          <p class="mt-1 text-gray-900">
+            <span class="px-2 py-1 text-xs rounded-full" 
+                  [class.bg-green-100]="npaData.factoryRunningCondition === 'yes'"
+                  [class.bg-red-100]="npaData.factoryRunningCondition === 'no'"
+                  [class.text-green-800]="npaData.factoryRunningCondition === 'yes'"
+                  [class.text-red-800]="npaData.factoryRunningCondition === 'no'">
+              {{ npaData.factoryRunningCondition === 'yes' ? 'Running' : 'Not Running' }}
+            </span>
+          </p>
+        </div>
+        
+        <div *ngIf="npaData.factoryNotRunningSince">
+          <label class="block text-sm font-medium text-gray-700">Factory Not Running Since</label>
+          <p class="mt-1 text-gray-900">{{ npaData.factoryNotRunningSince }}</p>
+        </div>
+        
+        <div>
+          <label class="block text-sm font-medium text-gray-700">Factory Leased Out</label>
+          <p class="mt-1 text-gray-900">
+            <span class="px-2 py-1 text-xs rounded-full" 
+                  [class.bg-blue-100]="npaData.factoryLeasedOut === 'yes'"
+                  [class.bg-gray-100]="npaData.factoryLeasedOut === 'no'"
+                  [class.text-blue-800]="npaData.factoryLeasedOut === 'yes'"
+                  [class.text-gray-800]="npaData.factoryLeasedOut === 'no'">
+              {{ npaData.factoryLeasedOut === 'yes' ? 'Yes' : 'No' }}
+            </span>
+          </p>
+        </div>
+      </div>
+
+      <!-- Addresses Section -->
+      <div class="mt-6 space-y-4">
+        <div>
+          <label class="block text-sm font-medium text-gray-700">Registered Address</label>
+          <p class="mt-1 text-gray-900">{{ npaData.registeredAddress || '-' }}</p>
+        </div>
+        
+        <div *ngIf="npaData.corporateOffice">
+          <label class="block text-sm font-medium text-gray-700">Corporate Office</label>
+          <p class="mt-1 text-gray-900">{{ npaData.corporateOffice }}</p>
+        </div>
+        
+        <div *ngIf="npaData.factoryAddress">
+          <label class="block text-sm font-medium text-gray-700">Factory Address</label>
+          <p class="mt-1 text-gray-900">{{ npaData.factoryAddress }}</p>
+        </div>
+      </div>
+
+      <!-- Lease Details (if factory is leased out) -->
+      <div *ngIf="npaData.factoryLeasedOut === 'yes'" class="mt-6 p-4 bg-blue-50 rounded">
+        <h4 class="font-medium text-blue-800 mb-2">Lease Details</h4>
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <div *ngIf="npaData.lesseeName">
+            <label class="block text-sm font-medium text-gray-700">Lessee Name</label>
+            <p class="mt-1 text-gray-900">{{ npaData.lesseeName }}</p>
+          </div>
+          
+          <div *ngIf="npaData.lesseeContactDetails">
+            <label class="block text-sm font-medium text-gray-700">Lessee Contact Details</label>
+            <p class="mt-1 text-gray-900">{{ npaData.lesseeContactDetails }}</p>
+          </div>
+        </div>
+      </div>
+
+      <!-- Board Members Section -->
+      <div *ngIf="npaData.boardMembers && npaData.boardMembers.length > 0" class="mt-6">
+        <h4 class="font-medium text-gray-800 mb-3">Board Members</h4>
+        <div class="overflow-x-auto">
+          <table class="min-w-full divide-y divide-gray-200">
+            <thead class="bg-gray-50">
+              <tr>
+                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Name</th>
+                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Designation</th>
+                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Contact Details</th>
+                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Address</th>
+              </tr>
+            </thead>
+            <tbody class="bg-white divide-y divide-gray-200">
+              <tr *ngFor="let member of npaData.boardMembers">
+                <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">{{ member.name }}</td>
+                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{{ member.designation }}</td>
+                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{{ member.contactDetails }}</td>
+                <td class="px-6 py-4 text-sm text-gray-500">{{ member.address }}</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
