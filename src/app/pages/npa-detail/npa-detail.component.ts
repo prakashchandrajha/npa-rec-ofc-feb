@@ -7,6 +7,17 @@ import { AuthService } from '../../services/auth.service';
 import { Subscription } from 'rxjs';
 import { filter } from 'rxjs/operators';
 
+interface Task {
+  taskId: string | null;
+  taskKey: string | null;
+  taskName: string | null;
+  assignee: string | null;
+  candidateGroups: string[] | null;
+  canCurrentUserAct: boolean;
+  processInstanceId: string | null;
+  npaId: number | null;
+}
+
 @Component({
   selector: 'app-npa-detail',
   standalone: true,
@@ -20,7 +31,13 @@ export class NpaDetailComponent implements OnInit, OnDestroy, AfterViewInit {
   loading: boolean = true;
   error: string | null = null;
   
+  // Task related properties
+  currentTask: Task | null = null;
+  taskLoading: boolean = false;
+  taskError: string | null = null;
+  
   private npaSubscription: Subscription | null = null;
+  private taskSubscription: Subscription | null = null;
   private navigationSubscription: Subscription | null = null;
 
   constructor(
@@ -49,16 +66,18 @@ export class NpaDetailComponent implements OnInit, OnDestroy, AfterViewInit {
               this.npaId = newNpaId;
             }
             this.fetchNpaDetails();
+            this.fetchCurrentTask();
           }
         }
       });
     
     if (this.npaId) {
       this.fetchNpaDetails();
+      this.fetchCurrentTask();
     } else {
       this.error = 'NPA ID not provided';
       this.loading = false;
-      this.cdr.detectChanges(); // Force change detection
+      this.cdr.detectChanges();
     }
   }
 
@@ -81,14 +100,14 @@ export class NpaDetailComponent implements OnInit, OnDestroy, AfterViewInit {
     if (!token) {
       this.error = 'Authentication token not found. Please login again.';
       this.loading = false;
-      this.cdr.detectChanges(); // Force change detection
+      this.cdr.detectChanges();
       return;
     }
 
     console.log('Starting to load NPA details...');
     this.loading = true;
     this.error = null;
-    this.cdr.detectChanges(); // Force change detection
+    this.cdr.detectChanges();
 
     const headers = {
       'Content-Type': 'application/json',
@@ -102,20 +121,56 @@ export class NpaDetailComponent implements OnInit, OnDestroy, AfterViewInit {
           this.npaData = response.basicDetails;
           this.loading = false;
           this.npaSubscription = null;
-          this.cdr.detectChanges(); // Force change detection after data is loaded
+          this.cdr.detectChanges();
         },
         error: (error) => {
           console.error('Error fetching NPA details:', error);
           this.error = 'Failed to load NPA details. Please try again.';
           this.loading = false;
           this.npaSubscription = null;
-          this.cdr.detectChanges(); // Force change detection after error
+          this.cdr.detectChanges();
+        }
+      });
+  }
+
+  fetchCurrentTask(): void {
+    const token = this.authService.getToken();
+    
+    if (!token) {
+      this.taskError = 'Authentication token not found. Please login again.';
+      this.taskLoading = false;
+      return;
+    }
+
+    console.log('Fetching current task for NPA ID:', this.npaId);
+    this.taskLoading = true;
+    this.taskError = null;
+
+    const headers = {
+      'Content-Type': 'application/json',
+      'Authorization': `Bearer ${token}`
+    };
+
+    this.taskSubscription = this.http.get<any>(`http://localhost:8080/api/workflow/task/by-npa/${this.npaId}`, { headers })
+      .subscribe({
+        next: (response) => {
+          console.log('Current task loaded successfully:', response);
+          this.currentTask = response;
+          this.taskLoading = false;
+          this.taskSubscription = null;
+          this.cdr.detectChanges();
+        },
+        error: (error) => {
+          console.error('Error fetching current task:', error);
+          this.taskError = 'Failed to load current task.';
+          this.taskLoading = false;
+          this.taskSubscription = null;
+          this.cdr.detectChanges();
         }
       });
   }
 
   goBack(): void {
-    // Fix: Use correct dashboard route path
     this.router.navigate(['/dashboard/all-npa']);
   }
 
@@ -124,15 +179,17 @@ export class NpaDetailComponent implements OnInit, OnDestroy, AfterViewInit {
   }
 
   ngAfterViewInit(): void {
-    // View initialization complete
     console.log('NpaDetail component view initialized');
   }
 
   ngOnDestroy(): void {
-    // Prevent memory leaks
     if (this.npaSubscription) {
       this.npaSubscription.unsubscribe();
       this.npaSubscription = null;
+    }
+    if (this.taskSubscription) {
+      this.taskSubscription.unsubscribe();
+      this.taskSubscription = null;
     }
     if (this.navigationSubscription) {
       this.navigationSubscription.unsubscribe();
