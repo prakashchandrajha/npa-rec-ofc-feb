@@ -1,5 +1,6 @@
 import { Component, OnInit, OnDestroy, AfterViewInit, ChangeDetectorRef } from '@angular/core';
 import { CommonModule } from '@angular/common';
+import { FormsModule } from '@angular/forms';
 import { ActivatedRoute, Router, NavigationEnd } from '@angular/router';
 import { HttpClient } from '@angular/common/http';
 import { BasicDetailsOfTheBorrower } from '../../interface/basic-details-of-borrower';
@@ -21,7 +22,7 @@ interface Task {
 @Component({
   selector: 'app-npa-detail',
   standalone: true,
-  imports: [CommonModule],
+  imports: [CommonModule, FormsModule],
   templateUrl: './npa-detail.component.html',
   styleUrl: './npa-detail.component.css'
 })
@@ -35,6 +36,13 @@ export class NpaDetailComponent implements OnInit, OnDestroy, AfterViewInit {
   currentTask: Task | null = null;
   taskLoading: boolean = false;
   taskError: string | null = null;
+  
+  // Modal related properties
+  showTaskModal: boolean = false;
+  taskNotes: string = '';
+  selectedFiles: File[] = [];
+  submittingTask: boolean = false;
+  submitError: string | null = null;
   
   private npaSubscription: Subscription | null = null;
   private taskSubscription: Subscription | null = null;
@@ -168,6 +176,181 @@ export class NpaDetailComponent implements OnInit, OnDestroy, AfterViewInit {
           this.cdr.detectChanges();
         }
       });
+  }
+
+  openTaskModal(): void {
+    if (this.currentTask && this.currentTask.canCurrentUserAct) {
+      this.showTaskModal = true;
+      this.taskNotes = '';
+      this.selectedFiles = [];
+      this.submitError = null;
+      this.cdr.detectChanges();
+    }
+  }
+
+  closeTaskModal(): void {
+    this.showTaskModal = false;
+    this.taskNotes = '';
+    this.selectedFiles = [];
+    this.submitError = null;
+    this.cdr.detectChanges();
+  }
+
+  onFileSelected(event: Event): void {
+    const input = event.target as HTMLInputElement;
+    if (input.files && input.files.length > 0) {
+      for (let i = 0; i < input.files.length; i++) {
+        const file = input.files[i];
+        
+        // Validate file type (PDF only)
+        if (file.type !== 'application/pdf') {
+          this.submitError = `Only PDF files are allowed. ${file.name} is not a PDF.`;
+          this.cdr.detectChanges();
+          continue;
+        }
+        
+        // Validate file size (10MB limit)
+        const maxSize = 10 * 1024 * 1024; // 10MB in bytes
+        if (file.size > maxSize) {
+          this.submitError = `File ${file.name} is too large. Maximum size is 10MB.`;
+          this.cdr.detectChanges();
+          continue;
+        }
+        
+        this.selectedFiles.push(file);
+        console.log('File selected:', file.name, 'Size:', (file.size / 1024 / 1024).toFixed(2), 'MB');
+      }
+      this.cdr.detectChanges();
+    }
+  }
+
+  removeFile(index: number): void {
+    if (index >= 0 && index < this.selectedFiles.length) {
+      this.selectedFiles.splice(index, 1);
+      this.cdr.detectChanges();
+    }
+  }
+
+  async completeTask(): Promise<void> {
+    if (!this.currentTask || !this.currentTask.taskId) {
+      return;
+    }
+
+    const token = this.authService.getToken();
+    
+    if (!token) {
+      this.submitError = 'Authentication token not found. Please login again.';
+      return;
+    }
+
+    console.log('Starting task completion with file upload...');
+    this.submittingTask = true;
+    this.submitError = null;
+
+    try {
+      // Step 1: Upload files first
+      const attachmentIds: string[] = [];
+      
+      if (this.selectedFiles.length > 0) {
+        console.log('Uploading', this.selectedFiles.length, 'files...');
+        
+        for (const file of this.selectedFiles) {
+          try {
+            const attachmentId = await this.uploadFile(file);
+            attachmentIds.push(attachmentId);
+            console.log('File uploaded successfully:', file.name, 'ID:', attachmentId);
+          } catch (error) {
+            console.error('Failed to upload file:', file.name, error);
+            this.submitError = `Failed to upload file: ${file.name}`;
+            this.submittingTask = false;
+            this.cdr.detectChanges();
+            return;
+          }
+        }
+      }
+
+      // Step 2: Complete the task with attachment IDs
+      console.log('Completing task with', attachmentIds.length, 'attachments');
+      
+      const headers = {
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${token}`
+      };
+
+      // Build payload with notes and attachment IDs
+      const payload: any = {
+        field1: 'value1'
+      };
+
+      if (this.taskNotes) {
+        payload.notes = this.taskNotes;
+      }
+
+      const requestBody = {
+        taskId: this.currentTask.taskId,
+        payload: payload,
+        attachmentIds: attachmentIds,
+        note: this.taskNotes || ''
+      };
+
+      console.log('Task completion request:', requestBody);
+
+      this.http.post<any>('http://localhost:8080/api/workflow/task/complete', requestBody, { headers })
+        .subscribe({
+          next: (response) => {
+            console.log('Task completed successfully:', response);
+            this.submittingTask = false;
+            this.showTaskModal = false;
+            // Refresh the task to get updated status
+            this.fetchCurrentTask();
+            this.cdr.detectChanges();
+          },
+          error: (error) => {
+            console.error('Error completing task:', error);
+            this.submittingTask = false;
+            this.submitError = 'Failed to complete task. Please try again.';
+            this.cdr.detectChanges();
+          }
+        });
+
+    } catch (error) {
+      console.error('Error in task completion process:', error);
+      this.submittingTask = false;
+      this.submitError = 'Failed to complete task. Please try again.';
+      this.cdr.detectChanges();
+    }
+  }
+
+  private uploadFile(file: File): Promise<string> {
+    const token = this.authService.getToken();
+    
+    if (!token) {
+      return Promise.reject('Authentication token not found');
+    }
+
+    return new Promise((resolve, reject) => {
+      const formData = new FormData();
+      formData.append('file', file);
+      formData.append('taskId', this.currentTask?.taskId || '');
+
+      const headers = {
+        'Authorization': `Bearer ${token}`
+      };
+
+      console.log('Uploading file:', file.name, 'to taskId:', this.currentTask?.taskId);
+
+      this.http.post<any>('http://localhost:8080/api/files/upload', formData, { headers })
+        .subscribe({
+          next: (response) => {
+            console.log('File upload response:', response);
+            resolve(response.id.toString());
+          },
+          error: (error) => {
+            console.error('File upload error:', error);
+            reject(error);
+          }
+        });
+    });
   }
 
   goBack(): void {
