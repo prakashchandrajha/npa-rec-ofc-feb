@@ -148,6 +148,11 @@
             </span>
           </p>
         </div>
+        
+        <div *ngIf="npaData.amount">
+          <label class="block text-sm font-medium text-gray-700">Amount</label>
+          <p class="mt-1 text-gray-900">{{ npaData.amount }}</p>
+        </div>
       </div>
 
       <!-- Addresses Section -->
@@ -265,8 +270,10 @@
         
         <!-- Amount Field (only shown for specific tasks) -->
         <div *ngIf="currentTask?.taskKey === 'loan_amount' || 
-                    currentTask?.taskKey === 'recovery_after_vet_sale_notice' || 
-                    currentTask?.taskKey === 'div_divisional_meeting'" 
+                    currentTask?.taskKey === 'Loan_loan_amount' || 
+                    currentTask?.taskKey === 'after_vet_sale_notice' || 
+                    currentTask?.taskKey === 'file_from_division_after_vel_sale_notice' || 
+                    currentTask?.taskKey === 'divisional_meeting'" 
              class="mb-4">
           <label for="amount" class="block text-sm font-medium text-gray-700 mb-2">
             Amount

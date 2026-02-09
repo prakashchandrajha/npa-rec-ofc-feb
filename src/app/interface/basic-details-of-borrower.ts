@@ -17,6 +17,7 @@ export interface BasicDetailsOfTheBorrower {
   lesseeName?: string;
   lesseeContactDetails?: string;
   boardMembers: BoardMember[];
+  amount?: number;
 }
 
 /**
