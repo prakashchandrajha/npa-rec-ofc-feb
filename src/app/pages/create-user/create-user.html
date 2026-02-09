@@ -59,9 +59,9 @@
       </div>
     </div>
 
-    <!-- Note for Legal and Recovery users -->
-    <div class="mb-4" *ngIf="formData.userType === 'LEGAL' || formData.userType === 'RECOVERY'">
-      <p class="text-sm text-gray-600 italic">Note: {{ formData.userType === 'LEGAL' ? 'Legal' : 'Recovery' }} users do
+    <!-- Note for Legal, Recovery, and Loan users -->
+    <div class="mb-4" *ngIf="formData.userType === 'LEGAL' || formData.userType === 'RECOVERY' || formData.userType === 'LOAN'">
+      <p class="text-sm text-gray-600 italic">Note: {{ formData.userType === 'LEGAL' ? 'Legal' : formData.userType === 'RECOVERY' ? 'Recovery' : 'Loan' }} users do
         not require division or regional office assignment.</p>
     </div>
 

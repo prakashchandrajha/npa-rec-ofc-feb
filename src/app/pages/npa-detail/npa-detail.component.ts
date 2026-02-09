@@ -44,6 +44,11 @@ export class NpaDetailComponent implements OnInit, OnDestroy, AfterViewInit {
   submittingTask: boolean = false;
   submitError: string | null = null;
   
+  // Regional Offices (ROS) related properties
+  regionalOffices: any[] = [];
+  selectedRegionalOffice: string = '';
+  loadingRegionalOffices: boolean = false;
+  
   private npaSubscription: Subscription | null = null;
   private taskSubscription: Subscription | null = null;
   private navigationSubscription: Subscription | null = null;
@@ -178,12 +183,51 @@ export class NpaDetailComponent implements OnInit, OnDestroy, AfterViewInit {
       });
   }
 
+  fetchRegionalOffices(): void {
+    const token = this.authService.getToken();
+    
+    if (!token) {
+      console.error('Authentication token not found');
+      return;
+    }
+
+    console.log('Fetching regional offices...');
+    this.loadingRegionalOffices = true;
+
+    const headers = {
+      'Content-Type': 'application/json',
+      'Authorization': `Bearer ${token}`
+    };
+
+    this.http.get<any[]>('http://localhost:8080/api/users/regional-offices', { headers })
+      .subscribe({
+        next: (response) => {
+          console.log('Regional offices loaded successfully:', response);
+          this.regionalOffices = response;
+          this.loadingRegionalOffices = false;
+          this.cdr.detectChanges();
+        },
+        error: (error) => {
+          console.error('Error fetching regional offices:', error);
+          this.loadingRegionalOffices = false;
+          this.cdr.detectChanges();
+        }
+      });
+  }
+
   openTaskModal(): void {
     if (this.currentTask && this.currentTask.canCurrentUserAct) {
       this.showTaskModal = true;
       this.taskNotes = '';
       this.selectedFiles = [];
       this.submitError = null;
+      this.selectedRegionalOffice = '';
+      
+      // Fetch regional offices only when task key is 'after_vetting_13_2'
+      if (this.currentTask.taskKey === 'after_vetting_13_2') {
+        this.fetchRegionalOffices();
+      }
+      
       this.cdr.detectChanges();
     }
   }
@@ -193,6 +237,8 @@ export class NpaDetailComponent implements OnInit, OnDestroy, AfterViewInit {
     this.taskNotes = '';
     this.selectedFiles = [];
     this.submitError = null;
+    this.selectedRegionalOffice = '';
+    this.regionalOffices = [];
     this.cdr.detectChanges();
   }
 
@@ -284,6 +330,11 @@ export class NpaDetailComponent implements OnInit, OnDestroy, AfterViewInit {
 
       if (this.taskNotes) {
         payload.notes = this.taskNotes;
+      }
+
+      // Add regional office to payload when task key is 'after_vetting_13_2'
+      if (this.currentTask.taskKey === 'after_vetting_13_2' && this.selectedRegionalOffice) {
+        payload.regionalOffice = this.selectedRegionalOffice;
       }
 
       const requestBody = {

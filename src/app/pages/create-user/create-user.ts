@@ -17,7 +17,8 @@ export class CreateUser {
     { value: 'DIVISION', label: 'Division' },
     { value: 'REGIONAL_OFFICE', label: 'Regional Office' },
     { value: 'RECOVERY', label: 'Recovery' },
-    { value: 'LEGAL', label: 'Legal' }
+    { value: 'LEGAL', label: 'Legal' },
+    { value: 'LOAN', label: 'Loan' }
   ];
 
   divisions = [
