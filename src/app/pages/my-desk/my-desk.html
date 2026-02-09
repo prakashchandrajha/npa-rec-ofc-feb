@@ -1,4 +1,42 @@
 <div class="p-4">
   <h1 class="text-2xl font-bold">My Desk</h1>
   <p class="mt-2 text-gray-600">This page displays your personal dashboard.</p>
+
+  <div class="mt-6">
+    <div *ngIf="loading" class="loading">Loading tasks...</div>
+    <div *ngIf="error" class="error">{{ error }}</div>
+
+    <div *ngIf="!loading && !error">
+      <h2 class="text-xl font-semibold mb-4">Tasks</h2>
+      
+      <table *ngIf="tasks.length > 0" class="task-table">
+        <thead>
+          <tr>
+            <th>User Type</th>
+            <th>Division Name</th>
+            <th>Task Name</th>
+            <th>NPA Date</th>
+            <th>Action</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr *ngFor="let task of tasks">
+            <td>{{ task.npa?.userType }}</td>
+            <td>{{ task.npa?.divisionName }}</td>
+            <td>{{ task.taskName }}</td>
+            <td>{{ task.npa?.basicDetails?.npaDate }}</td>
+            <td>
+              <button 
+                [routerLink]="['/dashboard/npa-detail', task.npaId]" 
+                class="view-btn">
+                View Detail
+              </button>
+            </td>
+          </tr>
+        </tbody>
+      </table>
+
+      <p *ngIf="tasks.length === 0" class="no-tasks">No tasks found.</p>
+    </div>
+  </div>
 </div>
