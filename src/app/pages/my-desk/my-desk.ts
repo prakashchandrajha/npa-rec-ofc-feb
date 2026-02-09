@@ -29,6 +29,7 @@ interface Task {
     divisionName: string;
     regionalOfficeName: string | null;
     processInstanceId: string;
+    amount: number | null;
   };
 }
 

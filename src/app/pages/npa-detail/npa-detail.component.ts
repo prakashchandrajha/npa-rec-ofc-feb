@@ -43,6 +43,7 @@ export class NpaDetailComponent implements OnInit, OnDestroy, AfterViewInit {
   selectedFiles: File[] = [];
   submittingTask: boolean = false;
   submitError: string | null = null;
+  amount: number | null = null;
   
   // Regional Offices (ROS) related properties
   regionalOffices: any[] = [];
@@ -239,6 +240,7 @@ export class NpaDetailComponent implements OnInit, OnDestroy, AfterViewInit {
     this.submitError = null;
     this.selectedRegionalOffice = '';
     this.regionalOffices = [];
+    this.amount = null;
     this.cdr.detectChanges();
   }
 
@@ -335,6 +337,12 @@ export class NpaDetailComponent implements OnInit, OnDestroy, AfterViewInit {
       // Add regional office to payload when task key is 'after_vetting_13_2'
       if (this.currentTask.taskKey === 'after_vetting_13_2' && this.selectedRegionalOffice) {
         payload.regionalOffice = this.selectedRegionalOffice;
+      }
+
+      // Add amount to payload for specific tasks
+      const tasksWithAmount = ['Loan_loan_amount', 'recovery_after_vet_sale_notice', 'div_divisional_meeting'];
+      if (this.currentTask.taskKey && tasksWithAmount.includes(this.currentTask.taskKey) && this.amount !== null) {
+        payload.amount = this.amount;
       }
 
       const requestBody = {

@@ -16,6 +16,7 @@
             <th>Division Name</th>
             <th>Task Name</th>
             <th>NPA Date</th>
+            <th>Amount</th>
             <th>Action</th>
           </tr>
         </thead>
@@ -25,6 +26,7 @@
             <td>{{ task.npa?.divisionName }}</td>
             <td>{{ task.taskName }}</td>
             <td>{{ task.npa?.basicDetails?.npaDate }}</td>
+            <td>{{ task.npa?.amount || 'N/A' }}</td>
             <td>
               <button 
                 [routerLink]="['/dashboard/npa-detail', task.npaId]" 
