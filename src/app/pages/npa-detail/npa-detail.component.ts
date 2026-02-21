@@ -340,7 +340,7 @@ export class NpaDetailComponent implements OnInit, OnDestroy, AfterViewInit {
       }
 
       // Add amount to payload for specific tasks
-      const tasksWithAmount = ['loan_amount', 'Loan_loan_amount', 'recovery_after_vet_sale_notice', 'div_divisional_meeting'];
+      const tasksWithAmount = ['loan_amount', 'Loan_loan_amount', 'after_vet_sale_notice', 'divisional_meeting'];
       if (this.currentTask.taskKey && tasksWithAmount.includes(this.currentTask.taskKey) && this.amount !== null) {
         payload.amount = this.amount;
       }
