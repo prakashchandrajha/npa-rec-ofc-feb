@@ -50,9 +50,15 @@ export class NpaDetailComponent implements OnInit, OnDestroy, AfterViewInit {
   selectedRegionalOffice: string = '';
   loadingRegionalOffices: boolean = false;
   
+  // Completed tasks history properties
+  completedTasks: any[] = [];
+  loadingCompletedTasks: boolean = false;
+  completedTasksError: string | null = null;
+  
   private npaSubscription: Subscription | null = null;
   private taskSubscription: Subscription | null = null;
   private navigationSubscription: Subscription | null = null;
+  private historySubscription: Subscription | null = null;
 
   constructor(
     private route: ActivatedRoute,
@@ -81,6 +87,7 @@ export class NpaDetailComponent implements OnInit, OnDestroy, AfterViewInit {
             }
             this.fetchNpaDetails();
             this.fetchCurrentTask();
+            this.fetchCompletedTasks();
           }
         }
       });
@@ -88,6 +95,7 @@ export class NpaDetailComponent implements OnInit, OnDestroy, AfterViewInit {
     if (this.npaId) {
       this.fetchNpaDetails();
       this.fetchCurrentTask();
+      this.fetchCompletedTasks();
     } else {
       this.error = 'NPA ID not provided';
       this.loading = false;
@@ -362,6 +370,7 @@ export class NpaDetailComponent implements OnInit, OnDestroy, AfterViewInit {
             this.showTaskModal = false;
             // Refresh the task to get updated status
             this.fetchCurrentTask();
+            this.fetchCompletedTasks();
             this.cdr.detectChanges();
           },
           error: (error) => {
@@ -437,11 +446,87 @@ export class NpaDetailComponent implements OnInit, OnDestroy, AfterViewInit {
       this.navigationSubscription.unsubscribe();
       this.navigationSubscription = null;
     }
+    if (this.historySubscription) {
+      this.historySubscription.unsubscribe();
+      this.historySubscription = null;
+    }
     console.log('NpaDetail component destroyed');
   }
 
   refreshNpaDetails(): void {
     console.log('Refreshing NPA details');
     this.fetchNpaDetails();
+  }
+
+  fetchCompletedTasks(): void {
+    const token = this.authService.getToken();
+    
+    if (!token) {
+      this.completedTasksError = 'Authentication token not found. Please login again.';
+      this.loadingCompletedTasks = false;
+      return;
+    }
+
+    console.log('Fetching completed tasks for NPA ID:', this.npaId);
+    this.loadingCompletedTasks = true;
+    this.completedTasksError = null;
+
+    const headers = {
+      'Content-Type': 'application/json',
+      'Authorization': `Bearer ${token}`
+    };
+
+    this.historySubscription = this.http.get<any[]>(`http://localhost:8080/api/npa/${this.npaId}/history`, { headers })
+      .subscribe({
+        next: (response) => {
+          console.log('Completed tasks loaded successfully:', response);
+          this.completedTasks = response;
+          this.loadingCompletedTasks = false;
+          this.historySubscription = null;
+          this.cdr.detectChanges();
+        },
+        error: (error) => {
+          console.error('Error fetching completed tasks:', error);
+          this.completedTasksError = 'Failed to load completed tasks history.';
+          this.loadingCompletedTasks = false;
+          this.historySubscription = null;
+          this.cdr.detectChanges();
+        }
+      });
+  }
+
+  downloadAttachment(attachmentId: string, fileName: string): void {
+    const token = this.authService.getToken();
+    
+    if (!token) {
+      console.error('Authentication token not found');
+      return;
+    }
+
+    const headers = {
+      'Authorization': `Bearer ${token}`
+    };
+
+    console.log('Downloading attachment:', attachmentId);
+
+    this.http.get(`http://localhost:8080/api/files/download/${attachmentId}`, { 
+      headers,
+      responseType: 'blob' 
+    }).subscribe({
+      next: (blob: Blob) => {
+        const url = window.URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = fileName;
+        document.body.appendChild(a);
+        a.click();
+        document.body.removeChild(a);
+        window.URL.revokeObjectURL(url);
+        console.log('File downloaded successfully:', fileName);
+      },
+      error: (error) => {
+        console.error('Error downloading attachment:', error);
+      }
+    });
   }
 }
