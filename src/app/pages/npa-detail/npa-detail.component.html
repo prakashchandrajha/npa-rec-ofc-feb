@@ -42,20 +42,20 @@
       <!-- LEFT COLUMN: NPA Details Form (8 columns) -->
       <div class="xl:col-span-8 space-y-4">
         
-        <!-- Accordion 1: Basic Information -->
+        <!-- Accordion 1: Basic Details of the Borrower -->
         <div class="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden">
           <button 
-            (click)="toggleAccordion('basicInfo')"
+            (click)="toggleAccordion('basicDetails')"
             class="w-full bg-gradient-to-r from-gray-700 to-blue-500 px-6 py-4 flex items-center justify-between hover:from-gray-600 hover:to-blue-400 transition-all duration-200">
             <div class="flex items-center">
               <svg class="w-5 h-5 mr-3 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/>
               </svg>
-              <h2 class="text-lg font-bold text-white">Basic Information</h2>
+              <h2 class="text-lg font-bold text-white">Basic Details of the Borrower</h2>
             </div>
             <svg 
               class="w-5 h-5 text-white transform transition-transform duration-200"
-              [class.rotate-180]="accordionState['basicInfo']"
+              [class.rotate-180]="accordionState['basicDetails']"
               fill="none" 
               stroke="currentColor" 
               viewBox="0 0 24 24">
@@ -63,214 +63,219 @@
             </svg>
           </button>
           
-          <div *ngIf="accordionState['basicInfo']" class="p-6 animate-fadeIn">
-            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-              <!-- Division Name -->
-              <div class="space-y-1">
-                <label class="text-xs font-semibold text-gray-500 uppercase tracking-wider">Division Name</label>
-                <div class="flex items-center p-3 bg-gray-50 rounded-lg border border-gray-200">
-                  <span class="text-gray-900 font-medium">{{ npaData.divisionName || 'Not specified' }}</span>
+          <div *ngIf="accordionState['basicDetails']" class="p-6 animate-fadeIn space-y-8">
+            <!-- a. Name of Division and Regional Office -->
+            <div>
+              <h4 class="text-md font-semibold text-gray-800 mb-4 flex items-center">
+                <span class="w-6 h-6 bg-blue-100 text-blue-600 rounded-full flex items-center justify-center text-xs font-bold mr-2">a</span>
+                Name of Division and Regional Office
+              </h4>
+              <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <div class="space-y-1">
+                  <label class="text-xs font-semibold text-gray-500 uppercase tracking-wider">Division Name</label>
+                  <div class="flex items-center p-3 bg-gray-50 rounded-lg border border-gray-200">
+                    <span class="text-gray-900 font-medium">{{ npaData.divisionName || 'Not specified' }}</span>
+                  </div>
+                </div>
+
+                <div class="space-y-1">
+                  <label class="text-xs font-semibold text-gray-500 uppercase tracking-wider">Regional Office</label>
+                  <div class="flex items-center p-3 bg-gray-50 rounded-lg border border-gray-200">
+                    <span class="text-gray-900 font-medium">{{ npaData.regionalOffice || 'Not specified' }}</span>
+                  </div>
                 </div>
               </div>
+            </div>
 
-              <!-- Regional Office -->
-              <div class="space-y-1">
-                <label class="text-xs font-semibold text-gray-500 uppercase tracking-wider">Regional Office</label>
-                <div class="flex items-center p-3 bg-gray-50 rounded-lg border border-gray-200">
-                  <span class="text-gray-900 font-medium">{{ npaData.regionalOffice || 'Not specified' }}</span>
+            <!-- b. Name of Account and date of classification as NPA -->
+            <div>
+              <h4 class="text-md font-semibold text-gray-800 mb-4 flex items-center">
+                <span class="w-6 h-6 bg-blue-100 text-blue-600 rounded-full flex items-center justify-center text-xs font-bold mr-2">b</span>
+                Name of Account and Date of Classification as NPA
+              </h4>
+              <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <div class="space-y-1">
+                  <label class="text-xs font-semibold text-gray-500 uppercase tracking-wider">Account Name</label>
+                  <div class="flex items-center p-3 bg-gray-50 rounded-lg border border-gray-200">
+                    <span class="text-gray-900 font-medium">{{ npaData.accountName || 'Not specified' }}</span>
+                  </div>
+                </div>
+
+                <div class="space-y-1">
+                  <label class="text-xs font-semibold text-gray-500 uppercase tracking-wider">Classification Date</label>
+                  <div class="flex items-center p-3 bg-gray-50 rounded-lg border border-gray-200">
+                    <svg class="w-4 h-4 text-gray-400 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"/>
+                    </svg>
+                    <span class="text-gray-900 font-medium">{{ npaData.npaClassificationDate || 'Not specified' }}</span>
+                  </div>
                 </div>
               </div>
+            </div>
 
-              <!-- Account Name -->
-              <div class="space-y-1">
-                <label class="text-xs font-semibold text-gray-500 uppercase tracking-wider">Account Name</label>
-                <div class="flex items-center p-3 bg-gray-50 rounded-lg border border-gray-200">
-                  <span class="text-gray-900 font-medium">{{ npaData.accountName || 'Not specified' }}</span>
-                </div>
-              </div>
-
-              <!-- NPA Classification Date -->
-              <div class="space-y-1">
-                <label class="text-xs font-semibold text-gray-500 uppercase tracking-wider">Classification Date</label>
-                <div class="flex items-center p-3 bg-gray-50 rounded-lg border border-gray-200">
-                  <svg class="w-4 h-4 text-gray-400 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"/>
-                  </svg>
-                  <span class="text-gray-900 font-medium">{{ npaData.npaClassificationDate || 'Not specified' }}</span>
-                </div>
-              </div>
-
-              <!-- Business Activity -->
+            <!-- c. Business Activity of the society -->
+            <div>
+              <h4 class="text-md font-semibold text-gray-800 mb-4 flex items-center">
+                <span class="w-6 h-6 bg-blue-100 text-blue-600 rounded-full flex items-center justify-center text-xs font-bold mr-2">c</span>
+                Business Activity of the Society
+              </h4>
               <div class="space-y-1">
                 <label class="text-xs font-semibold text-gray-500 uppercase tracking-wider">Business Activity</label>
                 <div class="flex items-center p-3 bg-gray-50 rounded-lg border border-gray-200">
                   <span class="text-gray-900 font-medium">{{ npaData.businessActivity || 'Not specified' }}</span>
                 </div>
               </div>
+            </div>
 
-              <!-- Amount -->
-              <div *ngIf="npaData.amount" class="space-y-1">
+            <!-- d. Contact Details - Board Members -->
+            <div>
+              <h4 class="text-md font-semibold text-gray-800 mb-4 flex items-center">
+                <span class="w-6 h-6 bg-blue-100 text-blue-600 rounded-full flex items-center justify-center text-xs font-bold mr-2">d</span>
+                Contact Details - Board Members
+              </h4>
+              <div *ngIf="npaData.boardMembers && npaData.boardMembers.length > 0" class="overflow-x-auto">
+                <table class="w-full text-left border-collapse">
+                  <thead>
+                    <tr class="bg-gray-50 border-b border-gray-200">
+                      <th class="px-6 py-3 text-xs font-semibold text-gray-600 uppercase tracking-wider">Name</th>
+                      <th class="px-6 py-3 text-xs font-semibold text-gray-600 uppercase tracking-wider">Designation</th>
+                      <th class="px-6 py-3 text-xs font-semibold text-gray-600 uppercase tracking-wider">Contact</th>
+                      <th class="px-6 py-3 text-xs font-semibold text-gray-600 uppercase tracking-wider">Address</th>
+                    </tr>
+                  </thead>
+                  <tbody class="divide-y divide-gray-200">
+                    <tr *ngFor="let member of npaData.boardMembers" class="hover:bg-blue-50 transition-colors">
+                      <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">{{ member.name }}</td>
+                      <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-600">{{ member.designation }}</td>
+                      <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-600">{{ member.contactDetails }}</td>
+                      <td class="px-6 py-4 text-sm text-gray-600 max-w-xs truncate">{{ member.address }}</td>
+                    </tr>
+                  </tbody>
+                </table>
+              </div>
+              <div *ngIf="(!npaData.boardMembers || npaData.boardMembers.length === 0)" class="text-center py-4 text-gray-500">
+                <p>No board members specified</p>
+              </div>
+            </div>
+
+            <!-- e. Registered Address, Corporate office, Factory Address -->
+            <div>
+              <h4 class="text-md font-semibold text-gray-800 mb-4 flex items-center">
+                <span class="w-6 h-6 bg-blue-100 text-blue-600 rounded-full flex items-center justify-center text-xs font-bold mr-2">e</span>
+                Registered Address, Corporate Office, Factory Address
+              </h4>
+              <div class="space-y-4">
+                <div class="p-4 bg-gray-50 rounded-lg border border-gray-200">
+                  <label class="text-xs font-semibold text-gray-500 uppercase tracking-wider mb-1 block">Registered Address</label>
+                  <p class="text-gray-900 leading-relaxed">{{ npaData.registeredAddress || 'Not specified' }}</p>
+                </div>
+                
+                <div *ngIf="npaData.corporateOffice" class="p-4 bg-gray-50 rounded-lg border border-gray-200">
+                  <label class="text-xs font-semibold text-gray-500 uppercase tracking-wider mb-1 block">Corporate Office</label>
+                  <p class="text-gray-900 leading-relaxed">{{ npaData.corporateOffice }}</p>
+                </div>
+                
+                <div *ngIf="npaData.factoryAddress" class="p-4 bg-gray-50 rounded-lg border border-gray-200">
+                  <label class="text-xs font-semibold text-gray-500 uppercase tracking-wider mb-1 block">Factory Address</label>
+                  <p class="text-gray-900 leading-relaxed">{{ npaData.factoryAddress }}</p>
+                </div>
+              </div>
+            </div>
+
+            <!-- f. Whether Factory/Mill is in running condition -->
+            <div>
+              <h4 class="text-md font-semibold text-gray-800 mb-4 flex items-center">
+                <span class="w-6 h-6 bg-blue-100 text-blue-600 rounded-full flex items-center justify-center text-xs font-bold mr-2">f</span>
+                Whether Factory/Mill is in Running Condition
+              </h4>
+              <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <div class="space-y-1">
+                  <label class="text-xs font-semibold text-gray-500 uppercase tracking-wider">Running Condition</label>
+                  <div class="flex items-center p-3 rounded-lg border" 
+                       [class.bg-green-50]="npaData.factoryRunningCondition === 'yes'"
+                       [class.border-green-200]="npaData.factoryRunningCondition === 'yes'"
+                       [class.bg-red-50]="npaData.factoryRunningCondition === 'no'"
+                       [class.border-red-200]="npaData.factoryRunningCondition === 'no'">
+                    <span class="w-2 h-2 rounded-full mr-2"
+                          [class.bg-green-500]="npaData.factoryRunningCondition === 'yes'"
+                          [class.bg-red-500]="npaData.factoryRunningCondition === 'no'">
+                    </span>
+                    <span class="font-medium" 
+                          [class.text-green-800]="npaData.factoryRunningCondition === 'yes'"
+                          [class.text-red-800]="npaData.factoryRunningCondition === 'no'">
+                      {{ npaData.factoryRunningCondition === 'yes' ? 'Running' : 'Not Running' }}
+                    </span>
+                  </div>
+                </div>
+
+                <div *ngIf="npaData.factoryNotRunningSince" class="space-y-1">
+                  <label class="text-xs font-semibold text-gray-500 uppercase tracking-wider">Stopped Since</label>
+                  <div class="flex items-center p-3 bg-orange-50 rounded-lg border border-orange-200">
+                    <svg class="w-4 h-4 text-orange-500 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/>
+                    </svg>
+                    <span class="text-orange-800 font-medium">{{ npaData.factoryNotRunningSince }}</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <!-- g. Whether Factory/Mill is leased out/ rented -->
+            <div>
+              <h4 class="text-md font-semibold text-gray-800 mb-4 flex items-center">
+                <span class="w-6 h-6 bg-blue-100 text-blue-600 rounded-full flex items-center justify-center text-xs font-bold mr-2">g</span>
+                Whether Factory/Mill is Leased Out/Rented
+              </h4>
+              <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <div class="space-y-1">
+                  <label class="text-xs font-semibold text-gray-500 uppercase tracking-wider">Leased Out</label>
+                  <div class="flex items-center p-3 rounded-lg border"
+                       [class.bg-blue-50]="npaData.factoryLeasedOut === 'yes'"
+                       [class.border-blue-200]="npaData.factoryLeasedOut === 'yes'"
+                       [class.bg-gray-50]="npaData.factoryLeasedOut === 'no'"
+                       [class.border-gray-200]="npaData.factoryLeasedOut === 'no'">
+                    <span class="font-medium"
+                          [class.text-blue-800]="npaData.factoryLeasedOut === 'yes'"
+                          [class.text-gray-800]="npaData.factoryLeasedOut === 'no'">
+                      {{ npaData.factoryLeasedOut === 'yes' ? 'Yes' : 'No' }}
+                    </span>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Lease Details Section -->
+              <div *ngIf="npaData.factoryLeasedOut === 'yes'" class="mt-6 p-4 bg-gradient-to-r from-gray-50 to-blue-50 rounded-lg border border-blue-200">
+                <h5 class="font-semibold text-gray-800 mb-3 flex items-center">
+                  <svg class="w-4 h-4 mr-2 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>
+                  </svg>
+                  Lease Details
+                </h5>
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <div *ngIf="npaData.lesseeName" class="space-y-1">
+                    <label class="text-xs font-medium text-gray-600">Lessee Name</label>
+                    <p class="text-gray-900 font-medium bg-white p-2 rounded border border-gray-200">{{ npaData.lesseeName }}</p>
+                  </div>
+                  <div *ngIf="npaData.lesseeContactDetails" class="space-y-1">
+                    <label class="text-xs font-medium text-gray-600">Contact Details</label>
+                    <p class="text-gray-900 font-medium bg-white p-2 rounded border border-gray-200">{{ npaData.lesseeContactDetails }}</p>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <!-- Amount -->
+            <div *ngIf="npaData.amount">
+              <h4 class="text-md font-semibold text-gray-800 mb-4 flex items-center">
+                <span class="w-6 h-6 bg-blue-100 text-blue-600 rounded-full flex items-center justify-center text-xs font-bold mr-2">h</span>
+                Amount
+              </h4>
+              <div class="space-y-1">
                 <label class="text-xs font-semibold text-gray-500 uppercase tracking-wider">Amount</label>
                 <div class="flex items-center p-3 bg-blue-50 rounded-lg border border-blue-200">
                   <span class="text-blue-800 font-bold text-lg">₹ {{ npaData.amount | number:'1.2-2' }}</span>
                 </div>
               </div>
-            </div>
-
-            <!-- Addresses Section -->
-            <div class="mt-6 space-y-4 pt-6 border-t border-gray-200">
-              <div class="p-4 bg-gray-50 rounded-lg border border-gray-200">
-                <label class="text-xs font-semibold text-gray-500 uppercase tracking-wider mb-1 block">Registered Address</label>
-                <p class="text-gray-900 leading-relaxed">{{ npaData.registeredAddress || 'Not specified' }}</p>
-              </div>
-              
-              <div *ngIf="npaData.corporateOffice" class="p-4 bg-gray-50 rounded-lg border border-gray-200">
-                <label class="text-xs font-semibold text-gray-500 uppercase tracking-wider mb-1 block">Corporate Office</label>
-                <p class="text-gray-900 leading-relaxed">{{ npaData.corporateOffice }}</p>
-              </div>
-              
-              <div *ngIf="npaData.factoryAddress" class="p-4 bg-gray-50 rounded-lg border border-gray-200">
-                <label class="text-xs font-semibold text-gray-500 uppercase tracking-wider mb-1 block">Factory Address</label>
-                <p class="text-gray-900 leading-relaxed">{{ npaData.factoryAddress }}</p>
-              </div>
-            </div>
-          </div>
-        </div>
-
-        <!-- Accordion 2: Factory Status -->
-        <div class="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden">
-          <button 
-            (click)="toggleAccordion('factoryStatus')"
-            class="w-full bg-gradient-to-r from-gray-700 to-blue-500 px-6 py-4 flex items-center justify-between hover:from-gray-600 hover:to-blue-400 transition-all duration-200">
-            <div class="flex items-center">
-              <svg class="w-5 h-5 mr-3 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4"/>
-              </svg>
-              <h2 class="text-lg font-bold text-white">Factory Status</h2>
-            </div>
-            <svg 
-              class="w-5 h-5 text-white transform transition-transform duration-200"
-              [class.rotate-180]="accordionState['factoryStatus']"
-              fill="none" 
-              stroke="currentColor" 
-              viewBox="0 0 24 24">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/>
-            </svg>
-          </button>
-          
-          <div *ngIf="accordionState['factoryStatus']" class="p-6 animate-fadeIn">
-            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-              <!-- Running Condition -->
-              <div class="space-y-1">
-                <label class="text-xs font-semibold text-gray-500 uppercase tracking-wider">Running Condition</label>
-                <div class="flex items-center p-3 rounded-lg border" 
-                     [class.bg-green-50]="npaData.factoryRunningCondition === 'yes'"
-                     [class.border-green-200]="npaData.factoryRunningCondition === 'yes'"
-                     [class.bg-red-50]="npaData.factoryRunningCondition === 'no'"
-                     [class.border-red-200]="npaData.factoryRunningCondition === 'no'">
-                  <span class="w-2 h-2 rounded-full mr-2"
-                        [class.bg-green-500]="npaData.factoryRunningCondition === 'yes'"
-                        [class.bg-red-500]="npaData.factoryRunningCondition === 'no'">
-                  </span>
-                  <span class="font-medium" 
-                        [class.text-green-800]="npaData.factoryRunningCondition === 'yes'"
-                        [class.text-red-800]="npaData.factoryRunningCondition === 'no'">
-                    {{ npaData.factoryRunningCondition === 'yes' ? 'Running' : 'Not Running' }}
-                  </span>
-                </div>
-              </div>
-
-              <!-- Factory Not Running Since -->
-              <div *ngIf="npaData.factoryNotRunningSince" class="space-y-1">
-                <label class="text-xs font-semibold text-gray-500 uppercase tracking-wider">Stopped Since</label>
-                <div class="flex items-center p-3 bg-orange-50 rounded-lg border border-orange-200">
-                  <svg class="w-4 h-4 text-orange-500 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/>
-                  </svg>
-                  <span class="text-orange-800 font-medium">{{ npaData.factoryNotRunningSince }}</span>
-                </div>
-              </div>
-
-              <!-- Leased Out Status -->
-              <div class="space-y-1">
-                <label class="text-xs font-semibold text-gray-500 uppercase tracking-wider">Leased Out</label>
-                <div class="flex items-center p-3 rounded-lg border"
-                     [class.bg-blue-50]="npaData.factoryLeasedOut === 'yes'"
-                     [class.border-blue-200]="npaData.factoryLeasedOut === 'yes'"
-                     [class.bg-gray-50]="npaData.factoryLeasedOut === 'no'"
-                     [class.border-gray-200]="npaData.factoryLeasedOut === 'no'">
-                  <span class="font-medium"
-                        [class.text-blue-800]="npaData.factoryLeasedOut === 'yes'"
-                        [class.text-gray-800]="npaData.factoryLeasedOut === 'no'">
-                    {{ npaData.factoryLeasedOut === 'yes' ? 'Yes' : 'No' }}
-                  </span>
-                </div>
-              </div>
-            </div>
-
-            <!-- Lease Details Section -->
-            <div *ngIf="npaData.factoryLeasedOut === 'yes'" class="mt-6 p-4 bg-gradient-to-r from-gray-50 to-blue-50 rounded-lg border border-blue-200">
-              <h4 class="font-semibold text-gray-800 mb-3 flex items-center">
-                <svg class="w-4 h-4 mr-2 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>
-                </svg>
-                Lease Details
-              </h4>
-              <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <div *ngIf="npaData.lesseeName" class="space-y-1">
-                  <label class="text-xs font-medium text-gray-600">Lessee Name</label>
-                  <p class="text-gray-900 font-medium bg-white p-2 rounded border border-gray-200">{{ npaData.lesseeName }}</p>
-                </div>
-                <div *ngIf="npaData.lesseeContactDetails" class="space-y-1">
-                  <label class="text-xs font-medium text-gray-600">Contact Details</label>
-                  <p class="text-gray-900 font-medium bg-white p-2 rounded border border-gray-200">{{ npaData.lesseeContactDetails }}</p>
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
-
-        <!-- Accordion 3: Board Members -->
-        <div *ngIf="npaData.boardMembers && npaData.boardMembers.length > 0" class="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden">
-          <button 
-            (click)="toggleAccordion('boardMembers')"
-            class="w-full bg-gradient-to-r from-gray-700 to-blue-500 px-6 py-4 flex items-center justify-between hover:from-gray-600 hover:to-blue-400 transition-all duration-200">
-            <div class="flex items-center">
-              <svg class="w-5 h-5 mr-3 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z"/>
-              </svg>
-              <h2 class="text-lg font-bold text-white">Board Members ({{ npaData.boardMembers.length }})</h2>
-            </div>
-            <svg 
-              class="w-5 h-5 text-white transform transition-transform duration-200"
-              [class.rotate-180]="accordionState['boardMembers']"
-              fill="none" 
-              stroke="currentColor" 
-              viewBox="0 0 24 24">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/>
-            </svg>
-          </button>
-          
-          <div *ngIf="accordionState['boardMembers']" class="animate-fadeIn">
-            <div class="overflow-x-auto">
-              <table class="w-full text-left border-collapse">
-                <thead>
-                  <tr class="bg-gray-50 border-b border-gray-200">
-                    <th class="px-6 py-3 text-xs font-semibold text-gray-600 uppercase tracking-wider">Name</th>
-                    <th class="px-6 py-3 text-xs font-semibold text-gray-600 uppercase tracking-wider">Designation</th>
-                    <th class="px-6 py-3 text-xs font-semibold text-gray-600 uppercase tracking-wider">Contact</th>
-                    <th class="px-6 py-3 text-xs font-semibold text-gray-600 uppercase tracking-wider">Address</th>
-                  </tr>
-                </thead>
-                <tbody class="divide-y divide-gray-200">
-                  <tr *ngFor="let member of npaData.boardMembers" class="hover:bg-blue-50 transition-colors">
-                    <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">{{ member.name }}</td>
-                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-600">{{ member.designation }}</td>
-                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-600">{{ member.contactDetails }}</td>
-                    <td class="px-6 py-4 text-sm text-gray-600 max-w-xs truncate">{{ member.address }}</td>
-                  </tr>
-                </tbody>
-              </table>
             </div>
           </div>
         </div>
