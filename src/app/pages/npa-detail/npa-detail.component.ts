@@ -495,7 +495,7 @@ export class NpaDetailComponent implements OnInit, OnDestroy, AfterViewInit {
       });
   }
 
-  downloadAttachment(attachmentId: string, fileName: string): void {
+  downloadAttachment(attachmentId: string, fileName: string, isHistoryAttachment: boolean = false): void {
     const token = this.authService.getToken();
     
     if (!token) {
@@ -507,9 +507,13 @@ export class NpaDetailComponent implements OnInit, OnDestroy, AfterViewInit {
       'Authorization': `Bearer ${token}`
     };
 
-    console.log('Downloading attachment:', attachmentId);
+    const downloadUrl = isHistoryAttachment 
+      ? `http://localhost:8080/api/files/history/download/${attachmentId}`
+      : `http://localhost:8080/api/files/download/${attachmentId}`;
 
-    this.http.get(`http://localhost:8080/api/files/download/${attachmentId}`, { 
+    console.log('Downloading attachment:', attachmentId, 'isHistory:', isHistoryAttachment);
+
+    this.http.get(downloadUrl, { 
       headers,
       responseType: 'blob' 
     }).subscribe({
