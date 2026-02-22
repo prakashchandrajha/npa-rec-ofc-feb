@@ -3,10 +3,52 @@ import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { ActivatedRoute, Router, NavigationEnd } from '@angular/router';
 import { HttpClient } from '@angular/common/http';
-import { BasicDetailsOfTheBorrower } from '../../interface/basic-details-of-borrower';
+import { BasicDetailsOfTheBorrower, BoardMember } from '../../interface/basic-details-of-borrower';
 import { AuthService } from '../../services/auth.service';
 import { Subscription } from 'rxjs';
 import { filter } from 'rxjs/operators';
+
+// Facility interfaces
+interface FacilityDto {
+  id: number;
+  srNo: number;
+  nameOfFacility: string;
+  tenorOfFacility: string;
+  amount: number;
+  dateOfSanction: string;
+  sanctionReferenceNo: string;
+  documentationDate: string;
+  disbursedAmount: number;
+  outstandingAmount: number;
+  bankingArrangements: string;
+}
+
+interface FacilitySanctionedDto {
+  id: number;
+  facilities: FacilityDto[];
+}
+
+// Complete NPA interface
+interface NpaData {
+  npaId: number;
+  basicDetails?: BasicDetailsOfTheBorrower;
+  facilitySanctioned?: FacilitySanctionedDto;
+  securityDetails?: any;
+  releaseDetails?: any;
+  postDatedChequesDetails?: any;
+  repaymentSchedule?: any;
+  restructuringDetails?: any;
+  revisedRepaymentSchedule?: any;
+  correspondence?: any;
+  username?: string;
+  userType?: string;
+  divisionName?: string;
+  regionalOfficeName?: string;
+  processInstanceId?: string;
+  loanAmount?: number;
+  divisionalMeetingAmount?: number;
+  afterVetSaleNoticeAmount?: number;
+}
 
 interface Task {
   taskId: string | null;
@@ -28,7 +70,7 @@ interface Task {
 })
 export class NpaDetailComponent implements OnInit, OnDestroy, AfterViewInit {
   npaId: string = '';
-  npaData: BasicDetailsOfTheBorrower | null = null;
+  npaData: NpaData | null = null;
   loading: boolean = true;
   error: string | null = null;
   
@@ -105,6 +147,7 @@ export class NpaDetailComponent implements OnInit, OnDestroy, AfterViewInit {
 
   accordionState: { [key: string]: boolean } = {
     basicDetails: true,    // Expanded by default
+    facilitySanctioned: false,  // Collapsed by default
   };
 
 toggleAccordion(section: string): void {
@@ -144,11 +187,11 @@ toggleAccordion(section: string): void {
       'Authorization': `Bearer ${token}`
     };
 
-    this.npaSubscription = this.http.get<{ basicDetails: BasicDetailsOfTheBorrower }>(`http://localhost:8080/api/npa/${this.npaId}`, { headers })
+    this.npaSubscription = this.http.get<NpaData>(`http://localhost:8080/api/npa/${this.npaId}`, { headers })
       .subscribe({
         next: (response) => {
           console.log('NPA details loaded successfully:', response);
-          this.npaData = response.basicDetails;
+          this.npaData = response;
           this.loading = false;
           this.npaSubscription = null;
           this.cdr.detectChanges();
@@ -540,5 +583,41 @@ toggleAccordion(section: string): void {
         console.error('Error downloading attachment:', error);
       }
     });
+  }
+
+  // Facility calculation methods
+  getTotalSanctionedAmount(): number {
+    if (!this.npaData?.facilitySanctioned?.facilities) {
+      return 0;
+    }
+    return this.npaData.facilitySanctioned.facilities.reduce((total: number, facility: FacilityDto) => {
+      return total + (facility.amount || 0);
+    }, 0);
+  }
+
+  getTotalOutstandingAmount(): number {
+    if (!this.npaData?.facilitySanctioned?.facilities) {
+      return 0;
+    }
+    return this.npaData.facilitySanctioned.facilities.reduce((total: number, facility: FacilityDto) => {
+      return total + (facility.outstandingAmount || 0);
+    }, 0);
+  }
+
+  // Safe getter methods
+  get facilities() {
+    return this.npaData?.facilitySanctioned?.facilities || [];
+  }
+
+  get boardMembers() {
+    return this.npaData?.basicDetails?.boardMembers || [];
+  }
+
+  get hasFacilities() {
+    return this.facilities.length > 0;
+  }
+
+  get hasBoardMembers() {
+    return this.boardMembers.length > 0;
   }
 }
