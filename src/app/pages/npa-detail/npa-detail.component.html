@@ -1,438 +1,598 @@
-<div class="container mx-auto p-4">
+<div class="min-h-screen bg-gray-50">
   <!-- Header -->
- 
-
-  <!-- Loading State -->
-  <div *ngIf="loading" class="text-center py-8">
-    <div class="inline-block animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600"></div>
-    <p class="mt-2 text-gray-600">Loading NPA details...</p>
-  </div>
-
-  <!-- Error State -->
-  <div *ngIf="error" class="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded">
-    <p class="font-medium">Error:</p>
-    <p>{{ error }}</p>
-  </div>
-
-  <!-- Task Section -->
-  <div *ngIf="currentTask && !loading" class="mb-6">
-    <div class="bg-white shadow-md rounded-lg overflow-hidden border border-gray-200">
-      <div class="bg-gray-50 px-6 py-4 border-b border-gray-200">
-        <h2 class="text-lg font-semibold text-gray-800">Current Task</h2>
-      </div>
-      <div class="p-6">
-        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-          <div>
-            <label class="block text-sm font-medium text-gray-700">Task Name</label>
-            <p class="mt-1 text-gray-900">{{ currentTask.taskName || '-' }}</p>
-          </div>
-          <!-- <div>
-            <label class="block text-sm font-medium text-gray-700">Task Key</label>
-            <p class="mt-1 text-gray-900">{{ currentTask.taskKey || '-' }}</p>
-          </div> -->
-          <div>
-            <label class="block text-sm font-medium text-gray-700">Status</label>
-            <p class="mt-1">
-              <span class="px-2 py-1 text-xs rounded-full bg-blue-100 text-blue-800">
-                {{ currentTask.taskKey || 'PENDING' }}
-              </span>
-            </p>
-          </div>
-          <!-- <div>
-            <label class="block text-sm font-medium text-gray-700">Process Instance ID</label>
-            <p class="mt-1 text-gray-900">{{ currentTask.processInstanceId || '-' }}</p>
-          </div> -->
+  <div class="bg-white shadow-sm border-b border-gray-200 sticky top-0 z-30">
+    <div class="container mx-auto px-4 py-4">
+      <div class="flex justify-between items-center">
+        <div>
+          <h1 class="text-2xl font-bold text-gray-800">NPA Management Dashboard</h1>
+          <p class="text-sm text-gray-500 mt-1">Account Details & Task Workflow</p>
         </div>
-        
-        <!-- Submit Button - Only visible when canCurrentUserAct is true -->
-        <div *ngIf="currentTask.canCurrentUserAct" class="mt-6 pt-4 border-t border-gray-200">
-          <button 
-            (click)="openTaskModal()"
-            class="px-6 py-2 bg-green-600 text-white font-semibold rounded-lg hover:bg-green-700 transition-colors shadow-md">
-            Submit Task
-          </button>
+        <div *ngIf="npaData" class="flex items-center space-x-2">
+          <span class="px-3 py-1 rounded-full text-sm font-medium bg-gradient-to-r from-gray-700 to-blue-500 text-white border border-gray-600">
+            NPA ID: {{ npaId }}
+          </span>
         </div>
       </div>
     </div>
   </div>
 
-  <!-- Task Loading State -->
-  <div *ngIf="taskLoading && !loading" class="mb-6 text-center py-4">
-    <div class="inline-block animate-spin rounded-full h-6 w-6 border-b-2 border-blue-600"></div>
-    <p class="mt-2 text-gray-600">Loading task...</p>
-  </div>
-
-  <!-- Task Error State -->
-  <div *ngIf="taskError" class="mb-6 bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded">
-    <p>{{ taskError }}</p>
-  </div>
-
-  <!-- NPA Details -->
-  <div *ngIf="npaData && !loading" class="bg-white shadow-lg rounded-lg overflow-hidden">
-    <!-- NPA ID Header -->
-    <div class="bg-blue-50 px-6 py-4 border-b">
-      <h2 class="text-lg font-semibold text-blue-800">NPA ID: {{ npaId }}</h2>
+  <div class="container mx-auto p-4 lg:p-6">
+    <!-- Loading State -->
+    <div *ngIf="loading" class="flex flex-col items-center justify-center py-16">
+      <div class="relative">
+        <div class="w-12 h-12 border-4 border-gray-200 border-t-blue-500 rounded-full animate-spin"></div>
+      </div>
+      <p class="mt-4 text-gray-600 font-medium">Loading NPA details...</p>
     </div>
 
-    <!-- Basic Details Section -->
-    <div class="p-6">
-      <h3 class="text-lg font-semibold mb-4 text-gray-800">Basic Details</h3>
-      
-      <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-        <div>
-          <label class="block text-sm font-medium text-gray-700">Division Name</label>
-          <p class="mt-1 text-gray-900">{{ npaData.divisionName || '-' }}</p>
-        </div>
-        
-        <div>
-          <label class="block text-sm font-medium text-gray-700">Regional Office</label>
-          <p class="mt-1 text-gray-900">{{ npaData.regionalOffice || '-' }}</p>
-        </div>
-        
-        <div>
-          <label class="block text-sm font-medium text-gray-700">Account Name</label>
-          <p class="mt-1 text-gray-900">{{ npaData.accountName || '-' }}</p>
-        </div>
-        
-        <div>
-          <label class="block text-sm font-medium text-gray-700">NPA Classification Date</label>
-          <p class="mt-1 text-gray-900">{{ npaData.npaClassificationDate || '-' }}</p>
-        </div>
-        
-        <div>
-          <label class="block text-sm font-medium text-gray-700">Business Activity</label>
-          <p class="mt-1 text-gray-900">{{ npaData.businessActivity || '-' }}</p>
-        </div>
-        
-        <div>
-          <label class="block text-sm font-medium text-gray-700">Factory Running Condition</label>
-          <p class="mt-1 text-gray-900">
-            <span class="px-2 py-1 text-xs rounded-full" 
-                  [class.bg-green-100]="npaData.factoryRunningCondition === 'yes'"
-                  [class.bg-red-100]="npaData.factoryRunningCondition === 'no'"
-                  [class.text-green-800]="npaData.factoryRunningCondition === 'yes'"
-                  [class.text-red-800]="npaData.factoryRunningCondition === 'no'">
-              {{ npaData.factoryRunningCondition === 'yes' ? 'Running' : 'Not Running' }}
-            </span>
-          </p>
-        </div>
-        
-        <div *ngIf="npaData.factoryNotRunningSince">
-          <label class="block text-sm font-medium text-gray-700">Factory Not Running Since</label>
-          <p class="mt-1 text-gray-900">{{ npaData.factoryNotRunningSince }}</p>
-        </div>
-        
-        <div>
-          <label class="block text-sm font-medium text-gray-700">Factory Leased Out</label>
-          <p class="mt-1 text-gray-900">
-            <span class="px-2 py-1 text-xs rounded-full" 
-                  [class.bg-blue-100]="npaData.factoryLeasedOut === 'yes'"
-                  [class.bg-gray-100]="npaData.factoryLeasedOut === 'no'"
-                  [class.text-blue-800]="npaData.factoryLeasedOut === 'yes'"
-                  [class.text-gray-800]="npaData.factoryLeasedOut === 'no'">
-              {{ npaData.factoryLeasedOut === 'yes' ? 'Yes' : 'No' }}
-            </span>
-          </p>
-        </div>
-        
-        <div *ngIf="npaData.amount">
-          <label class="block text-sm font-medium text-gray-700">Amount</label>
-          <p class="mt-1 text-gray-900">{{ npaData.amount }}</p>
-        </div>
-      </div>
-
-      <!-- Addresses Section -->
-      <div class="mt-6 space-y-4">
-        <div>
-          <label class="block text-sm font-medium text-gray-700">Registered Address</label>
-          <p class="mt-1 text-gray-900">{{ npaData.registeredAddress || '-' }}</p>
-        </div>
-        
-        <div *ngIf="npaData.corporateOffice">
-          <label class="block text-sm font-medium text-gray-700">Corporate Office</label>
-          <p class="mt-1 text-gray-900">{{ npaData.corporateOffice }}</p>
-        </div>
-        
-        <div *ngIf="npaData.factoryAddress">
-          <label class="block text-sm font-medium text-gray-700">Factory Address</label>
-          <p class="mt-1 text-gray-900">{{ npaData.factoryAddress }}</p>
-        </div>
-      </div>
-
-      <!-- Lease Details (if factory is leased out) -->
-      <div *ngIf="npaData.factoryLeasedOut === 'yes'" class="mt-6 p-4 bg-blue-50 rounded">
-        <h4 class="font-medium text-blue-800 mb-2">Lease Details</h4>
-        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-          <div *ngIf="npaData.lesseeName">
-            <label class="block text-sm font-medium text-gray-700">Lessee Name</label>
-            <p class="mt-1 text-gray-900">{{ npaData.lesseeName }}</p>
-          </div>
-          
-          <div *ngIf="npaData.lesseeContactDetails">
-            <label class="block text-sm font-medium text-gray-700">Lessee Contact Details</label>
-            <p class="mt-1 text-gray-900">{{ npaData.lesseeContactDetails }}</p>
-          </div>
-        </div>
-      </div>
-
-      <!-- Board Members Section -->
-      <div *ngIf="npaData.boardMembers && npaData.boardMembers.length > 0" class="mt-6">
-        <h4 class="font-medium text-gray-800 mb-3">Board Members</h4>
-        <div class="overflow-x-auto">
-          <table class="min-w-full divide-y divide-gray-200">
-            <thead class="bg-gray-50">
-              <tr>
-                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Name</th>
-                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Designation</th>
-                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Contact Details</th>
-                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Address</th>
-              </tr>
-            </thead>
-            <tbody class="bg-white divide-y divide-gray-200">
-              <tr *ngFor="let member of npaData.boardMembers">
-                <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">{{ member.name }}</td>
-                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{{ member.designation }}</td>
-                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{{ member.contactDetails }}</td>
-                <td class="px-6 py-4 text-sm text-gray-500">{{ member.address }}</td>
-              </tr>
-            </tbody>
-          </table>
-        </div>
-      </div>
-    </div>
-  </div>
-</div>
-  <!-- Completed Tasks History Section -->
-  <div *ngIf="!loading" class="mt-8">
-    <div class="bg-white shadow-md rounded-lg overflow-hidden border border-gray-200">
-      <div class="bg-gray-50 px-6 py-4 border-b border-gray-200">
-        <h2 class="text-lg font-semibold text-gray-800">Completed Tasks History</h2>
-      </div>
-      
-      <!-- Loading State -->
-      <div *ngIf="loadingCompletedTasks" class="text-center py-8">
-        <div class="inline-block animate-spin rounded-full h-6 w-6 border-b-2 border-blue-600"></div>
-        <p class="mt-2 text-gray-600">Loading completed tasks...</p>
-      </div>
-      
-      <!-- Error State -->
-      <div *ngIf="completedTasksError" class="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded m-4">
-        <p class="font-medium">Error:</p>
-        <p>{{ completedTasksError }}</p>
-      </div>
-      
-      <!-- Completed Tasks List -->
-      <div *ngIf="!loadingCompletedTasks && !completedTasksError && completedTasks.length > 0" class="divide-y divide-gray-200">
-        <div *ngFor="let task of completedTasks" class="p-6 hover:bg-gray-50 transition-colors">
-          <div class="flex justify-between items-start mb-4">
-            <div class="flex-1">
-              <h3 class="text-base font-semibold text-gray-900">{{ task.taskName }}</h3>
-              <p class="text-sm text-gray-500 mt-1">Task Key: {{ task.taskKey }}</p>
-            </div>
-            <div class="text-right">
-              <p class="text-sm text-gray-500">Completed by</p>
-              <p class="text-sm font-medium text-gray-900">{{ task.completedBy }}</p>
-              <p class="text-xs text-gray-500 mt-1">{{ task.completedDate | date:'medium' }}</p>
-            </div>
-          </div>
-          
-          <!-- Amount Display (if present) -->
-          <div *ngIf="task.amount" class="mb-3">
-            <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-800">
-              Amount: {{ task.amount | currency:'INR':'symbol':'1.2-2' }}
-            </span>
-          </div>
-          
-          <!-- Regional Office Display (if present) -->
-          <div *ngIf="task.regionalOffice" class="mb-3">
-            <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-blue-100 text-blue-800">
-              Regional Office: {{ task.regionalOffice }}
-            </span>
-          </div>
-          
-          <!-- Notes (if present) -->
-          <div *ngIf="task.notes" class="mb-3">
-            <p class="text-sm text-gray-600">
-              <span class="font-medium">Notes:</span> {{ task.notes }}
-            </p>
-          </div>
-          
-          <!-- Attachments (if present) -->
-          <div *ngIf="task.attachments && task.attachments.length > 0" class="mt-4">
-            <p class="text-sm font-medium text-gray-700 mb-2">Attachments:</p>
-            <div class="flex flex-wrap gap-2">
-              <button 
-                *ngFor="let attachment of task.attachments"
-                (click)="downloadAttachment(attachment.id, attachment.originalFileName, true)"
-                class="inline-flex items-center px-3 py-1.5 border border-gray-300 shadow-sm text-xs font-medium rounded text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500">
-                <svg class="w-4 h-4 mr-1.5 text-red-500" fill="currentColor" viewBox="0 0 20 20">
-                  <path fill-rule="evenodd" d="M4 4a2 2 0 012-2h4.586A2 2 0 0112 2.586L15.414 6A2 2 0 0116 7.414V16a2 2 0 01-2 2H6a2 2 0 01-2-2V4z" clip-rule="evenodd" />
-                </svg>
-                {{ attachment.originalFileName }}
-                <span class="ml-1.5 text-gray-400">({{ (attachment.fileSize / 1024 / 1024).toFixed(2) }} MB)</span>
-              </button>
-            </div>
-          </div>
-        </div>
-      </div>
-      
-      <!-- Empty State -->
-      <div *ngIf="!loadingCompletedTasks && !completedTasksError && completedTasks.length === 0" class="text-center py-8">
-        <svg class="mx-auto h-12 w-12 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2" />
+    <!-- Error State -->
+    <div *ngIf="error" class="bg-red-50 border-l-4 border-red-500 text-red-700 px-6 py-4 rounded-r shadow-sm mb-6">
+      <div class="flex items-center">
+        <svg class="w-5 h-5 mr-2" fill="currentColor" viewBox="0 0 20 20">
+          <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clip-rule="evenodd"/>
         </svg>
-        <p class="mt-2 text-sm text-gray-500">No completed tasks found</p>
+        <p class="font-semibold">Error loading data</p>
       </div>
+      <p class="mt-1 text-sm">{{ error }}</p>
     </div>
-  </div>
 
-<!-- Task Submission Modal -->
-<div *ngIf="showTaskModal" class="fixed inset-0 z-50 overflow-y-auto" aria-labelledby="modal-title" role="dialog" aria-modal="true">
-  <!-- Backdrop -->
-  <div class="fixed inset-0 bg-gray-500 bg-opacity-75 transition-opacity" (click)="closeTaskModal()"></div>
-  
-  <!-- Modal Panel -->
-  <div class="flex items-center justify-center min-h-screen px-4 pt-4 pb-20 text-center sm:p-0">
-    <div class="relative bg-white rounded-lg text-left overflow-hidden shadow-xl transform transition-all sm:my-8 sm:max-w-lg sm:w-full">
+    <!-- Main Content Grid -->
+    <div *ngIf="npaData && !loading" class="grid grid-cols-1 xl:grid-cols-12 gap-6">
       
-      <!-- Modal Header -->
-      <div class="bg-blue-600 px-4 py-3 sm:px-6">
-        <div class="flex justify-between items-center">
-          <h3 class="text-lg font-semibold text-white" id="modal-title">
-            Submit Task: {{ currentTask?.taskName }}
-          </h3>
+      <!-- LEFT COLUMN: NPA Details Form (8 columns) -->
+      <div class="xl:col-span-8 space-y-4">
+        
+        <!-- Accordion 1: Basic Information -->
+        <div class="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden">
           <button 
-            (click)="closeTaskModal()"
-            class="text-white hover:text-blue-200 focus:outline-none">
-            <svg class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+            (click)="toggleAccordion('basicInfo')"
+            class="w-full bg-gradient-to-r from-gray-700 to-blue-500 px-6 py-4 flex items-center justify-between hover:from-gray-600 hover:to-blue-400 transition-all duration-200">
+            <div class="flex items-center">
+              <svg class="w-5 h-5 mr-3 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/>
+              </svg>
+              <h2 class="text-lg font-bold text-white">Basic Information</h2>
+            </div>
+            <svg 
+              class="w-5 h-5 text-white transform transition-transform duration-200"
+              [class.rotate-180]="accordionState['basicInfo']"
+              fill="none" 
+              stroke="currentColor" 
+              viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/>
             </svg>
           </button>
-        </div>
-      </div>
-      
-      <!-- Modal Body -->
-      <div class="px-4 py-5 sm:p-6">
-        <!-- Error Message -->
-        <div *ngIf="submitError" class="mb-4 bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded">
-          <p class="text-sm">{{ submitError }}</p>
-        </div>
-        
-        <!-- Regional Office Dropdown (only shown when task key is 'after_vetting_13_2') -->
-        <div *ngIf="currentTask?.taskKey === 'after_vetting_13_2'" class="mb-4">
-          <label for="regionalOffice" class="block text-sm font-medium text-gray-700 mb-2">
-            Regional Office (RO)
-          </label>
-          <select 
-            id="regionalOffice"
-            [(ngModel)]="selectedRegionalOffice"
-            class="shadow-sm focus:ring-blue-500 focus:border-blue-500 block w-full sm:text-sm border-gray-300 rounded-md border p-2">
-            <option value="">Select Regional Office</option>
-            <option *ngFor="let ro of regionalOffices" [value]="ro.id || ro.name || ro">
-              {{ ro.name || ro }}
-            </option>
-          </select>
-          <div *ngIf="loadingRegionalOffices" class="mt-1 text-sm text-gray-500">
-            Loading regional offices...
+          
+          <div *ngIf="accordionState['basicInfo']" class="p-6 animate-fadeIn">
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+              <!-- Division Name -->
+              <div class="space-y-1">
+                <label class="text-xs font-semibold text-gray-500 uppercase tracking-wider">Division Name</label>
+                <div class="flex items-center p-3 bg-gray-50 rounded-lg border border-gray-200">
+                  <span class="text-gray-900 font-medium">{{ npaData.divisionName || 'Not specified' }}</span>
+                </div>
+              </div>
+
+              <!-- Regional Office -->
+              <div class="space-y-1">
+                <label class="text-xs font-semibold text-gray-500 uppercase tracking-wider">Regional Office</label>
+                <div class="flex items-center p-3 bg-gray-50 rounded-lg border border-gray-200">
+                  <span class="text-gray-900 font-medium">{{ npaData.regionalOffice || 'Not specified' }}</span>
+                </div>
+              </div>
+
+              <!-- Account Name -->
+              <div class="space-y-1">
+                <label class="text-xs font-semibold text-gray-500 uppercase tracking-wider">Account Name</label>
+                <div class="flex items-center p-3 bg-gray-50 rounded-lg border border-gray-200">
+                  <span class="text-gray-900 font-medium">{{ npaData.accountName || 'Not specified' }}</span>
+                </div>
+              </div>
+
+              <!-- NPA Classification Date -->
+              <div class="space-y-1">
+                <label class="text-xs font-semibold text-gray-500 uppercase tracking-wider">Classification Date</label>
+                <div class="flex items-center p-3 bg-gray-50 rounded-lg border border-gray-200">
+                  <svg class="w-4 h-4 text-gray-400 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"/>
+                  </svg>
+                  <span class="text-gray-900 font-medium">{{ npaData.npaClassificationDate || 'Not specified' }}</span>
+                </div>
+              </div>
+
+              <!-- Business Activity -->
+              <div class="space-y-1">
+                <label class="text-xs font-semibold text-gray-500 uppercase tracking-wider">Business Activity</label>
+                <div class="flex items-center p-3 bg-gray-50 rounded-lg border border-gray-200">
+                  <span class="text-gray-900 font-medium">{{ npaData.businessActivity || 'Not specified' }}</span>
+                </div>
+              </div>
+
+              <!-- Amount -->
+              <div *ngIf="npaData.amount" class="space-y-1">
+                <label class="text-xs font-semibold text-gray-500 uppercase tracking-wider">Amount</label>
+                <div class="flex items-center p-3 bg-blue-50 rounded-lg border border-blue-200">
+                  <span class="text-blue-800 font-bold text-lg">₹ {{ npaData.amount | number:'1.2-2' }}</span>
+                </div>
+              </div>
+            </div>
+
+            <!-- Addresses Section -->
+            <div class="mt-6 space-y-4 pt-6 border-t border-gray-200">
+              <div class="p-4 bg-gray-50 rounded-lg border border-gray-200">
+                <label class="text-xs font-semibold text-gray-500 uppercase tracking-wider mb-1 block">Registered Address</label>
+                <p class="text-gray-900 leading-relaxed">{{ npaData.registeredAddress || 'Not specified' }}</p>
+              </div>
+              
+              <div *ngIf="npaData.corporateOffice" class="p-4 bg-gray-50 rounded-lg border border-gray-200">
+                <label class="text-xs font-semibold text-gray-500 uppercase tracking-wider mb-1 block">Corporate Office</label>
+                <p class="text-gray-900 leading-relaxed">{{ npaData.corporateOffice }}</p>
+              </div>
+              
+              <div *ngIf="npaData.factoryAddress" class="p-4 bg-gray-50 rounded-lg border border-gray-200">
+                <label class="text-xs font-semibold text-gray-500 uppercase tracking-wider mb-1 block">Factory Address</label>
+                <p class="text-gray-900 leading-relaxed">{{ npaData.factoryAddress }}</p>
+              </div>
+            </div>
           </div>
         </div>
-        
-        <!-- Amount Field (only shown for specific tasks) -->
-        <div *ngIf="currentTask?.taskKey === 'loan_amount' || 
-                    currentTask?.taskKey === 'Loan_loan_amount' || 
-                    currentTask?.taskKey === 'after_vet_sale_notice' || 
-                    currentTask?.taskKey === 'divisional_meeting'" 
-             class="mb-4">
-          <label for="amount" class="block text-sm font-medium text-gray-700 mb-2">
-            Amount
-          </label>
-          <input 
-            type="number" 
-            id="amount"
-            [(ngModel)]="amount"
-            placeholder="Enter amount"
-            class="shadow-sm focus:ring-blue-500 focus:border-blue-500 block w-full sm:text-sm border-gray-300 rounded-md border p-2">
-        </div>
-        
-        <!-- Notes Section -->
-        <div class="mb-4">
-          <label for="taskNotes" class="block text-sm font-medium text-gray-700 mb-2">
-            Notes
-          </label>
-          <textarea 
-            id="taskNotes"
-            [(ngModel)]="taskNotes"
-            rows="4"
-            class="shadow-sm focus:ring-blue-500 focus:border-blue-500 block w-full sm:text-sm border-gray-300 rounded-md border p-2"
-            placeholder="Add any notes for this task..."></textarea>
-        </div>
-        
-        <!-- File Upload Section -->
-        <div class="mb-4">
-          <label class="block text-sm font-medium text-gray-700 mb-2">
-            Attachments (PDF only)
-          </label>
-          <div class="mt-1 flex justify-center px-6 pt-5 pb-6 border-2 border-gray-300 border-dashed rounded-md hover:border-blue-400 transition-colors">
-            <div class="space-y-1 text-center">
-              <svg class="mx-auto h-12 w-12 text-gray-400" stroke="currentColor" fill="none" viewBox="0 0 48 48" aria-hidden="true">
-                <path d="M28 8H12a4 4 0 00-4 4v20m32-12v8m0 0v8a4 4 0 01-4 4H12a4 4 0 01-4-4v-4m32-4l-3.172-3.172a4 4 0 00-5.656 0L28 28M8 32l9.172-9.172a4 4 0 015.656 0L28 28m0 0l4 4m4-24h8m-4-4v8m-12 4h.02" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />
+
+        <!-- Accordion 2: Factory Status -->
+        <div class="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden">
+          <button 
+            (click)="toggleAccordion('factoryStatus')"
+            class="w-full bg-gradient-to-r from-gray-700 to-blue-500 px-6 py-4 flex items-center justify-between hover:from-gray-600 hover:to-blue-400 transition-all duration-200">
+            <div class="flex items-center">
+              <svg class="w-5 h-5 mr-3 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4"/>
               </svg>
-              <div class="flex text-sm text-gray-600 justify-center">
-                <label for="file-upload" class="relative cursor-pointer bg-white rounded-md font-medium text-blue-600 hover:text-blue-500 focus-within:outline-none">
-                  <span>Upload PDF files</span>
-                  <input 
-                    id="file-upload"
-                    name="file-upload" 
-                    type="file" 
-                    multiple
-                    accept=".pdf"
-                    (change)="onFileSelected($event)"
-                    class="sr-only">
-                </label>
+              <h2 class="text-lg font-bold text-white">Factory Status</h2>
+            </div>
+            <svg 
+              class="w-5 h-5 text-white transform transition-transform duration-200"
+              [class.rotate-180]="accordionState['factoryStatus']"
+              fill="none" 
+              stroke="currentColor" 
+              viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/>
+            </svg>
+          </button>
+          
+          <div *ngIf="accordionState['factoryStatus']" class="p-6 animate-fadeIn">
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+              <!-- Running Condition -->
+              <div class="space-y-1">
+                <label class="text-xs font-semibold text-gray-500 uppercase tracking-wider">Running Condition</label>
+                <div class="flex items-center p-3 rounded-lg border" 
+                     [class.bg-green-50]="npaData.factoryRunningCondition === 'yes'"
+                     [class.border-green-200]="npaData.factoryRunningCondition === 'yes'"
+                     [class.bg-red-50]="npaData.factoryRunningCondition === 'no'"
+                     [class.border-red-200]="npaData.factoryRunningCondition === 'no'">
+                  <span class="w-2 h-2 rounded-full mr-2"
+                        [class.bg-green-500]="npaData.factoryRunningCondition === 'yes'"
+                        [class.bg-red-500]="npaData.factoryRunningCondition === 'no'">
+                  </span>
+                  <span class="font-medium" 
+                        [class.text-green-800]="npaData.factoryRunningCondition === 'yes'"
+                        [class.text-red-800]="npaData.factoryRunningCondition === 'no'">
+                    {{ npaData.factoryRunningCondition === 'yes' ? 'Running' : 'Not Running' }}
+                  </span>
+                </div>
               </div>
-              <p class="text-xs text-gray-500">PDF files only, up to 10MB each</p>
+
+              <!-- Factory Not Running Since -->
+              <div *ngIf="npaData.factoryNotRunningSince" class="space-y-1">
+                <label class="text-xs font-semibold text-gray-500 uppercase tracking-wider">Stopped Since</label>
+                <div class="flex items-center p-3 bg-orange-50 rounded-lg border border-orange-200">
+                  <svg class="w-4 h-4 text-orange-500 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/>
+                  </svg>
+                  <span class="text-orange-800 font-medium">{{ npaData.factoryNotRunningSince }}</span>
+                </div>
+              </div>
+
+              <!-- Leased Out Status -->
+              <div class="space-y-1">
+                <label class="text-xs font-semibold text-gray-500 uppercase tracking-wider">Leased Out</label>
+                <div class="flex items-center p-3 rounded-lg border"
+                     [class.bg-blue-50]="npaData.factoryLeasedOut === 'yes'"
+                     [class.border-blue-200]="npaData.factoryLeasedOut === 'yes'"
+                     [class.bg-gray-50]="npaData.factoryLeasedOut === 'no'"
+                     [class.border-gray-200]="npaData.factoryLeasedOut === 'no'">
+                  <span class="font-medium"
+                        [class.text-blue-800]="npaData.factoryLeasedOut === 'yes'"
+                        [class.text-gray-800]="npaData.factoryLeasedOut === 'no'">
+                    {{ npaData.factoryLeasedOut === 'yes' ? 'Yes' : 'No' }}
+                  </span>
+                </div>
+              </div>
+            </div>
+
+            <!-- Lease Details Section -->
+            <div *ngIf="npaData.factoryLeasedOut === 'yes'" class="mt-6 p-4 bg-gradient-to-r from-gray-50 to-blue-50 rounded-lg border border-blue-200">
+              <h4 class="font-semibold text-gray-800 mb-3 flex items-center">
+                <svg class="w-4 h-4 mr-2 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>
+                </svg>
+                Lease Details
+              </h4>
+              <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div *ngIf="npaData.lesseeName" class="space-y-1">
+                  <label class="text-xs font-medium text-gray-600">Lessee Name</label>
+                  <p class="text-gray-900 font-medium bg-white p-2 rounded border border-gray-200">{{ npaData.lesseeName }}</p>
+                </div>
+                <div *ngIf="npaData.lesseeContactDetails" class="space-y-1">
+                  <label class="text-xs font-medium text-gray-600">Contact Details</label>
+                  <p class="text-gray-900 font-medium bg-white p-2 rounded border border-gray-200">{{ npaData.lesseeContactDetails }}</p>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Accordion 3: Board Members -->
+        <div *ngIf="npaData.boardMembers && npaData.boardMembers.length > 0" class="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden">
+          <button 
+            (click)="toggleAccordion('boardMembers')"
+            class="w-full bg-gradient-to-r from-gray-700 to-blue-500 px-6 py-4 flex items-center justify-between hover:from-gray-600 hover:to-blue-400 transition-all duration-200">
+            <div class="flex items-center">
+              <svg class="w-5 h-5 mr-3 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z"/>
+              </svg>
+              <h2 class="text-lg font-bold text-white">Board Members ({{ npaData.boardMembers.length }})</h2>
+            </div>
+            <svg 
+              class="w-5 h-5 text-white transform transition-transform duration-200"
+              [class.rotate-180]="accordionState['boardMembers']"
+              fill="none" 
+              stroke="currentColor" 
+              viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/>
+            </svg>
+          </button>
+          
+          <div *ngIf="accordionState['boardMembers']" class="animate-fadeIn">
+            <div class="overflow-x-auto">
+              <table class="w-full text-left border-collapse">
+                <thead>
+                  <tr class="bg-gray-50 border-b border-gray-200">
+                    <th class="px-6 py-3 text-xs font-semibold text-gray-600 uppercase tracking-wider">Name</th>
+                    <th class="px-6 py-3 text-xs font-semibold text-gray-600 uppercase tracking-wider">Designation</th>
+                    <th class="px-6 py-3 text-xs font-semibold text-gray-600 uppercase tracking-wider">Contact</th>
+                    <th class="px-6 py-3 text-xs font-semibold text-gray-600 uppercase tracking-wider">Address</th>
+                  </tr>
+                </thead>
+                <tbody class="divide-y divide-gray-200">
+                  <tr *ngFor="let member of npaData.boardMembers" class="hover:bg-blue-50 transition-colors">
+                    <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">{{ member.name }}</td>
+                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-600">{{ member.designation }}</td>
+                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-600">{{ member.contactDetails }}</td>
+                    <td class="px-6 py-4 text-sm text-gray-600 max-w-xs truncate">{{ member.address }}</td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+
+      </div>
+
+      <!-- RIGHT COLUMN: Task Management (4 columns) -->
+      <div class="xl:col-span-4 space-y-6">
+        
+        <!-- Current Task Box -->
+        <div *ngIf="currentTask && !loading" class="bg-white rounded-xl shadow-lg border-2 border-blue-200 overflow-hidden sticky top-24">
+          <div class="bg-gradient-to-r from-gray-700 to-blue-500 px-6 py-4">
+            <div class="flex items-center justify-between">
+              <h2 class="text-lg font-bold text-white flex items-center">
+                <svg class="w-5 h-5 mr-2 animate-pulse" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"/>
+                </svg>
+                Current Task
+              </h2>
+              <span class="px-2 py-1 bg-white/20 rounded text-xs font-medium text-white backdrop-blur-sm">
+                Active
+              </span>
             </div>
           </div>
           
-          <!-- Selected Files List -->
-          <div *ngIf="selectedFiles.length > 0" class="mt-3">
-            <p class="text-sm font-medium text-gray-700 mb-2">Selected Files ({{ selectedFiles.length }}):</p>
-            <ul class="space-y-2">
-              <li *ngFor="let file of selectedFiles; let i = index" class="flex items-center justify-between bg-gray-50 px-3 py-2 rounded-md">
-                <div class="flex items-center space-x-2">
-                  <svg class="h-5 w-5 text-red-500" fill="currentColor" viewBox="0 0 20 20">
-                    <path fill-rule="evenodd" d="M4 4a2 2 0 012-2h4.586A2 2 0 0112 2.586L15.414 6A2 2 0 0116 7.414V16a2 2 0 01-2 2H6a2 2 0 01-2-2V4z" clip-rule="evenodd" />
+          <div class="p-6 space-y-4">
+            <div>
+              <label class="text-xs font-semibold text-gray-500 uppercase tracking-wider">Task Name</label>
+              <h3 class="text-xl font-bold text-gray-800 mt-1">{{ currentTask.taskName || 'Untitled Task' }}</h3>
+            </div>
+
+            <div class="flex items-center justify-between p-3 bg-blue-50 rounded-lg border border-blue-100">
+              <span class="text-sm font-medium text-gray-600">Status</span>
+              <span class="px-3 py-1 rounded-full text-xs font-bold bg-gradient-to-r from-gray-700 to-blue-500 text-white">
+                {{ currentTask.taskKey || 'PENDING' }}
+              </span>
+            </div>
+
+            <!-- Action Button -->
+            <div *ngIf="currentTask.canCurrentUserAct" class="pt-4 border-t border-gray-200">
+              <button 
+                (click)="openTaskModal()"
+                class="w-full group relative flex justify-center py-3 px-4 border border-transparent text-sm font-medium rounded-lg text-white bg-gradient-to-r from-gray-700 to-blue-500 hover:from-gray-600 hover:to-blue-400 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 shadow-md hover:shadow-lg transition-all duration-200">
+                <span class="absolute left-0 inset-y-0 flex items-center pl-3">
+                  <svg class="h-5 w-5 text-blue-200 group-hover:text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/>
                   </svg>
-                  <span class="text-sm text-gray-600 truncate">{{ file.name }}</span>
-                  <span class="text-xs text-gray-400">({{ (file.size / 1024 / 1024).toFixed(2) }} MB)</span>
+                </span>
+                Submit Task
+              </button>
+            </div>
+
+            <div *ngIf="!currentTask.canCurrentUserAct" class="pt-4 border-t border-gray-200">
+              <div class="p-3 bg-gray-100 rounded-lg text-center border border-gray-200">
+                <p class="text-sm text-gray-500">Waiting for action from assigned user</p>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Task Loading State -->
+        <div *ngIf="taskLoading && !loading" class="bg-white rounded-xl shadow-md border border-gray-200 p-6 text-center">
+          <div class="inline-block animate-spin rounded-full h-8 w-8 border-b-2 border-blue-500"></div>
+          <p class="mt-2 text-sm text-gray-600">Loading task...</p>
+        </div>
+
+        <!-- Task Error State -->
+        <div *ngIf="taskError" class="bg-red-50 border-l-4 border-red-500 text-red-700 p-4 rounded-r">
+          <p class="text-sm">{{ taskError }}</p>
+        </div>
+
+        <!-- Completed Tasks History Box -->
+        <div class="bg-white rounded-xl shadow-md border border-gray-200 overflow-hidden">
+          <div class="bg-gradient-to-r from-gray-600 to-gray-700 px-6 py-4">
+            <h2 class="text-lg font-bold text-white flex items-center">
+              <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-6 9l2 2 4-4"/>
+              </svg>
+              Completed Tasks
+              <span *ngIf="completedTasks.length > 0" class="ml-2 px-2 py-0.5 bg-white/20 rounded-full text-xs">
+                {{ completedTasks.length }}
+              </span>
+            </h2>
+          </div>
+          
+          <div class="max-h-[600px] overflow-y-auto">
+            <!-- Loading State -->
+            <div *ngIf="loadingCompletedTasks" class="text-center py-8">
+              <div class="inline-block animate-spin rounded-full h-6 w-6 border-b-2 border-blue-500"></div>
+              <p class="mt-2 text-sm text-gray-600">Loading history...</p>
+            </div>
+
+            <!-- Error State -->
+            <div *ngIf="completedTasksError" class="bg-red-50 border border-red-200 text-red-700 px-4 py-3 m-4 rounded">
+              <p class="text-sm">{{ completedTasksError }}</p>
+            </div>
+
+            <!-- Tasks List -->
+            <div *ngIf="!loadingCompletedTasks && !completedTasksError && completedTasks.length > 0" class="divide-y divide-gray-100">
+              <div *ngFor="let task of completedTasks" class="p-4 hover:bg-gray-50 transition-colors group">
+                <div class="flex justify-between items-start mb-2">
+                  <h3 class="text-sm font-semibold text-gray-900 group-hover:text-blue-600 transition-colors">{{ task.taskName }}</h3>
+                  <span class="text-xs text-gray-400 whitespace-nowrap">{{ task.completedDate | date:'shortDate' }}</span>
                 </div>
-                <button 
-                  (click)="removeFile(i)"
-                  class="text-red-500 hover:text-red-700 focus:outline-none">
-                  <svg class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
-                  </svg>
-                </button>
-              </li>
-            </ul>
+                
+                <div class="flex items-center text-xs text-gray-500 mb-2">
+                  <span class="font-medium">{{ task.completedBy }}</span>
+                </div>
+
+                <!-- Amount Badge -->
+                <div *ngIf="task.amount" class="mb-2">
+                  <span class="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-blue-100 text-blue-800">
+                    ₹ {{ task.amount | number:'1.2-2' }}
+                  </span>
+                </div>
+
+                <!-- Regional Office Badge -->
+                <div *ngIf="task.regionalOffice" class="mb-2">
+                  <span class="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-gray-100 text-gray-800">
+                    RO: {{ task.regionalOffice }}
+                  </span>
+                </div>
+
+                <!-- Notes -->
+                <div *ngIf="task.notes" class="mt-2 text-xs text-gray-600 bg-gray-50 p-2 rounded border border-gray-200">
+                  {{ task.notes }}
+                </div>
+
+                <!-- Attachments -->
+                <div *ngIf="task.attachments && task.attachments.length > 0" class="mt-3 flex flex-wrap gap-1">
+                  <button 
+                    *ngFor="let attachment of task.attachments"
+                    (click)="downloadAttachment(attachment.id, attachment.originalFileName, true)"
+                    class="inline-flex items-center px-2 py-1 border border-gray-300 rounded text-xs text-gray-700 bg-white hover:bg-blue-50 hover:border-blue-300 transition-colors">
+                    <svg class="w-3 h-3 mr-1 text-red-500" fill="currentColor" viewBox="0 0 20 20">
+                      <path fill-rule="evenodd" d="M4 4a2 2 0 012-2h4.586A2 2 0 0112 2.586L15.414 6A2 2 0 0116 7.414V16a2 2 0 01-2 2H6a2 2 0 01-2-2V4z" clip-rule="evenodd"/>
+                    </svg>
+                    <span class="truncate max-w-[100px]">{{ attachment.originalFileName }}</span>
+                  </button>
+                </div>
+              </div>
+            </div>
+
+            <!-- Empty State -->
+            <div *ngIf="!loadingCompletedTasks && !completedTasksError && completedTasks.length === 0" class="text-center py-8 px-4">
+              <svg class="mx-auto h-10 w-10 text-gray-300" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"/>
+              </svg>
+              <p class="mt-2 text-sm text-gray-500">No completed tasks</p>
+            </div>
           </div>
         </div>
       </div>
-      
-      <!-- Modal Footer -->
-      <div class="bg-gray-50 px-4 py-3 sm:px-6 sm:flex sm:flex-row-reverse">
-        <button 
-          (click)="completeTask()"
-          [disabled]="submittingTask"
-          class="w-full inline-flex justify-center rounded-md border border-transparent shadow-sm px-4 py-2 bg-blue-600 text-base font-medium text-white hover:bg-blue-700 focus:outline-none sm:ml-3 sm:w-auto sm:text-sm disabled:opacity-50 disabled:cursor-not-allowed">
-          {{ submittingTask ? 'Submitting...' : 'Submit' }}
-        </button>
-        <button 
-          (click)="closeTaskModal()"
-          [disabled]="submittingTask"
-          class="mt-3 w-full inline-flex justify-center rounded-md border border-gray-300 shadow-sm px-4 py-2 bg-white text-base font-medium text-gray-700 hover:bg-gray-50 focus:outline-none sm:mt-0 sm:ml-3 sm:w-auto sm:text-sm disabled:opacity-50 disabled:cursor-not-allowed">
-          Cancel
-        </button>
+    </div>
+  </div>
+
+  <!-- Task Submission Modal -->
+  <div *ngIf="showTaskModal" class="fixed inset-0 z-50 overflow-y-auto" aria-labelledby="modal-title" role="dialog" aria-modal="true">
+    <!-- Backdrop with blur -->
+    <div class="fixed inset-0 bg-gray-900/50 backdrop-blur-sm transition-opacity" (click)="closeTaskModal()"></div>
+    
+    <!-- Modal Panel -->
+    <div class="flex items-center justify-center min-h-screen px-4 py-6 text-center sm:p-0">
+      <div class="relative bg-white rounded-2xl text-left overflow-hidden shadow-2xl transform transition-all sm:my-8 sm:max-w-lg sm:w-full border border-gray-200">
+        
+        <!-- Modal Header -->
+        <div class="bg-gradient-to-r from-gray-700 to-blue-500 px-6 py-4">
+          <div class="flex justify-between items-center">
+            <h3 class="text-lg font-bold text-white" id="modal-title">
+              Submit Task
+            </h3>
+            <button 
+              (click)="closeTaskModal()"
+              class="text-white/80 hover:text-white focus:outline-none transition-colors">
+              <svg class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
+              </svg>
+            </button>
+          </div>
+          <p class="text-blue-100 text-sm mt-1">{{ currentTask?.taskName }}</p>
+        </div>
+        
+        <!-- Modal Body -->
+        <div class="px-6 py-6 space-y-5">
+          <!-- Error Message -->
+          <div *ngIf="submitError" class="bg-red-50 border-l-4 border-red-500 text-red-700 px-4 py-3 rounded-r">
+            <p class="text-sm">{{ submitError }}</p>
+          </div>
+          
+          <!-- Regional Office Dropdown -->
+          <div *ngIf="currentTask?.taskKey === 'after_vetting_13_2'">
+            <label for="regionalOffice" class="block text-sm font-medium text-gray-700 mb-2">
+              Regional Office (RO) <span class="text-red-500">*</span>
+            </label>
+            <select 
+              id="regionalOffice"
+              [(ngModel)]="selectedRegionalOffice"
+              class="block w-full rounded-lg border-gray-300 border shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm py-2.5 px-3 bg-white">
+              <option value="">Select Regional Office</option>
+              <option *ngFor="let ro of regionalOffices" [value]="ro.id || ro.name || ro">
+                {{ ro.name || ro }}
+              </option>
+            </select>
+            <div *ngIf="loadingRegionalOffices" class="mt-1 text-sm text-gray-500 flex items-center">
+              <svg class="animate-spin h-4 w-4 mr-1" fill="none" viewBox="0 0 24 24">
+                <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+              </svg>
+              Loading...
+            </div>
+          </div>
+          
+          <!-- Amount Field -->
+          <div *ngIf="currentTask?.taskKey === 'loan_amount' || 
+                      currentTask?.taskKey === 'Loan_loan_amount' || 
+                      currentTask?.taskKey === 'after_vet_sale_notice' || 
+                      currentTask?.taskKey === 'divisional_meeting'">
+            <label for="amount" class="block text-sm font-medium text-gray-700 mb-2">
+              Amount (₹)
+            </label>
+            <div class="relative rounded-md shadow-sm">
+              <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                <span class="text-gray-500 sm:text-sm">₹</span>
+              </div>
+              <input 
+                type="number" 
+                id="amount"
+                [(ngModel)]="amount"
+                placeholder="0.00"
+                class="block w-full pl-7 pr-12 rounded-lg border-gray-300 border focus:border-blue-500 focus:ring-blue-500 sm:text-sm py-2.5"
+                step="0.01">
+              <div class="absolute inset-y-0 right-0 pr-3 flex items-center pointer-events-none">
+                <span class="text-gray-500 sm:text-sm">INR</span>
+              </div>
+            </div>
+          </div>
+          
+          <!-- Notes Section -->
+          <div>
+            <label for="taskNotes" class="block text-sm font-medium text-gray-700 mb-2">
+              Notes
+            </label>
+            <textarea 
+              id="taskNotes"
+              [(ngModel)]="taskNotes"
+              rows="4"
+              class="block w-full rounded-lg border-gray-300 border shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm p-3 resize-none"
+              placeholder="Add any relevant notes or comments..."></textarea>
+          </div>
+          
+          <!-- File Upload Section -->
+          <div>
+            <label class="block text-sm font-medium text-gray-700 mb-2">
+              Attachments
+            </label>
+            <div class="mt-1 flex justify-center px-6 pt-5 pb-6 border-2 border-gray-300 border-dashed rounded-lg hover:border-blue-400 hover:bg-blue-50 transition-colors cursor-pointer relative">
+              <input 
+                id="file-upload"
+                name="file-upload" 
+                type="file" 
+                multiple
+                accept=".pdf"
+                (change)="onFileSelected($event)"
+                class="absolute inset-0 w-full h-full opacity-0 cursor-pointer">
+              <div class="space-y-1 text-center pointer-events-none">
+                <svg class="mx-auto h-12 w-12 text-gray-400" stroke="currentColor" fill="none" viewBox="0 0 48 48">
+                  <path d="M28 8H12a4 4 0 00-4 4v20m32-12v8m0 0v8a4 4 0 01-4 4H12a4 4 0 01-4-4v-4m32-4l-3.172-3.172a4 4 0 00-5.656 0L28 28M8 32l9.172-9.172a4 4 0 015.656 0L28 28m0 0l4 4m4-24h8m-4-4v8m-12 4h.02" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                </svg>
+                <div class="flex text-sm text-gray-600 justify-center">
+                  <span class="relative cursor-pointer bg-white rounded-md font-medium text-blue-600 hover:text-blue-500 focus-within:outline-none">
+                    Upload files
+                  </span>
+                  <p class="pl-1">or drag and drop</p>
+                </div>
+                <p class="text-xs text-gray-500">PDF only, up to 10MB each</p>
+              </div>
+            </div>
+            
+            <!-- Selected Files List -->
+            <div *ngIf="selectedFiles.length > 0" class="mt-3 space-y-2">
+              <p class="text-sm font-medium text-gray-700">Selected Files ({{ selectedFiles.length }}):</p>
+              <ul class="space-y-2">
+                <li *ngFor="let file of selectedFiles; let i = index" class="flex items-center justify-between bg-gray-50 px-3 py-2 rounded-lg border border-gray-200">
+                  <div class="flex items-center space-x-2 overflow-hidden">
+                    <svg class="h-5 w-5 text-red-500 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
+                      <path fill-rule="evenodd" d="M4 4a2 2 0 012-2h4.586A2 2 0 0112 2.586L15.414 6A2 2 0 0116 7.414V16a2 2 0 01-2 2H6a2 2 0 01-2-2V4z" clip-rule="evenodd"/>
+                    </svg>
+                    <span class="text-sm text-gray-600 truncate">{{ file.name }}</span>
+                    <span class="text-xs text-gray-400 flex-shrink-0">({{ (file.size / 1024 / 1024).toFixed(2) }} MB)</span>
+                  </div>
+                  <button 
+                    (click)="removeFile(i)"
+                    class="text-red-500 hover:text-red-700 focus:outline-none p-1 hover:bg-red-50 rounded transition-colors">
+                    <svg class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/>
+                    </svg>
+                  </button>
+                </li>
+              </ul>
+            </div>
+          </div>
+        </div>
+        
+        <!-- Modal Footer -->
+        <div class="bg-gray-50 px-6 py-4 flex flex-col-reverse sm:flex-row sm:justify-end gap-3">
+          <button 
+            (click)="closeTaskModal()"
+            [disabled]="submittingTask"
+            class="w-full sm:w-auto px-4 py-2 border border-gray-300 rounded-lg text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 disabled:opacity-50 transition-colors">
+            Cancel
+          </button>
+          <button 
+            (click)="completeTask()"
+            [disabled]="submittingTask"
+            class="w-full sm:w-auto px-4 py-2 border border-transparent rounded-lg text-sm font-medium text-white bg-gradient-to-r from-gray-700 to-blue-500 hover:from-gray-600 hover:to-blue-400 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 disabled:opacity-50 shadow-sm transition-colors flex items-center justify-center">
+            <svg *ngIf="submittingTask" class="animate-spin -ml-1 mr-2 h-4 w-4 text-white" fill="none" viewBox="0 0 24 24">
+              <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+              <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+            </svg>
+            {{ submittingTask ? 'Submitting...' : 'Submit Task' }}
+          </button>
+        </div>
       </div>
     </div>
   </div>

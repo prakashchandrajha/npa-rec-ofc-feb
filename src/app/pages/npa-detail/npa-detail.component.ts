@@ -103,6 +103,16 @@ export class NpaDetailComponent implements OnInit, OnDestroy, AfterViewInit {
     }
   }
 
+  accordionState: { [key: string]: boolean } = {
+  basicInfo: true,      // Expanded by default
+  factoryStatus: false,
+  boardMembers: false
+};
+
+toggleAccordion(section: string): void {
+  this.accordionState[section] = !this.accordionState[section];
+}
+
   fetchNpaDetails(): void {
     // Prevent multiple simultaneous calls
     if (this.loading && this.npaSubscription) {
