@@ -1,129 +1,186 @@
-<div class="section-div p-4 bg-white rounded-lg shadow">
-  <h3 class="text-lg font-semibold mb-4">Basic Details of the Borrower</h3>
+<div class="section-div p-6 bg-white rounded-lg shadow">
+  <h3 class="text-xl font-semibold mb-6 text-gray-800 border-b pb-3">Basic Details of the Borrower</h3>
   
-  <form [formGroup]="form" class="space-y-4">
+  <form [formGroup]="form" class="space-y-6">
     
-    <!-- a. Name of Division and Regional Office -->
-    <div class="grid grid-cols-2 gap-4">
-      <div>
-        <label class="block text-sm font-medium mb-1">a. Name of Division *</label>
-        <input formControlName="divisionName" type="text" class="w-full p-2 border rounded" placeholder="Enter division name">
+    <!-- Section A: Division & Account Information -->
+    <fieldset class="border border-gray-200 rounded-lg p-4">
+      <legend class="text-sm font-medium text-gray-600 px-2">Division & Account Information</legend>
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+        <div>
+          <label class="block text-sm font-medium text-gray-700 mb-1">
+            a. Name of Division <span class="text-red-500">*</span>
+          </label>
+          <input formControlName="divisionName" type="text" 
+            class="w-full p-2.5 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors" 
+            placeholder="Enter division name">
+          <div *ngIf="form.get('divisionName')?.touched && form.get('divisionName')?.invalid" 
+            class="text-red-500 text-xs mt-1">Division name is required</div>
+        </div>
+        <div>
+          <label class="block text-sm font-medium text-gray-700 mb-1">Regional Office</label>
+          <input formControlName="regionalOffice" type="text" 
+            class="w-full p-2.5 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors" 
+            placeholder="Enter regional office">
+        </div>
       </div>
-      <div>
-        <label class="block text-sm font-medium mb-1">Regional Office</label>
-        <input formControlName="regionalOffice" type="text" class="w-full p-2 border rounded" placeholder="Enter regional office">
+      
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mt-4">
+        <div>
+          <label class="block text-sm font-medium text-gray-700 mb-1">b. Name of Account</label>
+          <input formControlName="accountName" type="text" 
+            class="w-full p-2.5 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors" 
+            placeholder="Enter account name">
+        </div>
+        <div>
+          <label class="block text-sm font-medium text-gray-700 mb-1">
+            Date of Classification as NPA <span class="text-red-500">*</span>
+          </label>
+          <input formControlName="npaClassificationDate" type="date" 
+            class="w-full p-2.5 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors">
+          <div *ngIf="form.get('npaClassificationDate')?.touched && form.get('npaClassificationDate')?.invalid" 
+            class="text-red-500 text-xs mt-1">NPA classification date is required</div>
+        </div>
       </div>
-    </div>
+      
+      <div class="mt-4">
+        <label class="block text-sm font-medium text-gray-700 mb-1">c. Business Activity of the Society</label>
+        <input formControlName="businessActivity" type="text" 
+          class="w-full p-2.5 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors" 
+          placeholder="Enter business activity">
+      </div>
+    </fieldset>
 
-    <!-- b. Name of Account and date of classification as NPA -->
-    <div class="grid grid-cols-2 gap-4">
-      <div>
-        <label class="block text-sm font-medium mb-1">b. Name of Account</label>
-        <input formControlName="accountName" type="text" class="w-full p-2 border rounded" placeholder="Enter account name">
+    <!-- Section B: Address Details -->
+    <fieldset class="border border-gray-200 rounded-lg p-4">
+      <legend class="text-sm font-medium text-gray-600 px-2">Address Details</legend>
+      <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+        <div>
+          <label class="block text-sm font-medium text-gray-700 mb-1">e. Registered Address</label>
+          <textarea formControlName="registeredAddress" rows="2"
+            class="w-full p-2.5 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors resize-none" 
+            placeholder="Enter registered address"></textarea>
+        </div>
+        <div>
+          <label class="block text-sm font-medium text-gray-700 mb-1">Corporate Office</label>
+          <textarea formControlName="corporateOffice" rows="2"
+            class="w-full p-2.5 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors resize-none" 
+            placeholder="Enter corporate office address"></textarea>
+        </div>
+        <div>
+          <label class="block text-sm font-medium text-gray-700 mb-1">Factory Address</label>
+          <textarea formControlName="factoryAddress" rows="2"
+            class="w-full p-2.5 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors resize-none" 
+            placeholder="Enter factory address"></textarea>
+        </div>
       </div>
-      <div>
-        <label class="block text-sm font-medium mb-1">Date of Classification as NPA *</label>
-        <input formControlName="npaClassificationDate" type="date" class="w-full p-2 border rounded">
+    </fieldset>
+
+    <!-- Section C: Factory/Mill Status -->
+    <fieldset class="border border-gray-200 rounded-lg p-4">
+      <legend class="text-sm font-medium text-gray-600 px-2">Factory/Mill Status</legend>
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+        <div>
+          <label class="block text-sm font-medium text-gray-700 mb-1">f. Factory/Mill Running Condition</label>
+          <select formControlName="factoryRunningCondition" 
+            class="w-full p-2.5 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors bg-white">
+            <option value="">Select Status</option>
+            <option value="yes">Yes - Running</option>
+            <option value="no">No - Not Running</option>
+          </select>
+        </div>
+        <div *ngIf="form.get('factoryRunningCondition')?.value === 'no'">
+          <label class="block text-sm font-medium text-gray-700 mb-1">If No, Since When?</label>
+          <input formControlName="factoryNotRunningSince" type="text" 
+            class="w-full p-2.5 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors" 
+            placeholder="Enter date/details">
+        </div>
       </div>
-    </div>
+      
+      <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mt-4">
+        <div>
+          <label class="block text-sm font-medium text-gray-700 mb-1">g. Factory/Mill Leased Out/Rented</label>
+          <select formControlName="factoryLeasedOut" 
+            class="w-full p-2.5 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors bg-white">
+            <option value="">Select</option>
+            <option value="yes">Yes</option>
+            <option value="no">No</option>
+          </select>
+        </div>
+        <div *ngIf="form.get('factoryLeasedOut')?.value === 'yes'">
+          <label class="block text-sm font-medium text-gray-700 mb-1">Name of Lessee</label>
+          <input formControlName="lesseeName" type="text" 
+            class="w-full p-2.5 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors" 
+            placeholder="Enter lessee name">
+        </div>
+        <div *ngIf="form.get('factoryLeasedOut')?.value === 'yes'">
+          <label class="block text-sm font-medium text-gray-700 mb-1">Lessee Contact Details</label>
+          <input formControlName="lesseeContactDetails" type="text" 
+            class="w-full p-2.5 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors" 
+            placeholder="Enter contact details">
+        </div>
+      </div>
+    </fieldset>
 
-    <!-- c. Business Activity of the society -->
-    <div>
-      <label class="block text-sm font-medium mb-1">c. Business Activity of the Society</label>
-      <input formControlName="businessActivity" type="text" class="w-full p-2 border rounded" placeholder="Enter business activity">
-    </div>
-
-    <!-- d. Contact Details - Board Members -->
-    <div class="mt-6">
-      <h4 class="text-md font-medium mb-3">d. Contact Details - Board Members</h4>
+    <!-- Section D: Board Members -->
+    <fieldset class="border border-gray-200 rounded-lg p-4">
+      <legend class="text-sm font-medium text-gray-600 px-2">d. Board Members Contact Details</legend>
       <div formArrayName="boardMembers">
-        <table class="w-full border-collapse border border-gray-300">
-          <thead>
-            <tr class="bg-gray-100">
-              <th class="border border-gray-300 p-2 text-left w-12">Sr.</th>
-              <th class="border border-gray-300 p-2 text-left">Name of Chairman, President, VC, Directors and Board Members</th>
-              <th class="border border-gray-300 p-2 text-left">Designation</th>
-              <th class="border border-gray-300 p-2 text-left">Contact Details</th>
-              <th class="border border-gray-300 p-2 text-left">Address</th>
-              <th class="border border-gray-300 p-2 text-left w-24">Action</th>
-            </tr>
-          </thead>
-          <tbody>
-            <tr *ngFor="let member of boardMembers.controls; let i = index" [formGroupName]="i">
-              <td class="border border-gray-300 p-2">{{i+1}}</td>
-              <td class="border border-gray-300 p-2">
-                <input formControlName="name" placeholder="Name" class="w-full p-1 border rounded">
-              </td>
-              <td class="border border-gray-300 p-2">
-                <input formControlName="designation" placeholder="Designation" class="w-full p-1 border rounded">
-              </td>
-              <td class="border border-gray-300 p-2">
-                <input formControlName="contactDetails" placeholder="Contact Details" class="w-full p-1 border rounded">
-              </td>
-              <td class="border border-gray-300 p-2">
-                <input formControlName="address" placeholder="Address" class="w-full p-1 border rounded">
-              </td>
-              <td class="border border-gray-300 p-2">
-                <button type="button" (click)="removeMember(i)" class="px-3 py-1 bg-red-500 text-white rounded hover:bg-red-600 text-sm">Delete</button>
-              </td>
-            </tr>
-          </tbody>
-        </table>
-        <button type="button" (click)="addMember()" class="mt-3 px-4 py-2 bg-green-500 text-white rounded hover:bg-green-600">Add Member</button>
+        <div class="overflow-x-auto">
+          <table class="w-full border-collapse border border-gray-300 text-sm">
+            <thead>
+              <tr class="bg-gray-100">
+                <th class="border border-gray-300 p-2 text-left w-12 font-medium">Sr.</th>
+                <th class="border border-gray-300 p-2 text-left font-medium">Name of Chairman, President, VC, Directors & Board Members</th>
+                <th class="border border-gray-300 p-2 text-left w-32 font-medium">Designation</th>
+                <th class="border border-gray-300 p-2 text-left w-40 font-medium">Contact Details</th>
+                <th class="border border-gray-300 p-2 text-left font-medium">Address</th>
+                <th class="border border-gray-300 p-2 text-center w-20 font-medium">Action</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr *ngFor="let member of boardMembers.controls; let i = index" [formGroupName]="i" 
+                class="hover:bg-gray-50 transition-colors">
+                <td class="border border-gray-300 p-2 text-center font-medium">{{ i + 1 }}</td>
+                <td class="border border-gray-300 p-2">
+                  <input formControlName="name" placeholder="Enter name" 
+                    class="w-full p-1.5 border border-gray-300 rounded focus:ring-1 focus:ring-blue-500 focus:border-blue-500">
+                </td>
+                <td class="border border-gray-300 p-2">
+                  <input formControlName="designation" placeholder="Designation" 
+                    class="w-full p-1.5 border border-gray-300 rounded focus:ring-1 focus:ring-blue-500 focus:border-blue-500">
+                </td>
+                <td class="border border-gray-300 p-2">
+                  <input formControlName="contactDetails" placeholder="Contact" 
+                    class="w-full p-1.5 border border-gray-300 rounded focus:ring-1 focus:ring-blue-500 focus:border-blue-500">
+                </td>
+                <td class="border border-gray-300 p-2">
+                  <input formControlName="address" placeholder="Address" 
+                    class="w-full p-1.5 border border-gray-300 rounded focus:ring-1 focus:ring-blue-500 focus:border-blue-500">
+                </td>
+                <td class="border border-gray-300 p-2 text-center">
+                  <button type="button" (click)="removeMember(i)" 
+                    class="px-2 py-1 bg-red-500 text-white rounded hover:bg-red-600 text-xs transition-colors"
+                    [class.opacity-50]="boardMembers.controls.length === 1"
+                    [disabled]="boardMembers.controls.length === 1">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 inline" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                    </svg>
+                  </button>
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+        <button type="button" (click)="addMember()" 
+          class="mt-3 px-4 py-2 bg-green-500 text-white rounded-md hover:bg-green-600 transition-colors flex items-center gap-2 text-sm">
+          <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" />
+          </svg>
+          Add Member
+        </button>
       </div>
-    </div>
-
-    <!-- e. Registered Address, Corporate office, Factory Address -->
-    <div class="grid grid-cols-1 gap-4 mt-6">
-      <div>
-        <label class="block text-sm font-medium mb-1">e. Registered Address of the Society</label>
-        <input formControlName="registeredAddress" type="text" class="w-full p-2 border rounded" placeholder="Enter registered address">
-      </div>
-      <div>
-        <label class="block text-sm font-medium mb-1">Corporate Office of the Society</label>
-        <input formControlName="corporateOffice" type="text" class="w-full p-2 border rounded" placeholder="Enter corporate office address">
-      </div>
-      <div>
-        <label class="block text-sm font-medium mb-1">Factory Address</label>
-        <input formControlName="factoryAddress" type="text" class="w-full p-2 border rounded" placeholder="Enter factory address">
-      </div>
-    </div>
-
-    <!-- f. Whether Factory/Mill is in running condition -->
-    <div class="grid grid-cols-2 gap-4 mt-6">
-      <div>
-        <label class="block text-sm font-medium mb-1">f. Whether Factory/Mill is in running condition:</label>
-        <select formControlName="factoryRunningCondition" class="w-full p-2 border rounded">
-          <option value="">Select</option>
-          <option value="yes">Yes</option>
-          <option value="no">No</option>
-        </select>
-      </div>
-      <div *ngIf="form.get('factoryRunningCondition')?.value === 'no'">
-        <label class="block text-sm font-medium mb-1">If No, since when</label>
-        <input formControlName="factoryNotRunningSince" type="text" class="w-full p-2 border rounded" placeholder="Enter date">
-      </div>
-    </div>
-
-    <!-- g. Whether Factory/Mill is leased out/ rented -->
-    <div class="grid grid-cols-3 gap-4 mt-6">
-      <div>
-        <label class="block text-sm font-medium mb-1">g. Whether Factory/Mill is leased out/rented:</label>
-        <select formControlName="factoryLeasedOut" class="w-full p-2 border rounded">
-          <option value="">Select</option>
-          <option value="yes">Yes</option>
-          <option value="no">No</option>
-        </select>
-      </div>
-      <div *ngIf="form.get('factoryLeasedOut')?.value === 'yes'">
-        <label class="block text-sm font-medium mb-1">Name of Lessee</label>
-        <input formControlName="lesseeName" type="text" class="w-full p-2 border rounded" placeholder="Enter lessee name">
-      </div>
-      <div *ngIf="form.get('factoryLeasedOut')?.value === 'yes'">
-        <label class="block text-sm font-medium mb-1">Contact Details of Lessee</label>
-        <input formControlName="lesseeContactDetails" type="text" class="w-full p-2 border rounded" placeholder="Enter lessee contact">
-      </div>
-    </div>
+    </fieldset>
 
   </form>
 </div>
