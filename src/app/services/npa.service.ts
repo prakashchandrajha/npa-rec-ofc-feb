@@ -1,8 +1,9 @@
 import { Injectable } from '@angular/core';
 import { HttpClient, HttpHeaders } from '@angular/common/http';
-import { Observable, of } from 'rxjs';
+import { Observable } from 'rxjs';
 import { NpaPayload, NpaApiResponse } from './interfaces/section-service.interface';
 import { BasicDetailsService } from './sections/basic-details.service';
+import { FacilitySanctionedService } from './sections/facility-sanctioned.service';
 
 /**
  * Facade service for NPA operations
@@ -21,7 +22,8 @@ export class NpaService {
 
   constructor(
     private http: HttpClient,
-    private basicDetailsService: BasicDetailsService
+    private basicDetailsService: BasicDetailsService,
+    private facilitySanctionedService: FacilitySanctionedService
   ) {}
 
   /**
@@ -105,8 +107,15 @@ export class NpaService {
     return this.basicDetailsService;
   }
 
+  /**
+   * Get the Facility Sanctioned section service
+   * Use this to transform facility sanctioned data before sending to API
+   */
+  get facilitySanctioned(): FacilitySanctionedService {
+    return this.facilitySanctionedService;
+  }
+
   // Future section service accessors will be added here:
-  // get facilitySanctioned(): FacilitySanctionedService { ... }
   // get securityDetails(): SecurityDetailsService { ... }
   // get guarantorDetails(): GuarantorDetailsService { ... }
   // etc.
@@ -118,14 +127,16 @@ export class NpaService {
    * 
    * Example usage:
    * const payload = this.npaService.buildPayload({
-   *   basicDetails: this.basicDetailsComponent.form.value
+   *   basicDetails: this.basicDetailsComponent.form.value,
+   *   facilitySanctioned: this.facilitySanctionedComponent.form.value
    * });
    */
   buildPayload(sections: { 
     basicDetails?: any;
+    facilitySanctioned?: any;
     // Add more sections as they are implemented:
-    // facilitySanctioned?: any;
     // securityDetails?: any;
+    // guarantorDetails?: any;
   }): NpaPayload {
     const payload: NpaPayload = {};
 
@@ -133,9 +144,13 @@ export class NpaService {
       payload.basicDetails = this.basicDetailsService.transformToPayload(sections.basicDetails);
     }
 
+    if (sections.facilitySanctioned) {
+      payload.facilitySanctioned = this.facilitySanctionedService.transformToPayload(sections.facilitySanctioned);
+    }
+
     // Add more sections as they are implemented:
-    // if (sections.facilitySanctioned) {
-    //   payload.facilitySanctioned = this.facilitySanctionedService.transformToPayload(sections.facilitySanctioned);
+    // if (sections.securityDetails) {
+    //   payload.securityDetails = this.securityDetailsService.transformToPayload(sections.securityDetails);
     // }
 
     return payload;

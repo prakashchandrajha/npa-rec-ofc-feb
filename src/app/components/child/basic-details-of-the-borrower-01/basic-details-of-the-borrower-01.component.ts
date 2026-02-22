@@ -4,9 +4,12 @@ import { FormArray, FormBuilder, FormGroup, FormsModule, ReactiveFormsModule, Va
 
 @Component({
   selector: 'app-basic-details-of-the-borrower-01',
+  standalone: true,
   imports: [ReactiveFormsModule, CommonModule, FormsModule],
   templateUrl: './basic-details-of-the-borrower-01.component.html',
-  styleUrl: './basic-details-of-the-borrower-01.component.css'
+  styles: [`
+    /* Basic Details Component Styles */
+  `]
 })
 export class BasicDetailsOfTheBorrower01Component implements OnInit {
   form!: FormGroup;
