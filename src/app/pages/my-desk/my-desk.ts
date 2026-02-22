@@ -98,37 +98,41 @@ export class MyDesk implements OnInit, OnDestroy {
   }
 
   loadTasks(): void {
-    console.log('loadTasks called, loading flag before:', this.loading);
-    // reset retry counter for each manual invocation
-    this.retryCount = 0;
+    const timestamp = new Date().toISOString();
+    console.log(`[${timestamp}] loadTasks called, loading flag before:`, this.loading);
     if (this.loading) {
-      console.log('loadTasks called but a load is already in progress; skipping');
+      console.log(`[${timestamp}] loadTasks called but a load is already in progress; skipping`);
       return;
     }
     this.loading = true;
     this.error = '';
     
     const token = this.authService.getToken();
-    console.log('Using auth token for request:', token);
-    // if the token is not available yet (race condition during startup) we
+    console.log(`[${timestamp}] Using auth token for request:`, token);
+    // if token is not available yet (race condition during startup) we
     // don't want to fire a request that will immediately fail with 401.  In
     // that case, schedule a retry a short time later rather than forcing the
     // user to click again.
     if (!token) {
-      console.warn('Token not present when loading tasks, retrying in 100ms');
+      console.warn(`[${timestamp}] Token not present when loading tasks, retrying in 100ms`);
       this.loading = false; // reset flag since we didn't actually send anything
       setTimeout(() => this.loadTasks(), 100);
       return;
     }
-    console.log('Using auth token for request:', token);
+    console.log(`[${timestamp}] Making API call to:`, this.apiUrl);
     const headers = new HttpHeaders({
       'Authorization': `Bearer ${token}`,
       'Content-Type': 'application/json'
     });
 
+    console.log(`[${timestamp}] Request headers:`, headers);
+    
     this.http.get<any>(this.apiUrl, { headers }).subscribe({
       next: (response) => {
-        console.log('loadTasks response:', response);
+        const responseTimestamp = new Date().toISOString();
+        console.log(`[${responseTimestamp}] API RESPONSE received:`, response);
+        console.log(`[${responseTimestamp}] Response type:`, Array.isArray(response) ? 'Array' : typeof response);
+        console.log(`[${responseTimestamp}] Response data:`, Array.isArray(response) ? response : response.data);
         // extract an array of tasks from the server response; some endpoints
         // wrap the data differently depending on context.
         const extract = (res: any): Task[] => {
@@ -141,7 +145,8 @@ export class MyDesk implements OnInit, OnDestroy {
           return [];
         };
         this.tasks = extract(response);
-        console.log('tasks array now', this.tasks);
+        console.log(`[${responseTimestamp}] Final tasks array:`, this.tasks);
+        // view update may not run automatically in some navigation cases
         // if we received an empty list on the first attempt, it's possible
         // the backend is still populating results. replicate the "second
         // click" behaviour automatically by trying one more time after a
