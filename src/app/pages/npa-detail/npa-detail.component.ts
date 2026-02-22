@@ -28,12 +28,49 @@ interface FacilitySanctionedDto {
   facilities: FacilityDto[];
 }
 
+// Security Details interfaces
+interface SecurityDetailDto {
+  id: number;
+  srNo: number;
+  typeOfSecurity: string;
+  typeOfAsset: string;
+  propertyDetails: string;
+  typeOfCharge: string;
+  chargeDetails: string;
+  chargeCreationDate: string;
+  freeFromEncumbrances: string;
+}
+
+interface ValuationDto {
+  id: number;
+  nameOfValuer: string;
+  dateOfReport: string;
+  fmv: string; // Fair Market Value
+  rv: string; // Realizable Value
+  dsv: string; // Distress Sale Value
+  guidelineGovtRate: string;
+}
+
+interface LegalDocumentsDto {
+  id: number;
+  loanAgreementDate: string;
+  deedOfHypothecationDate: string;
+  boardResolutionDate: string;
+}
+
+interface SecurityDetailsDto {
+  id: number;
+  securities: SecurityDetailDto[];
+  valuation: ValuationDto;
+  legalDocuments: LegalDocumentsDto;
+}
+
 // Complete NPA interface
 interface NpaData {
   npaId: number;
   basicDetails?: BasicDetailsOfTheBorrower;
   facilitySanctioned?: FacilitySanctionedDto;
-  securityDetails?: any;
+  securityDetails?: SecurityDetailsDto;
   releaseDetails?: any;
   postDatedChequesDetails?: any;
   repaymentSchedule?: any;
@@ -148,6 +185,7 @@ export class NpaDetailComponent implements OnInit, OnDestroy, AfterViewInit {
   accordionState: { [key: string]: boolean } = {
     basicDetails: true,    // Expanded by default
     facilitySanctioned: false,  // Collapsed by default
+    securityDetails: false,  // Collapsed by default
   };
 
 toggleAccordion(section: string): void {
@@ -613,11 +651,39 @@ toggleAccordion(section: string): void {
     return this.npaData?.basicDetails?.boardMembers || [];
   }
 
+  get hasBoardMembers() {
+    return this.boardMembers.length > 0;
+  }
+
+  get securities() {
+    return this.npaData?.securityDetails?.securities || [];
+  }
+
+  get valuation() {
+    return this.npaData?.securityDetails?.valuation;
+  }
+
+  get legalDocuments() {
+    return this.npaData?.securityDetails?.legalDocuments;
+  }
+
   get hasFacilities() {
     return this.facilities.length > 0;
   }
 
-  get hasBoardMembers() {
-    return this.boardMembers.length > 0;
+  get hasSecurities() {
+    return this.securities.length > 0;
+  }
+
+  get hasValuation() {
+    return this.valuation !== undefined && this.valuation !== null;
+  }
+
+  get hasLegalDocuments() {
+    return this.legalDocuments !== undefined && this.legalDocuments !== null;
+  }
+
+  get hasAnySecurityData() {
+    return this.hasSecurities || this.hasValuation || this.hasLegalDocuments;
   }
 }
