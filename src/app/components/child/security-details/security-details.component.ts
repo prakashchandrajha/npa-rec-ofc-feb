@@ -22,10 +22,23 @@ export class SecurityDetailsComponent implements OnInit {
 
   ngOnInit(): void {
     this.form = this.fb.group({
-      securities: this.fb.array([])
+      securities: this.fb.array([]),
+      valuation: this.fb.group({
+        nameOfValuer: [''],
+        dateOfReport: [''],
+        fmv: [''],
+        rv: [''],
+        dsv: [''],
+        guidelineGovtRate: ['']
+      }),
+      legalDocuments: this.fb.group({
+        loanAgreementDate: [''],
+        deedOfHypothecationDate: [''],
+        boardResolutionDate: ['']
+      })
     });
 
-    // Initialize with 2 empty rows
+    // Initialize with 2 empty security rows
     this.addSecurity();
     this.addSecurity();
   }
@@ -35,6 +48,20 @@ export class SecurityDetailsComponent implements OnInit {
    */
   get securities(): FormArray {
     return this.form.get('securities') as FormArray;
+  }
+
+  /**
+   * Get valuation FormGroup
+   */
+  get valuation(): FormGroup {
+    return this.form.get('valuation') as FormGroup;
+  }
+
+  /**
+   * Get legalDocuments FormGroup
+   */
+  get legalDocuments(): FormGroup {
+    return this.form.get('legalDocuments') as FormGroup;
   }
 
   /**

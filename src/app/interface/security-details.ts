@@ -4,6 +4,8 @@
  */
 export interface SecurityDetails {
   securities: SecurityItem[];
+  valuation: ValuationDetails;
+  legalDocuments: LegalDocuments;
 }
 
 /**
@@ -18,6 +20,27 @@ export interface SecurityItem {
   chargeDetails: string; // Details with date of NOC if paripassu or other than first exclusive charge
   chargeCreationDate: string;
   freeFromEncumbrances: string; // Yes/No
+}
+
+/**
+ * Valuation Details (All valuation starting with latest)
+ */
+export interface ValuationDetails {
+  nameOfValuer: string;
+  dateOfReport: string;
+  fmv: string; // Fair Market Value
+  rv: string; // Realizable Value
+  dsv: string; // Distress Sale Value
+  guidelineGovtRate: string; // Guideline/Govt. rate
+}
+
+/**
+ * Legal Documents Executed with Date - Mandatory
+ */
+export interface LegalDocuments {
+  loanAgreementDate: string; // Loan Agreement dated…
+  deedOfHypothecationDate: string; // Deed of Hypothecation/Indenture of Mortgage dated…
+  boardResolutionDate: string; // Board resolution date
 }
 
 /**
@@ -64,5 +87,30 @@ export function createEmptySecurityItem(srNo: number = 1): SecurityItem {
     chargeDetails: '',
     chargeCreationDate: '',
     freeFromEncumbrances: ''
+  };
+}
+
+/**
+ * Create empty valuation details
+ */
+export function createEmptyValuationDetails(): ValuationDetails {
+  return {
+    nameOfValuer: '',
+    dateOfReport: '',
+    fmv: '',
+    rv: '',
+    dsv: '',
+    guidelineGovtRate: ''
+  };
+}
+
+/**
+ * Create empty legal documents
+ */
+export function createEmptyLegalDocuments(): LegalDocuments {
+  return {
+    loanAgreementDate: '',
+    deedOfHypothecationDate: '',
+    boardResolutionDate: ''
   };
 }

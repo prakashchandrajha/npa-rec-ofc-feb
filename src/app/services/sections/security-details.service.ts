@@ -1,13 +1,15 @@
 import { Injectable } from '@angular/core';
 import { FormGroup, FormArray } from '@angular/forms';
 import { INpaSectionService } from '../interfaces/section-service.interface';
-import { SecurityDetails, SecurityItem, createEmptySecurityItem, SECURITY_TYPES, ASSET_TYPES, CHARGE_TYPES } from '../../interface/security-details';
+import { SecurityDetails, SecurityItem, ValuationDetails, LegalDocuments, createEmptySecurityItem, createEmptyValuationDetails, createEmptyLegalDocuments, SECURITY_TYPES, ASSET_TYPES, CHARGE_TYPES } from '../../interface/security-details';
 
 /**
  * Payload interface for Security Details section
  */
 export interface SecurityDetailsPayload {
   securities: SecurityItemPayload[];
+  valuation: ValuationPayload;
+  legalDocuments: LegalDocumentsPayload;
 }
 
 export interface SecurityItemPayload {
@@ -19,6 +21,21 @@ export interface SecurityItemPayload {
   chargeDetails: string;
   chargeCreationDate: string;
   freeFromEncumbrances: string;
+}
+
+export interface ValuationPayload {
+  nameOfValuer: string;
+  dateOfReport: string;
+  fmv: string;
+  rv: string;
+  dsv: string;
+  guidelineGovtRate: string;
+}
+
+export interface LegalDocumentsPayload {
+  loanAgreementDate: string;
+  deedOfHypothecationDate: string;
+  boardResolutionDate: string;
 }
 
 /**
@@ -68,6 +85,20 @@ export class SecurityDetailsService implements INpaSectionService<SecurityDetail
   }
 
   /**
+   * Create empty valuation details
+   */
+  createEmptyValuationDetails(): ValuationDetails {
+    return createEmptyValuationDetails();
+  }
+
+  /**
+   * Create empty legal documents
+   */
+  createEmptyLegalDocuments(): LegalDocuments {
+    return createEmptyLegalDocuments();
+  }
+
+  /**
    * Transform form data to API payload format
    */
   transformToPayload(formData: SecurityDetails): SecurityDetailsPayload {
@@ -81,7 +112,20 @@ export class SecurityDetailsService implements INpaSectionService<SecurityDetail
         chargeDetails: security.chargeDetails || '',
         chargeCreationDate: security.chargeCreationDate || '',
         freeFromEncumbrances: security.freeFromEncumbrances || ''
-      }))
+      })),
+      valuation: {
+        nameOfValuer: formData.valuation?.nameOfValuer || '',
+        dateOfReport: formData.valuation?.dateOfReport || '',
+        fmv: formData.valuation?.fmv || '',
+        rv: formData.valuation?.rv || '',
+        dsv: formData.valuation?.dsv || '',
+        guidelineGovtRate: formData.valuation?.guidelineGovtRate || ''
+      },
+      legalDocuments: {
+        loanAgreementDate: formData.legalDocuments?.loanAgreementDate || '',
+        deedOfHypothecationDate: formData.legalDocuments?.deedOfHypothecationDate || '',
+        boardResolutionDate: formData.legalDocuments?.boardResolutionDate || ''
+      }
     };
   }
 
@@ -99,7 +143,20 @@ export class SecurityDetailsService implements INpaSectionService<SecurityDetail
         chargeDetails: security.chargeDetails || '',
         chargeCreationDate: security.chargeCreationDate || '',
         freeFromEncumbrances: security.freeFromEncumbrances || ''
-      }))
+      })),
+      valuation: {
+        nameOfValuer: apiData.valuation?.nameOfValuer || '',
+        dateOfReport: apiData.valuation?.dateOfReport || '',
+        fmv: apiData.valuation?.fmv || '',
+        rv: apiData.valuation?.rv || '',
+        dsv: apiData.valuation?.dsv || '',
+        guidelineGovtRate: apiData.valuation?.guidelineGovtRate || ''
+      },
+      legalDocuments: {
+        loanAgreementDate: apiData.legalDocuments?.loanAgreementDate || '',
+        deedOfHypothecationDate: apiData.legalDocuments?.deedOfHypothecationDate || '',
+        boardResolutionDate: apiData.legalDocuments?.boardResolutionDate || ''
+      }
     };
   }
 
