@@ -1,0 +1,141 @@
+<div class="section-div p-6 bg-white rounded-lg shadow">
+  <h3 class="text-xl font-semibold mb-6 text-gray-800 border-b pb-3">7. Post Dated Cheques Details</h3>
+  
+  <form [formGroup]="form" class="space-y-6">
+    
+    <!-- a. Whether PDC available -->
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+      <div>
+        <label class="block text-sm font-medium text-gray-700 mb-1">a. Whether PDC available</label>
+        <select formControlName="pdcAvailable" 
+          class="w-full p-2 border border-gray-300 rounded focus:ring-1 focus:ring-blue-500 focus:border-blue-500 bg-white">
+          <option value="">Select</option>
+          <option value="yes">Yes</option>
+          <option value="no">No</option>
+        </select>
+      </div>
+      
+      <!-- b. Number of PDC Available (show if PDC available = yes) -->
+      <div *ngIf="form.get('pdcAvailable')?.value === 'yes'">
+        <label class="block text-sm font-medium text-gray-700 mb-1">b. Number of PDC Available</label>
+        <input formControlName="numberOfPDCAvailable" 
+          type="text" 
+          placeholder="Enter number of PDC"
+          class="w-full p-2 border border-gray-300 rounded focus:ring-1 focus:ring-blue-500 focus:border-blue-500">
+      </div>
+    </div>
+
+    <!-- c. Whether PDC presented in Bank -->
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+      <div>
+        <label class="block text-sm font-medium text-gray-700 mb-1">c. Whether PDC presented in Bank</label>
+        <select formControlName="pdcPresentedInBank" 
+          class="w-full p-2 border border-gray-300 rounded focus:ring-1 focus:ring-blue-500 focus:border-blue-500 bg-white">
+          <option value="">Select</option>
+          <option value="yes">Yes</option>
+          <option value="no">No</option>
+        </select>
+      </div>
+      
+      <!-- If No, Reason for same -->
+      <div *ngIf="form.get('pdcPresentedInBank')?.value === 'no'">
+        <label class="block text-sm font-medium text-gray-700 mb-1">If No, Reason for same</label>
+        <input formControlName="pdcNotPresentedReason" 
+          type="text" 
+          placeholder="Enter reason"
+          class="w-full p-2 border border-gray-300 rounded focus:ring-1 focus:ring-blue-500 focus:border-blue-500">
+      </div>
+    </div>
+
+    <!-- d. Whether PDC dishonored -->
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+      <div>
+        <label class="block text-sm font-medium text-gray-700 mb-1">d. Whether PDC dishonored</label>
+        <select formControlName="pdcDishonored" 
+          class="w-full p-2 border border-gray-300 rounded focus:ring-1 focus:ring-blue-500 focus:border-blue-500 bg-white">
+          <option value="">Select</option>
+          <option value="yes">Yes</option>
+          <option value="no">No</option>
+        </select>
+      </div>
+      
+      <!-- If yes, date of check return memo -->
+      <div *ngIf="form.get('pdcDishonored')?.value === 'yes'">
+        <label class="block text-sm font-medium text-gray-700 mb-1">If Yes, Date of Check Return Memo</label>
+        <input formControlName="checkReturnMemoDate" 
+          type="date" 
+          class="w-full p-2 border border-gray-300 rounded focus:ring-1 focus:ring-blue-500 focus:border-blue-500">
+      </div>
+    </div>
+
+    <!-- e. Whether Legal Notice issued under NI Act -->
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+      <div>
+        <label class="block text-sm font-medium text-gray-700 mb-1">e. Whether Legal Notice issued under NI Act</label>
+        <select formControlName="legalNoticeIssued" 
+          class="w-full p-2 border border-gray-300 rounded focus:ring-1 focus:ring-blue-500 focus:border-blue-500 bg-white">
+          <option value="">Select</option>
+          <option value="yes">Yes</option>
+          <option value="no">No</option>
+        </select>
+      </div>
+      
+      <!-- If yes, date of sending notice -->
+      <div *ngIf="form.get('legalNoticeIssued')?.value === 'yes'">
+        <label class="block text-sm font-medium text-gray-700 mb-1">If Yes, Date of Sending Notice</label>
+        <input formControlName="legalNoticeDate" 
+          type="date" 
+          class="w-full p-2 border border-gray-300 rounded focus:ring-1 focus:ring-blue-500 focus:border-blue-500">
+      </div>
+    </div>
+
+    <!-- f. Whether case filed under Sec 138 of NI Act -->
+    <div class="border border-gray-200 rounded-lg p-4">
+      <label class="block text-sm font-medium text-gray-700 mb-1">f. Whether case filed under Sec 138 of NI Act (In case of dishonored PDC)</label>
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mt-2">
+        <div>
+          <select formControlName="caseFiledUnder138" 
+            class="w-full p-2 border border-gray-300 rounded focus:ring-1 focus:ring-blue-500 focus:border-blue-500 bg-white">
+            <option value="">Select</option>
+            <option value="yes">Yes</option>
+            <option value="no">No</option>
+          </select>
+        </div>
+      </div>
+      
+      <!-- If Yes, show additional fields -->
+      <div *ngIf="form.get('caseFiledUnder138')?.value === 'yes'" class="grid grid-cols-1 md:grid-cols-3 gap-4 mt-4">
+        <div>
+          <label class="block text-sm font-medium text-gray-700 mb-1">Date of Filing of Case/Application</label>
+          <input formControlName="caseFilingDate" 
+            type="date" 
+            class="w-full p-2 border border-gray-300 rounded focus:ring-1 focus:ring-blue-500 focus:border-blue-500">
+        </div>
+        <div>
+          <label class="block text-sm font-medium text-gray-700 mb-1">Case No.</label>
+          <input formControlName="caseNumber" 
+            type="text" 
+            placeholder="Enter case number"
+            class="w-full p-2 border border-gray-300 rounded focus:ring-1 focus:ring-blue-500 focus:border-blue-500">
+        </div>
+        <div>
+          <label class="block text-sm font-medium text-gray-700 mb-1">Present Status</label>
+          <input formControlName="presentStatus" 
+            type="text" 
+            placeholder="Enter present status"
+            class="w-full p-2 border border-gray-300 rounded focus:ring-1 focus:ring-blue-500 focus:border-blue-500">
+        </div>
+      </div>
+      
+      <!-- g. If No, reason for same -->
+      <div *ngIf="form.get('caseFiledUnder138')?.value === 'no'" class="mt-4">
+        <label class="block text-sm font-medium text-gray-700 mb-1">g. If No, Reason for Same</label>
+        <textarea formControlName="caseNotFiledReason" 
+          rows="2"
+          placeholder="Enter reason"
+          class="w-full p-2 border border-gray-300 rounded focus:ring-1 focus:ring-blue-500 focus:border-blue-500 resize-none"></textarea>
+      </div>
+    </div>
+
+  </form>
+</div>

@@ -5,15 +5,12 @@ import { NpaPayload, NpaApiResponse } from './interfaces/section-service.interfa
 import { BasicDetailsService } from './sections/basic-details.service';
 import { FacilitySanctionedService } from './sections/facility-sanctioned.service';
 import { SecurityDetailsService } from './sections/security-details.service';
+import { ReleaseDetailsService } from './sections/release-details.service';
+import { PostDatedChequesDetailsService } from './sections/post-dated-cheques-details.service';
 
 /**
  * Facade service for NPA operations
  * Orchestrates all section services and handles API communication
- * 
- * Usage:
- * - Each section has its own service (BasicDetailsService, FacilitySanctionedService, etc.)
- * - This facade collects data from all sections and sends to API
- * - Clean separation of concerns - each section handles its own data transformation
  */
 @Injectable({
   providedIn: 'root'
@@ -25,12 +22,11 @@ export class NpaService {
     private http: HttpClient,
     private basicDetailsService: BasicDetailsService,
     private facilitySanctionedService: FacilitySanctionedService,
-    private securityDetailsService: SecurityDetailsService
+    private securityDetailsService: SecurityDetailsService,
+    private releaseDetailsService: ReleaseDetailsService,
+    private postDatedChequesDetailsService: PostDatedChequesDetailsService
   ) {}
 
-  /**
-   * Get authorization headers with Bearer token
-   */
   private getAuthHeaders(): HttpHeaders {
     const token = localStorage.getItem('token');
     return new HttpHeaders({
@@ -39,133 +35,81 @@ export class NpaService {
     });
   }
 
-  /**
-   * Create a new NPA record
-   * @param payload Complete NPA payload from all sections
-   * @returns Observable with the created NPA response
-   */
   createNpa(payload: NpaPayload): Observable<NpaApiResponse> {
     return this.http.post<NpaApiResponse>(this.apiUrl, payload, {
       headers: this.getAuthHeaders()
     });
   }
 
-  /**
-   * Get all NPA records
-   * @returns Observable with array of NPA records
-   */
   getAllNpa(): Observable<NpaApiResponse[]> {
     return this.http.get<NpaApiResponse[]>(this.apiUrl, {
       headers: this.getAuthHeaders()
     });
   }
 
-  /**
-   * Get a single NPA record by ID
-   * @param id The NPA ID
-   * @returns Observable with NPA details
-   */
   getNpaById(id: string): Observable<NpaApiResponse> {
     return this.http.get<NpaApiResponse>(`${this.apiUrl}/${id}`, {
       headers: this.getAuthHeaders()
     });
   }
 
-  /**
-   * Update an existing NPA record
-   * @param id The NPA ID
-   * @param payload Updated payload (can be partial)
-   * @returns Observable with updated NPA response
-   */
   updateNpa(id: string, payload: Partial<NpaPayload>): Observable<NpaApiResponse> {
     return this.http.put<NpaApiResponse>(`${this.apiUrl}/${id}`, payload, {
       headers: this.getAuthHeaders()
     });
   }
 
-  /**
-   * Delete an NPA record
-   * @param id The NPA ID
-   * @returns Observable void
-   */
   deleteNpa(id: string): Observable<void> {
     return this.http.delete<void>(`${this.apiUrl}/${id}`, {
       headers: this.getAuthHeaders()
     });
   }
 
-  // ============================================
   // Section Service Accessors
-  // ============================================
-  // These methods provide access to individual section services
-  // Each section service handles its own data transformation
-  // ============================================
-
-  /**
-   * Get the Basic Details section service
-   * Use this to transform basic details data before sending to API
-   */
   get basicDetails(): BasicDetailsService {
     return this.basicDetailsService;
   }
 
-  /**
-   * Get the Facility Sanctioned section service
-   * Use this to transform facility sanctioned data before sending to API
-   */
   get facilitySanctioned(): FacilitySanctionedService {
     return this.facilitySanctionedService;
   }
 
-  /**
-   * Get the Security Details section service
-   * Use this to transform security details data before sending to API
-   */
   get securityDetails(): SecurityDetailsService {
     return this.securityDetailsService;
   }
 
-  // Future section service accessors will be added here:
-  // get guarantorDetails(): GuarantorDetailsService { ... }
-  // etc.
+  get releaseDetails(): ReleaseDetailsService {
+    return this.releaseDetailsService;
+  }
 
-  /**
-   * Build complete NPA payload from all section form data
-   * @param sections Object containing form data from each section
-   * @returns Complete NpaPayload ready for API
-   * 
-   * Example usage:
-   * const payload = this.npaService.buildPayload({
-   *   basicDetails: this.basicDetailsComponent.form.value,
-   *   facilitySanctioned: this.facilitySanctionedComponent.form.value,
-   *   securityDetails: this.securityDetailsComponent.form.value
-   * });
-   */
+  get postDatedChequesDetails(): PostDatedChequesDetailsService {
+    return this.postDatedChequesDetailsService;
+  }
+
   buildPayload(sections: { 
     basicDetails?: any;
     facilitySanctioned?: any;
     securityDetails?: any;
-    // Add more sections as they are implemented:
-    // guarantorDetails?: any;
+    releaseDetails?: any;
+    postDatedChequesDetails?: any;
   }): NpaPayload {
     const payload: NpaPayload = {};
 
     if (sections.basicDetails) {
       payload.basicDetails = this.basicDetailsService.transformToPayload(sections.basicDetails);
     }
-
     if (sections.facilitySanctioned) {
       payload.facilitySanctioned = this.facilitySanctionedService.transformToPayload(sections.facilitySanctioned);
     }
-
     if (sections.securityDetails) {
       payload.securityDetails = this.securityDetailsService.transformToPayload(sections.securityDetails);
     }
-
-    // Add more sections as they are implemented:
-    // if (sections.guarantorDetails) {
-    //   payload.guarantorDetails = this.guarantorDetailsService.transformToPayload(sections.guarantorDetails);
-    // }
+    if (sections.releaseDetails) {
+      payload.releaseDetails = this.releaseDetailsService.transformToPayload(sections.releaseDetails);
+    }
+    if (sections.postDatedChequesDetails) {
+      payload.postDatedChequesDetails = this.postDatedChequesDetailsService.transformToPayload(sections.postDatedChequesDetails);
+    }
 
     return payload;
   }

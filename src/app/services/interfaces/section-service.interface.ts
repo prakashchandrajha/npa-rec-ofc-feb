@@ -48,6 +48,8 @@ export interface NpaPayload {
   basicDetails?: any;
   facilitySanctioned?: any;
   securityDetails?: any;
+  releaseDetails?: any;
+  postDatedChequesDetails?: any;
   // Future sections will be added here:
   // guarantorDetails?: GuarantorDetailsPayload;
   // etc.

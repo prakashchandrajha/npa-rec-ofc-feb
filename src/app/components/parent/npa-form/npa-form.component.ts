@@ -2,6 +2,8 @@ import { Component, ViewChild, AfterViewInit, ChangeDetectorRef } from '@angular
 import { BasicDetailsOfTheBorrower01Component } from '../../child/basic-details-of-the-borrower-01/basic-details-of-the-borrower-01.component';
 import { FacilitySanctionedComponent } from '../../child/facility-sanctioned/facility-sanctioned.component';
 import { SecurityDetailsComponent } from '../../child/security-details/security-details.component';
+import { ReleaseDetailsComponent } from '../../child/release-details/release-details.component';
+import { PostDatedChequesDetailsComponent } from '../../child/post-dated-cheques-details/post-dated-cheques-details.component';
 import { Router } from '@angular/router';
 import { CommonModule } from '@angular/common';
 import { NpaService } from '../../../services/npa.service';
@@ -13,6 +15,8 @@ import { NpaService } from '../../../services/npa.service';
  * - BasicDetailsOfTheBorrower01Component (Section 1)
  * - FacilitySanctionedComponent (Section 2)
  * - SecurityDetailsComponent (Section 3)
+ * - ReleaseDetailsComponent (Section 6)
+ * - PostDatedChequesDetailsComponent (Section 7)
  * - More sections will be added in the future
  * 
  * Architecture:
@@ -28,6 +32,8 @@ import { NpaService } from '../../../services/npa.service';
     BasicDetailsOfTheBorrower01Component, 
     FacilitySanctionedComponent,
     SecurityDetailsComponent,
+    ReleaseDetailsComponent,
+    PostDatedChequesDetailsComponent,
     CommonModule
   ],
   templateUrl: './npa-form.component.html',
@@ -44,6 +50,12 @@ export class NpaFormComponent implements AfterViewInit {
   
   // Section 3: Security Details
   @ViewChild(SecurityDetailsComponent) securityDetails!: SecurityDetailsComponent;
+  
+  // Section 6: Release Details
+  @ViewChild(ReleaseDetailsComponent) releaseDetails!: ReleaseDetailsComponent;
+  
+  // Section 7: Post Dated Cheques Details
+  @ViewChild(PostDatedChequesDetailsComponent) postDatedChequesDetails!: PostDatedChequesDetailsComponent;
   
   // Future child components will be added here:
   // @ViewChild(GuarantorDetailsComponent) guarantorDetails!: GuarantorDetailsComponent;
@@ -77,21 +89,7 @@ export class NpaFormComponent implements AfterViewInit {
       }
     }
 
-    // Facility Sanctioned section (Section 2) - optional, no mandatory validation
-    // If you need validation for this section, uncomment below:
-    // if (this.facilitySanctioned && this.facilitySanctioned.form) {
-    //   if (!this.npaService.facilitySanctioned.validate(this.facilitySanctioned.form)) {
-    //     isValid = false;
-    //   }
-    // }
-
-    // Security Details section (Section 3) - optional, no mandatory validation
-    // If you need validation for this section, uncomment below:
-    // if (this.securityDetails && this.securityDetails.form) {
-    //   if (!this.npaService.securityDetails.validate(this.securityDetails.form)) {
-    //     isValid = false;
-    //   }
-    // }
+    // Other sections are optional - no mandatory validation
 
     return isValid;
   }
@@ -118,10 +116,15 @@ export class NpaFormComponent implements AfterViewInit {
       sections.securityDetails = this.securityDetails.form.value;
     }
 
-    // Future sections will be added here:
-    // if (this.guarantorDetails) {
-    //   sections.guarantorDetails = this.guarantorDetails.form.value;
-    // }
+    // Collect Release Details (Section 6)
+    if (this.releaseDetails && this.releaseDetails.form) {
+      sections.releaseDetails = this.releaseDetails.form.value;
+    }
+
+    // Collect Post Dated Cheques Details (Section 7)
+    if (this.postDatedChequesDetails && this.postDatedChequesDetails.form) {
+      sections.postDatedChequesDetails = this.postDatedChequesDetails.form.value;
+    }
 
     // Use NpaService to build the complete payload
     return this.npaService.buildPayload(sections);
