@@ -8,6 +8,9 @@ import { SecurityDetailsService } from './sections/security-details.service';
 import { ReleaseDetailsService } from './sections/release-details.service';
 import { PostDatedChequesDetailsService } from './sections/post-dated-cheques-details.service';
 import { RepaymentScheduleService } from './sections/repayment-schedule.service';
+import { RestructuringDetailsService } from './sections/restructuring-details.service';
+import { CorrespondenceService } from './sections/correspondence.service';
+import { RevisedRepaymentScheduleService } from './sections/revised-repayment-schedule.service';
 
 /**
  * Facade service for NPA operations
@@ -28,6 +31,12 @@ export class NpaService {
     private postDatedChequesDetailsService: PostDatedChequesDetailsService
     ,
     private repaymentScheduleService: RepaymentScheduleService
+    ,
+    private restructuringDetailsService: RestructuringDetailsService
+    ,
+    private correspondenceService: CorrespondenceService
+    ,
+    private revisedRepaymentScheduleService: RevisedRepaymentScheduleService
   ) {}
 
   private getAuthHeaders(): HttpHeaders {
@@ -93,6 +102,18 @@ export class NpaService {
     return this.repaymentScheduleService;
   }
 
+  get restructuringDetails(): RestructuringDetailsService {
+    return this.restructuringDetailsService;
+  }
+
+  get correspondence(): CorrespondenceService {
+    return this.correspondenceService;
+  }
+
+  get revisedRepaymentSchedule(): RevisedRepaymentScheduleService {
+    return this.revisedRepaymentScheduleService;
+  }
+
   buildPayload(sections: { 
     basicDetails?: any;
     facilitySanctioned?: any;
@@ -100,6 +121,9 @@ export class NpaService {
     releaseDetails?: any;
     postDatedChequesDetails?: any;
     repaymentSchedule?: any;
+    restructuringDetails?: any;
+    correspondence?: any;
+    revisedRepaymentSchedule?: any;
   }): NpaPayload {
     const payload: NpaPayload = {};
 
@@ -120,6 +144,15 @@ export class NpaService {
     }
     if (sections.repaymentSchedule) {
       payload.repaymentSchedule = this.repaymentScheduleService.transformToPayload(sections.repaymentSchedule);
+    }
+    if (sections.restructuringDetails) {
+      payload.restructuringDetails = this.restructuringDetailsService.transformToPayload(sections.restructuringDetails);
+    }
+    if (sections.revisedRepaymentSchedule) {
+      payload.revisedRepaymentSchedule = this.revisedRepaymentScheduleService.transformToPayload(sections.revisedRepaymentSchedule);
+    }
+    if (sections.correspondence) {
+      payload.correspondence = this.correspondenceService.transformToPayload(sections.correspondence);
     }
 
     return payload;

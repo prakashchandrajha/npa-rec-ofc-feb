@@ -5,6 +5,9 @@ import { SecurityDetailsComponent } from '../../child/security-details/security-
 import { ReleaseDetailsComponent } from '../../child/release-details/release-details.component';
 import { PostDatedChequesDetailsComponent } from '../../child/post-dated-cheques-details/post-dated-cheques-details.component';
 import { RepaymentScheduleComponent } from '../../child/repayment-schedule/repayment-schedule.component';
+import { RestructuringDetailsComponent } from '../../child/restructuring-details/restructuring-details.component';
+import { CorrespondenceComponent } from '../../child/correspondence/correspondence.component';
+import { RevisedRepaymentScheduleComponent } from '../../child/revised-repayment-schedule/revised-repayment-schedule.component';
 import { Router } from '@angular/router';
 import { CommonModule } from '@angular/common';
 import { NpaService } from '../../../services/npa.service';
@@ -36,6 +39,9 @@ import { NpaService } from '../../../services/npa.service';
     ReleaseDetailsComponent,
     PostDatedChequesDetailsComponent,
     RepaymentScheduleComponent,
+    RestructuringDetailsComponent,
+    CorrespondenceComponent,
+    RevisedRepaymentScheduleComponent,
     CommonModule
   ],
   templateUrl: './npa-form.component.html',
@@ -61,6 +67,15 @@ export class NpaFormComponent implements AfterViewInit {
 
   // Section 8: Original Repayment Schedule (non mandatory)
   @ViewChild(RepaymentScheduleComponent) repaymentSchedule!: RepaymentScheduleComponent;
+
+  // Section 9: Restructuring details
+  @ViewChild(RestructuringDetailsComponent) restructuringDetails!: RestructuringDetailsComponent;
+
+  // Section 13: Correspondence
+  @ViewChild(CorrespondenceComponent) correspondence!: CorrespondenceComponent;
+
+  // Section 10: Revised Repayment Schedule
+  @ViewChild(RevisedRepaymentScheduleComponent) revisedSchedule!: RevisedRepaymentScheduleComponent;
   
   // Future child components will be added here:
   // @ViewChild(GuarantorDetailsComponent) guarantorDetails!: GuarantorDetailsComponent;
@@ -134,6 +149,21 @@ export class NpaFormComponent implements AfterViewInit {
     // Collect Original Repayment Schedule (Section 8) - optional
     if (this.repaymentSchedule && this.repaymentSchedule.form) {
       sections.repaymentSchedule = this.repaymentSchedule.form.value;
+    }
+
+  // Collect Restructuring Details (Section 9) - optional
+    if (this.restructuringDetails && this.restructuringDetails.form) {
+      sections.restructuringDetails = this.restructuringDetails.form.value;
+    }
+
+    // Collect revised repayment schedule (Section 10)
+    if (this.revisedSchedule && this.revisedSchedule.form) {
+      sections.revisedRepaymentSchedule = this.revisedSchedule.form.value;
+    }
+
+    // Collect correspondence records (Section 13)
+    if (this.correspondence && this.correspondence.form) {
+      sections.correspondence = this.correspondence.form.value;
     }
 
     // Use NpaService to build the complete payload

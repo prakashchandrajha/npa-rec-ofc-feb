@@ -1,0 +1,32 @@
+<div class="section-div p-6 bg-white rounded-lg shadow">
+  <h3 class="text-xl font-semibold mb-6 text-gray-800 border-b pb-3">9. Restructuring / Rephasement Details</h3>
+
+  <form [formGroup]="form">
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
+      <div>
+        <label class="block text-sm font-medium text-gray-700 mb-1">a. Whether Restructuring/Rephasement done</label>
+        <select formControlName="restructured" class="w-full p-2 border border-gray-300 rounded">
+          <option value="">Select</option>
+          <option value="yes">Yes</option>
+          <option value="no">No</option>
+        </select>
+      </div>
+      <div>
+        <label class="block text-sm font-medium text-gray-700 mb-1">b. Date of Restructuring</label>
+        <input formControlName="restructuringDate" type="date" class="w-full p-2 border border-gray-300 rounded">
+      </div>
+      <div>
+        <label class="block text-sm font-medium text-gray-700 mb-1">Reference No.</label>
+        <input formControlName="referenceNo" type="text" class="w-full p-2 border border-gray-300 rounded">
+      </div>
+      <div>
+        <label class="block text-sm font-medium text-gray-700 mb-1">c. Term of restructuring</label>
+        <input formControlName="restructuringTerm" type="text" class="w-full p-2 border border-gray-300 rounded">
+      </div>
+      <div class="md:col-span-2">
+        <label class="block text-sm font-medium text-gray-700 mb-1">d. Non-repayment and non-compliance of the Terms of the restructured facility</label>
+        <textarea formControlName="nonRepaymentNonCompliance" rows="3" class="w-full p-2 border border-gray-300 rounded"></textarea>
+      </div>
+    </div>
+  </form>
+</div>

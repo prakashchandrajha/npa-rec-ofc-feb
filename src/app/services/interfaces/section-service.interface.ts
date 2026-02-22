@@ -51,6 +51,9 @@ export interface NpaPayload {
   releaseDetails?: any;
   postDatedChequesDetails?: any;
   repaymentSchedule?: any; // Section 8: Original Repayment Schedule
+  restructuringDetails?: any; // Section 9: Restructuring / Rephasement Details
+  correspondence?: any; // Section 13: Correspondence records
+  revisedRepaymentSchedule?: any; // Section 10: Revised repayment schedule
   // Future sections will be added here:
   // guarantorDetails?: GuarantorDetailsPayload;
   // etc.
