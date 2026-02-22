@@ -1,0 +1,118 @@
+<div class="section-div p-6 bg-white rounded-lg shadow">
+  <h3 class="text-xl font-semibold mb-6 text-gray-800 border-b pb-3">3. Details of Security</h3>
+  
+  <form [formGroup]="form">
+    <div formArrayName="securities" class="overflow-x-auto">
+      <table class="w-full border-collapse border border-gray-300 text-sm">
+        <thead>
+          <tr class="bg-gray-100">
+            <th class="border border-gray-300 p-2 text-center w-12 font-medium">Sr.</th>
+            <th class="border border-gray-300 p-2 text-left font-medium">Type of Security</th>
+            <th class="border border-gray-300 p-2 text-left w-28 font-medium">Type of Asset</th>
+            <th class="border border-gray-300 p-2 text-left font-medium">Details of Properties - Complete Address including admeasuring</th>
+            <th class="border border-gray-300 p-2 text-left w-32 font-medium">Type of Charge</th>
+            <th class="border border-gray-300 p-2 text-left font-medium">Charge Details (if paripassu or other than first exclusive charge, details with date of NOC)</th>
+            <th class="border border-gray-300 p-2 text-left w-32 font-medium">Charge Creation Date</th>
+            <th class="border border-gray-300 p-2 text-left w-28 font-medium">Free from Encumbrances?</th>
+            <th class="border border-gray-300 p-2 text-center w-16 font-medium">Action</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr *ngFor="let security of securities.controls; let i = index" 
+            [formGroupName]="i" 
+            class="hover:bg-gray-50 transition-colors">
+            
+            <!-- Serial Number -->
+            <td class="border border-gray-300 p-2 text-center font-medium">
+              {{ i + 1 }}
+            </td>
+            
+            <!-- Type of Security -->
+            <td class="border border-gray-300 p-2">
+              <select formControlName="typeOfSecurity" 
+                class="w-full p-1.5 border border-gray-300 rounded focus:ring-1 focus:ring-blue-500 focus:border-blue-500 bg-white">
+                <option value="">Select</option>
+                <option *ngFor="let type of securityTypes" [value]="type">{{ type }}</option>
+              </select>
+            </td>
+            
+            <!-- Type of Asset -->
+            <td class="border border-gray-300 p-2">
+              <select formControlName="typeOfAsset" 
+                class="w-full p-1.5 border border-gray-300 rounded focus:ring-1 focus:ring-blue-500 focus:border-blue-500 bg-white">
+                <option value="">Select</option>
+                <option *ngFor="let type of assetTypes" [value]="type">{{ type }}</option>
+              </select>
+            </td>
+            
+            <!-- Property Details -->
+            <td class="border border-gray-300 p-2">
+              <textarea formControlName="propertyDetails" 
+                placeholder="Complete Address" 
+                rows="2"
+                class="w-full p-1.5 border border-gray-300 rounded focus:ring-1 focus:ring-blue-500 focus:border-blue-500 resize-none"></textarea>
+            </td>
+            
+            <!-- Type of Charge -->
+            <td class="border border-gray-300 p-2">
+              <select formControlName="typeOfCharge" 
+                class="w-full p-1.5 border border-gray-300 rounded focus:ring-1 focus:ring-blue-500 focus:border-blue-500 bg-white">
+                <option value="">Select</option>
+                <option *ngFor="let type of chargeTypes" [value]="type">{{ type }}</option>
+              </select>
+            </td>
+            
+            <!-- Charge Details -->
+            <td class="border border-gray-300 p-2">
+              <textarea formControlName="chargeDetails" 
+                placeholder="Details with date of NOC" 
+                rows="2"
+                class="w-full p-1.5 border border-gray-300 rounded focus:ring-1 focus:ring-blue-500 focus:border-blue-500 resize-none"></textarea>
+            </td>
+            
+            <!-- Charge Creation Date -->
+            <td class="border border-gray-300 p-2">
+              <input formControlName="chargeCreationDate" 
+                type="date" 
+                class="w-full p-1.5 border border-gray-300 rounded focus:ring-1 focus:ring-blue-500 focus:border-blue-500">
+            </td>
+            
+            <!-- Free from Encumbrances -->
+            <td class="border border-gray-300 p-2">
+              <select formControlName="freeFromEncumbrances" 
+                class="w-full p-1.5 border border-gray-300 rounded focus:ring-1 focus:ring-blue-500 focus:border-blue-500 bg-white">
+                <option value="">Select</option>
+                <option value="yes">Yes</option>
+                <option value="no">No</option>
+              </select>
+            </td>
+            
+            <!-- Action -->
+            <td class="border border-gray-300 p-2 text-center">
+              <button type="button" 
+                (click)="removeSecurity(i)" 
+                class="px-2 py-1 bg-red-500 text-white rounded hover:bg-red-600 text-xs transition-colors"
+                [class.opacity-50]="securities.controls.length === 1"
+                [disabled]="securities.controls.length === 1"
+                title="Remove security">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 inline" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                </svg>
+              </button>
+            </td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+    
+    <!-- Add Security Button -->
+    <button type="button" 
+      (click)="addSecurity()" 
+      class="mt-3 px-4 py-2 bg-green-500 text-white rounded-md hover:bg-green-600 transition-colors flex items-center gap-2 text-sm">
+      <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" />
+      </svg>
+      Add Security
+    </button>
+  </form>
+</div>

@@ -47,8 +47,8 @@ export interface INpaSectionService<T> {
 export interface NpaPayload {
   basicDetails?: any;
   facilitySanctioned?: any;
+  securityDetails?: any;
   // Future sections will be added here:
-  // securityDetails?: SecurityDetailsPayload;
   // guarantorDetails?: GuarantorDetailsPayload;
   // etc.
 }

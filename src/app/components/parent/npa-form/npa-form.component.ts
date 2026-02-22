@@ -1,6 +1,7 @@
 import { Component, ViewChild, AfterViewInit, ChangeDetectorRef } from '@angular/core';
 import { BasicDetailsOfTheBorrower01Component } from '../../child/basic-details-of-the-borrower-01/basic-details-of-the-borrower-01.component';
 import { FacilitySanctionedComponent } from '../../child/facility-sanctioned/facility-sanctioned.component';
+import { SecurityDetailsComponent } from '../../child/security-details/security-details.component';
 import { Router } from '@angular/router';
 import { CommonModule } from '@angular/common';
 import { NpaService } from '../../../services/npa.service';
@@ -11,6 +12,7 @@ import { NpaService } from '../../../services/npa.service';
  * This component orchestrates all child form sections:
  * - BasicDetailsOfTheBorrower01Component (Section 1)
  * - FacilitySanctionedComponent (Section 2)
+ * - SecurityDetailsComponent (Section 3)
  * - More sections will be added in the future
  * 
  * Architecture:
@@ -25,6 +27,7 @@ import { NpaService } from '../../../services/npa.service';
   imports: [
     BasicDetailsOfTheBorrower01Component, 
     FacilitySanctionedComponent,
+    SecurityDetailsComponent,
     CommonModule
   ],
   templateUrl: './npa-form.component.html',
@@ -39,8 +42,11 @@ export class NpaFormComponent implements AfterViewInit {
   // Section 2: Facility Sanctioned
   @ViewChild(FacilitySanctionedComponent) facilitySanctioned!: FacilitySanctionedComponent;
   
+  // Section 3: Security Details
+  @ViewChild(SecurityDetailsComponent) securityDetails!: SecurityDetailsComponent;
+  
   // Future child components will be added here:
-  // @ViewChild(SecurityDetailsComponent) securityDetails!: SecurityDetailsComponent;
+  // @ViewChild(GuarantorDetailsComponent) guarantorDetails!: GuarantorDetailsComponent;
   
   showModal: boolean = false;
   npaId: string = '';
@@ -79,9 +85,12 @@ export class NpaFormComponent implements AfterViewInit {
     //   }
     // }
 
-    // Future sections validation will be added here:
-    // if (this.securityDetails && !this.npaService.securityDetails.validate(this.securityDetails.form)) {
-    //   isValid = false;
+    // Security Details section (Section 3) - optional, no mandatory validation
+    // If you need validation for this section, uncomment below:
+    // if (this.securityDetails && this.securityDetails.form) {
+    //   if (!this.npaService.securityDetails.validate(this.securityDetails.form)) {
+    //     isValid = false;
+    //   }
     // }
 
     return isValid;
@@ -104,9 +113,14 @@ export class NpaFormComponent implements AfterViewInit {
       sections.facilitySanctioned = this.facilitySanctioned.form.value;
     }
 
+    // Collect Security Details (Section 3)
+    if (this.securityDetails && this.securityDetails.form) {
+      sections.securityDetails = this.securityDetails.form.value;
+    }
+
     // Future sections will be added here:
-    // if (this.securityDetails) {
-    //   sections.securityDetails = this.securityDetails.form.value;
+    // if (this.guarantorDetails) {
+    //   sections.guarantorDetails = this.guarantorDetails.form.value;
     // }
 
     // Use NpaService to build the complete payload
