@@ -7,6 +7,7 @@ import { FacilitySanctionedService } from './sections/facility-sanctioned.servic
 import { SecurityDetailsService } from './sections/security-details.service';
 import { ReleaseDetailsService } from './sections/release-details.service';
 import { PostDatedChequesDetailsService } from './sections/post-dated-cheques-details.service';
+import { RepaymentScheduleService } from './sections/repayment-schedule.service';
 
 /**
  * Facade service for NPA operations
@@ -25,6 +26,8 @@ export class NpaService {
     private securityDetailsService: SecurityDetailsService,
     private releaseDetailsService: ReleaseDetailsService,
     private postDatedChequesDetailsService: PostDatedChequesDetailsService
+    ,
+    private repaymentScheduleService: RepaymentScheduleService
   ) {}
 
   private getAuthHeaders(): HttpHeaders {
@@ -86,12 +89,17 @@ export class NpaService {
     return this.postDatedChequesDetailsService;
   }
 
+  get repaymentSchedule(): RepaymentScheduleService {
+    return this.repaymentScheduleService;
+  }
+
   buildPayload(sections: { 
     basicDetails?: any;
     facilitySanctioned?: any;
     securityDetails?: any;
     releaseDetails?: any;
     postDatedChequesDetails?: any;
+    repaymentSchedule?: any;
   }): NpaPayload {
     const payload: NpaPayload = {};
 
@@ -109,6 +117,9 @@ export class NpaService {
     }
     if (sections.postDatedChequesDetails) {
       payload.postDatedChequesDetails = this.postDatedChequesDetailsService.transformToPayload(sections.postDatedChequesDetails);
+    }
+    if (sections.repaymentSchedule) {
+      payload.repaymentSchedule = this.repaymentScheduleService.transformToPayload(sections.repaymentSchedule);
     }
 
     return payload;

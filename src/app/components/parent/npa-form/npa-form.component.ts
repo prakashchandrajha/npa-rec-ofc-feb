@@ -4,6 +4,7 @@ import { FacilitySanctionedComponent } from '../../child/facility-sanctioned/fac
 import { SecurityDetailsComponent } from '../../child/security-details/security-details.component';
 import { ReleaseDetailsComponent } from '../../child/release-details/release-details.component';
 import { PostDatedChequesDetailsComponent } from '../../child/post-dated-cheques-details/post-dated-cheques-details.component';
+import { RepaymentScheduleComponent } from '../../child/repayment-schedule/repayment-schedule.component';
 import { Router } from '@angular/router';
 import { CommonModule } from '@angular/common';
 import { NpaService } from '../../../services/npa.service';
@@ -34,6 +35,7 @@ import { NpaService } from '../../../services/npa.service';
     SecurityDetailsComponent,
     ReleaseDetailsComponent,
     PostDatedChequesDetailsComponent,
+    RepaymentScheduleComponent,
     CommonModule
   ],
   templateUrl: './npa-form.component.html',
@@ -56,6 +58,9 @@ export class NpaFormComponent implements AfterViewInit {
   
   // Section 7: Post Dated Cheques Details
   @ViewChild(PostDatedChequesDetailsComponent) postDatedChequesDetails!: PostDatedChequesDetailsComponent;
+
+  // Section 8: Original Repayment Schedule (non mandatory)
+  @ViewChild(RepaymentScheduleComponent) repaymentSchedule!: RepaymentScheduleComponent;
   
   // Future child components will be added here:
   // @ViewChild(GuarantorDetailsComponent) guarantorDetails!: GuarantorDetailsComponent;
@@ -124,6 +129,11 @@ export class NpaFormComponent implements AfterViewInit {
     // Collect Post Dated Cheques Details (Section 7)
     if (this.postDatedChequesDetails && this.postDatedChequesDetails.form) {
       sections.postDatedChequesDetails = this.postDatedChequesDetails.form.value;
+    }
+
+    // Collect Original Repayment Schedule (Section 8) - optional
+    if (this.repaymentSchedule && this.repaymentSchedule.form) {
+      sections.repaymentSchedule = this.repaymentSchedule.form.value;
     }
 
     // Use NpaService to build the complete payload
