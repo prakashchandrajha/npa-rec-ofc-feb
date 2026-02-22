@@ -1,29 +1,28 @@
 import { Injectable } from '@angular/core';
 import { HttpClient, HttpHeaders } from '@angular/common/http';
-import { Observable } from 'rxjs';
-import { BasicDetailsOfTheBorrower } from '../interface/basic-details-of-borrower';
+import { Observable, of } from 'rxjs';
+import { NpaPayload, NpaApiResponse } from './interfaces/section-service.interface';
+import { BasicDetailsService } from './sections/basic-details.service';
 
-export interface NpaCreateResponse {
-  id: string;
-  npaId?: string;
-  message?: string;
-}
-
-export interface NpaDetailResponse {
-  id: string;
-  basicDetails: BasicDetailsOfTheBorrower;
-  status?: string;
-  createdAt?: string;
-  updatedAt?: string;
-}
-
+/**
+ * Facade service for NPA operations
+ * Orchestrates all section services and handles API communication
+ * 
+ * Usage:
+ * - Each section has its own service (BasicDetailsService, FacilitySanctionedService, etc.)
+ * - This facade collects data from all sections and sends to API
+ * - Clean separation of concerns - each section handles its own data transformation
+ */
 @Injectable({
   providedIn: 'root'
 })
 export class NpaService {
   private apiUrl = 'http://localhost:8080/api/npa';
 
-  constructor(private http: HttpClient) {}
+  constructor(
+    private http: HttpClient,
+    private basicDetailsService: BasicDetailsService
+  ) {}
 
   /**
    * Get authorization headers with Bearer token
@@ -38,24 +37,11 @@ export class NpaService {
 
   /**
    * Create a new NPA record
-   * @param basicDetails The basic details of the borrower
+   * @param payload Complete NPA payload from all sections
    * @returns Observable with the created NPA response
    */
-  createNpa(basicDetails: BasicDetailsOfTheBorrower): Observable<NpaCreateResponse> {
-    const payload = {
-      basicDetails: {
-        divisionName: basicDetails.divisionName,
-        accountName: basicDetails.accountName,
-        npaDate: basicDetails.npaClassificationDate,
-        businessActivity: basicDetails.businessActivity,
-        registeredAddress: basicDetails.registeredAddress,
-        factoryRunningCondition: basicDetails.factoryRunningCondition,
-        factoryLeasedOut: basicDetails.factoryLeasedOut,
-        boardMembers: basicDetails.boardMembers || []
-      }
-    };
-
-    return this.http.post<NpaCreateResponse>(this.apiUrl, payload, {
+  createNpa(payload: NpaPayload): Observable<NpaApiResponse> {
+    return this.http.post<NpaApiResponse>(this.apiUrl, payload, {
       headers: this.getAuthHeaders()
     });
   }
@@ -64,8 +50,8 @@ export class NpaService {
    * Get all NPA records
    * @returns Observable with array of NPA records
    */
-  getAllNpa(): Observable<NpaDetailResponse[]> {
-    return this.http.get<NpaDetailResponse[]>(this.apiUrl, {
+  getAllNpa(): Observable<NpaApiResponse[]> {
+    return this.http.get<NpaApiResponse[]>(this.apiUrl, {
       headers: this.getAuthHeaders()
     });
   }
@@ -75,8 +61,8 @@ export class NpaService {
    * @param id The NPA ID
    * @returns Observable with NPA details
    */
-  getNpaById(id: string): Observable<NpaDetailResponse> {
-    return this.http.get<NpaDetailResponse>(`${this.apiUrl}/${id}`, {
+  getNpaById(id: string): Observable<NpaApiResponse> {
+    return this.http.get<NpaApiResponse>(`${this.apiUrl}/${id}`, {
       headers: this.getAuthHeaders()
     });
   }
@@ -84,11 +70,11 @@ export class NpaService {
   /**
    * Update an existing NPA record
    * @param id The NPA ID
-   * @param basicDetails Updated basic details
+   * @param payload Updated payload (can be partial)
    * @returns Observable with updated NPA response
    */
-  updateNpa(id: string, basicDetails: Partial<BasicDetailsOfTheBorrower>): Observable<NpaDetailResponse> {
-    return this.http.put<NpaDetailResponse>(`${this.apiUrl}/${id}`, basicDetails, {
+  updateNpa(id: string, payload: Partial<NpaPayload>): Observable<NpaApiResponse> {
+    return this.http.put<NpaApiResponse>(`${this.apiUrl}/${id}`, payload, {
       headers: this.getAuthHeaders()
     });
   }
@@ -102,5 +88,56 @@ export class NpaService {
     return this.http.delete<void>(`${this.apiUrl}/${id}`, {
       headers: this.getAuthHeaders()
     });
+  }
+
+  // ============================================
+  // Section Service Accessors
+  // ============================================
+  // These methods provide access to individual section services
+  // Each section service handles its own data transformation
+  // ============================================
+
+  /**
+   * Get the Basic Details section service
+   * Use this to transform basic details data before sending to API
+   */
+  get basicDetails(): BasicDetailsService {
+    return this.basicDetailsService;
+  }
+
+  // Future section service accessors will be added here:
+  // get facilitySanctioned(): FacilitySanctionedService { ... }
+  // get securityDetails(): SecurityDetailsService { ... }
+  // get guarantorDetails(): GuarantorDetailsService { ... }
+  // etc.
+
+  /**
+   * Build complete NPA payload from all section form data
+   * @param sections Object containing form data from each section
+   * @returns Complete NpaPayload ready for API
+   * 
+   * Example usage:
+   * const payload = this.npaService.buildPayload({
+   *   basicDetails: this.basicDetailsComponent.form.value
+   * });
+   */
+  buildPayload(sections: { 
+    basicDetails?: any;
+    // Add more sections as they are implemented:
+    // facilitySanctioned?: any;
+    // securityDetails?: any;
+  }): NpaPayload {
+    const payload: NpaPayload = {};
+
+    if (sections.basicDetails) {
+      payload.basicDetails = this.basicDetailsService.transformToPayload(sections.basicDetails);
+    }
+
+    // Add more sections as they are implemented:
+    // if (sections.facilitySanctioned) {
+    //   payload.facilitySanctioned = this.facilitySanctionedService.transformToPayload(sections.facilitySanctioned);
+    // }
+
+    return payload;
   }
 }

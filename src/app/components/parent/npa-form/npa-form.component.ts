@@ -1,10 +1,22 @@
 import { Component, ViewChild, AfterViewInit, ChangeDetectorRef } from '@angular/core';
 import { BasicDetailsOfTheBorrower01Component } from '../../child/basic-details-of-the-borrower-01/basic-details-of-the-borrower-01.component';
-import { BasicDetailsOfTheBorrower } from '../../../interface/basic-details-of-borrower';
 import { Router } from '@angular/router';
 import { CommonModule } from '@angular/common';
 import { NpaService } from '../../../services/npa.service';
 
+/**
+ * Parent NPA Form Component
+ * 
+ * This component orchestrates all child form sections:
+ * - BasicDetailsOfTheBorrower01Component (implemented)
+ * - More sections will be added in the future
+ * 
+ * Architecture:
+ * - Each child component has its own form and validation
+ * - Each section has its own service (accessed via NpaService)
+ * - NpaService.buildPayload() collects data from all sections
+ * - Clean separation of concerns for scalability
+ */
 @Component({
   selector: 'app-npa-form',
   imports: [BasicDetailsOfTheBorrower01Component, CommonModule],
@@ -13,6 +25,10 @@ import { NpaService } from '../../../services/npa.service';
 })
 export class NpaFormComponent implements AfterViewInit {
   @ViewChild(BasicDetailsOfTheBorrower01Component) borrowerDetails!: BasicDetailsOfTheBorrower01Component;
+  
+  // Future child components will be added here:
+  // @ViewChild(FacilitySanctionedComponent) facilitySanctioned!: FacilitySanctionedComponent;
+  // @ViewChild(SecurityDetailsComponent) securityDetails!: SecurityDetailsComponent;
   
   showModal: boolean = false;
   npaId: string = '';
@@ -26,66 +42,113 @@ export class NpaFormComponent implements AfterViewInit {
   ) {}
 
   ngAfterViewInit(): void {
-    // Child component is now available
+    // Child components are now available
   }
 
-  onSubmit(): void {
-    if (this.borrowerDetails && this.borrowerDetails.form) {
-      // Mark all fields as touched to show validation errors
-      this.borrowerDetails.form.markAllAsTouched();
-      
-      if (this.borrowerDetails.form.valid) {
-        this.isSubmitting = true;
-        this.errorMessage = '';
-        
-        const formData = this.borrowerDetails.form.value as BasicDetailsOfTheBorrower;
+  /**
+   * Validate all form sections
+   * @returns true if all sections are valid
+   */
+  private validateAllSections(): boolean {
+    let isValid = true;
 
-        this.npaService.createNpa(formData).subscribe({
-          next: (response) => {
-            this.isSubmitting = false;
-            
-            // Extract NPA ID from response
-            const possibleIdKeys = ['id', 'npaId', 'npa_id', 'NPA_ID', 'Id', 'ID'];
-            let foundId = 'N/A';
-            
-            for (const key of possibleIdKeys) {
-              if (response && (response as any)[key] !== undefined) {
-                foundId = (response as any)[key];
-                break;
-              }
-            }
-            
-            this.npaId = foundId;
-            
-            if (this.npaId !== 'N/A') {
-              this.showModal = true;
-              setTimeout(() => this.cdr.detectChanges(), 0);
-            } else {
-              this.errorMessage = 'NPA created but could not extract ID. Response: ' + JSON.stringify(response);
-              this.cdr.detectChanges();
-            }
-          },
-          error: (error) => {
-            this.isSubmitting = false;
-            
-            let errorMessage = 'Failed to create NPA. Please try again.';
-            
-            if (error.error && typeof error.error === 'string') {
-              errorMessage = error.error;
-            } else if (error.error && error.error.message) {
-              errorMessage = error.error.message;
-            } else if (error.message) {
-              errorMessage = error.message;
-            } else if (error.status) {
-              errorMessage = `Server error (${error.status}): ${error.statusText || 'Unknown error'}`;
-            }
-            
-            this.errorMessage = errorMessage;
-            this.cdr.detectChanges();
-          }
-        });
+    // Validate Basic Details section
+    if (this.borrowerDetails && this.borrowerDetails.form) {
+      if (!this.npaService.basicDetails.validate(this.borrowerDetails.form)) {
+        isValid = false;
       }
     }
+
+    // Future sections validation will be added here:
+    // if (this.facilitySanctioned && !this.npaService.facilitySanctioned.validate(this.facilitySanctioned.form)) {
+    //   isValid = false;
+    // }
+
+    return isValid;
+  }
+
+  /**
+   * Collect data from all form sections and build payload
+   * @returns Complete NPA payload
+   */
+  private collectFormData(): any {
+    const sections: any = {};
+
+    // Collect Basic Details
+    if (this.borrowerDetails && this.borrowerDetails.form) {
+      sections.basicDetails = this.borrowerDetails.form.value;
+    }
+
+    // Future sections will be added here:
+    // if (this.facilitySanctioned) {
+    //   sections.facilitySanctioned = this.facilitySanctioned.form.value;
+    // }
+
+    // Use NpaService to build the complete payload
+    return this.npaService.buildPayload(sections);
+  }
+
+  /**
+   * Handle form submission
+   */
+  onSubmit(): void {
+    // Validate all sections
+    if (!this.validateAllSections()) {
+      this.errorMessage = 'Please fill in all mandatory fields';
+      return;
+    }
+
+    this.isSubmitting = true;
+    this.errorMessage = '';
+
+    // Collect and transform data from all sections
+    const payload = this.collectFormData();
+
+    // Submit to API
+    this.npaService.createNpa(payload).subscribe({
+      next: (response) => {
+        this.isSubmitting = false;
+        
+        // Extract NPA ID from response
+        const possibleIdKeys = ['id', 'npaId', 'npa_id', 'NPA_ID', 'Id', 'ID'];
+        let foundId = 'N/A';
+        
+        for (const key of possibleIdKeys) {
+          if (response && (response as any)[key] !== undefined) {
+            foundId = (response as any)[key];
+            break;
+          }
+        }
+        
+        this.npaId = foundId;
+        
+        if (this.npaId !== 'N/A') {
+          this.showModal = true;
+          setTimeout(() => this.cdr.detectChanges(), 0);
+        } else {
+          this.errorMessage = 'NPA created but could not extract ID. Response: ' + JSON.stringify(response);
+          this.cdr.detectChanges();
+        }
+      },
+      error: (error) => {
+        this.isSubmitting = false;
+        
+        let errorMessage = 'Failed to create NPA. Please try again.';
+        
+        if (error.error && typeof error.error === 'string') {
+          errorMessage = error.error;
+        } else if (error.error && error.error.message) {
+          errorMessage = error.error.message;
+        } else if (error.message) {
+          errorMessage = error.message;
+        } else if (error.status) {
+          errorMessage = `Server error (${error.status}): ${error.statusText || 'Unknown error'}`;
+        }
+        
+        this.errorMessage = errorMessage;
+        this.cdr.detectChanges();
+      }
+    });
   }
 
   closeModal(): void {
