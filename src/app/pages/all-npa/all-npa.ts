@@ -24,6 +24,11 @@ interface NpaRecord {
   amount: number | null;
   status?: string;
   createdAt?: string;
+  taskName?: string;
+  task?: {
+    taskName: string;
+    taskId: string;
+  };
 }
 
 @Component({
