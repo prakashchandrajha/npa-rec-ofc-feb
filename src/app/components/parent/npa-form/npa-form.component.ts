@@ -1,4 +1,7 @@
-import { Component, ViewChild, AfterViewInit, ChangeDetectorRef } from '@angular/core';
+import { Component, ViewChild, AfterViewInit, ChangeDetectorRef, signal } from '@angular/core';
+import { CommonModule } from '@angular/common';
+import { Router } from '@angular/router';
+import { NpaService } from '../../../services/npa.service';
 import { BasicDetailsOfTheBorrower01Component } from '../../child/basic-details-of-the-borrower-01/basic-details-of-the-borrower-01.component';
 import { FacilitySanctionedComponent } from '../../child/facility-sanctioned/facility-sanctioned.component';
 import { SecurityDetailsComponent } from '../../child/security-details/security-details.component';
@@ -8,32 +11,22 @@ import { RepaymentScheduleComponent } from '../../child/repayment-schedule/repay
 import { RestructuringDetailsComponent } from '../../child/restructuring-details/restructuring-details.component';
 import { CorrespondenceComponent } from '../../child/correspondence/correspondence.component';
 import { RevisedRepaymentScheduleComponent } from '../../child/revised-repayment-schedule/revised-repayment-schedule.component';
-import { Router } from '@angular/router';
-import { CommonModule } from '@angular/common';
-import { NpaService } from '../../../services/npa.service';
 
 /**
- * Parent NPA Form Component
+ * Parent NPA Form Component - Refactored Version
  * 
- * This component orchestrates all child form sections:
- * - BasicDetailsOfTheBorrower01Component (Section 1)
- * - FacilitySanctionedComponent (Section 2)
- * - SecurityDetailsComponent (Section 3)
- * - ReleaseDetailsComponent (Section 6)
- * - PostDatedChequesDetailsComponent (Section 7)
- * - More sections will be added in the future
- * 
- * Architecture:
- * - Each child component has its own form and validation
- * - Each section has its own service (accessed via NpaService)
- * - NpaService.buildPayload() collects data from all sections
- * - Clean separation of concerns for scalability
+ * Features:
+ * - Signal-based state management
+ * - Cleaner validation and data collection
+ * - Better error handling
+ * - Modern Angular control flow
  */
 @Component({
   selector: 'app-npa-form',
   standalone: true,
   imports: [
-    BasicDetailsOfTheBorrower01Component, 
+    CommonModule,
+    BasicDetailsOfTheBorrower01Component,
     FacilitySanctionedComponent,
     SecurityDetailsComponent,
     ReleaseDetailsComponent,
@@ -41,49 +34,48 @@ import { NpaService } from '../../../services/npa.service';
     RepaymentScheduleComponent,
     RestructuringDetailsComponent,
     CorrespondenceComponent,
-    RevisedRepaymentScheduleComponent,
-    CommonModule
+    RevisedRepaymentScheduleComponent
   ],
   templateUrl: './npa-form.component.html',
   styles: [`
-    /* NPA Form Component Styles */
+    @keyframes fadeIn {
+      from { opacity: 0; transform: scale(0.95); }
+      to { opacity: 1; transform: scale(1); }
+    }
+    .animate-fadeIn { animation: fadeIn 0.3s ease-out; }
+    
+    @keyframes scaleIn {
+      from { opacity: 0; transform: scale(0.9); }
+      to { opacity: 1; transform: scale(1); }
+    }
+    .animate-scaleIn { animation: scaleIn 0.3s ease-out; }
+    
+    @keyframes shake {
+      0%, 100% { transform: translateX(0); }
+      25% { transform: translateX(-5px); }
+      75% { transform: translateX(5px); }
+    }
+    .animate-shake { animation: shake 0.3s ease-in-out; }
   `]
 })
 export class NpaFormComponent implements AfterViewInit {
-  // Section 1: Basic Details of the Borrower
+  // Child component references
   @ViewChild(BasicDetailsOfTheBorrower01Component) borrowerDetails!: BasicDetailsOfTheBorrower01Component;
-  
-  // Section 2: Facility Sanctioned
   @ViewChild(FacilitySanctionedComponent) facilitySanctioned!: FacilitySanctionedComponent;
-  
-  // Section 3: Security Details
   @ViewChild(SecurityDetailsComponent) securityDetails!: SecurityDetailsComponent;
-  
-  // Section 6: Release Details
   @ViewChild(ReleaseDetailsComponent) releaseDetails!: ReleaseDetailsComponent;
-  
-  // Section 7: Post Dated Cheques Details
   @ViewChild(PostDatedChequesDetailsComponent) postDatedChequesDetails!: PostDatedChequesDetailsComponent;
-
-  // Section 8: Original Repayment Schedule (non mandatory)
   @ViewChild(RepaymentScheduleComponent) repaymentSchedule!: RepaymentScheduleComponent;
-
-  // Section 9: Restructuring details
   @ViewChild(RestructuringDetailsComponent) restructuringDetails!: RestructuringDetailsComponent;
-
-  // Section 13: Correspondence
   @ViewChild(CorrespondenceComponent) correspondence!: CorrespondenceComponent;
-
-  // Section 10: Revised Repayment Schedule
   @ViewChild(RevisedRepaymentScheduleComponent) revisedSchedule!: RevisedRepaymentScheduleComponent;
+
+  // Signal-based state
+  readonly showModal = signal<boolean>(false);
+  readonly isSubmitting = signal<boolean>(false);
+  readonly errorMessage = signal<string>('');
   
-  // Future child components will be added here:
-  // @ViewChild(GuarantorDetailsComponent) guarantorDetails!: GuarantorDetailsComponent;
-  
-  showModal: boolean = false;
-  npaId: string = '';
-  isSubmitting: boolean = false;
-  errorMessage: string = '';
+  npaId = '';
 
   constructor(
     private npaService: NpaService,
@@ -97,76 +89,52 @@ export class NpaFormComponent implements AfterViewInit {
 
   /**
    * Validate all form sections
-   * @returns true if all sections are valid
    */
   private validateAllSections(): boolean {
-    let isValid = true;
-
-    // Validate Basic Details section (Section 1)
-    if (this.borrowerDetails && this.borrowerDetails.form) {
-      if (!this.npaService.basicDetails.validate(this.borrowerDetails.form)) {
-        isValid = false;
-      }
+    // Validate Basic Details section (mandatory)
+    if (this.borrowerDetails?.form && !this.borrowerDetails.form.valid) {
+      this.errorMessage.set('Please fill in all mandatory fields in Basic Details section');
+      this.borrowerDetails.form.markAllAsTouched();
+      return false;
     }
-
-    // Other sections are optional - no mandatory validation
-
-    return isValid;
+    return true;
   }
 
   /**
    * Collect data from all form sections and build payload
-   * @returns Complete NPA payload
    */
   private collectFormData(): any {
     const sections: any = {};
 
-    // Collect Basic Details (Section 1)
-    if (this.borrowerDetails && this.borrowerDetails.form) {
+    // Collect from each section if available
+    if (this.borrowerDetails?.form) {
       sections.basicDetails = this.borrowerDetails.form.value;
     }
-
-    // Collect Facility Sanctioned (Section 2)
-    if (this.facilitySanctioned && this.facilitySanctioned.form) {
+    if (this.facilitySanctioned?.form) {
       sections.facilitySanctioned = this.facilitySanctioned.form.value;
     }
-
-    // Collect Security Details (Section 3)
-    if (this.securityDetails && this.securityDetails.form) {
+    if (this.securityDetails?.form) {
       sections.securityDetails = this.securityDetails.form.value;
     }
-
-    // Collect Release Details (Section 6)
-    if (this.releaseDetails && this.releaseDetails.form) {
+    if (this.releaseDetails?.form) {
       sections.releaseDetails = this.releaseDetails.form.value;
     }
-
-    // Collect Post Dated Cheques Details (Section 7)
-    if (this.postDatedChequesDetails && this.postDatedChequesDetails.form) {
+    if (this.postDatedChequesDetails?.form) {
       sections.postDatedChequesDetails = this.postDatedChequesDetails.form.value;
     }
-
-    // Collect Original Repayment Schedule (Section 8) - optional
-    if (this.repaymentSchedule && this.repaymentSchedule.form) {
+    if (this.repaymentSchedule?.form) {
       sections.repaymentSchedule = this.repaymentSchedule.form.value;
     }
-
-  // Collect Restructuring Details (Section 9) - optional
-    if (this.restructuringDetails && this.restructuringDetails.form) {
+    if (this.restructuringDetails?.form) {
       sections.restructuringDetails = this.restructuringDetails.form.value;
     }
-
-    // Collect revised repayment schedule (Section 10)
-    if (this.revisedSchedule && this.revisedSchedule.form) {
+    if (this.revisedSchedule?.form) {
       sections.revisedRepaymentSchedule = this.revisedSchedule.form.value;
     }
-
-    // Collect correspondence records (Section 13)
-    if (this.correspondence && this.correspondence.form) {
+    if (this.correspondence?.form) {
       sections.correspondence = this.correspondence.form.value;
     }
 
-    // Use NpaService to build the complete payload
     return this.npaService.buildPayload(sections);
   }
 
@@ -174,22 +142,18 @@ export class NpaFormComponent implements AfterViewInit {
    * Handle form submission
    */
   onSubmit(): void {
-    // Validate all sections
+    this.errorMessage.set('');
+
     if (!this.validateAllSections()) {
-      this.errorMessage = 'Please fill in all mandatory fields';
       return;
     }
 
-    this.isSubmitting = true;
-    this.errorMessage = '';
-
-    // Collect and transform data from all sections
+    this.isSubmitting.set(true);
     const payload = this.collectFormData();
 
-    // Submit to API
     this.npaService.createNpa(payload).subscribe({
       next: (response) => {
-        this.isSubmitting = false;
+        this.isSubmitting.set(false);
         
         // Extract NPA ID from response
         const possibleIdKeys = ['id', 'npaId', 'npa_id', 'NPA_ID', 'Id', 'ID'];
@@ -202,39 +166,38 @@ export class NpaFormComponent implements AfterViewInit {
           }
         }
         
-        this.npaId = foundId;
+        this.npaId = foundId.toString();
         
         if (this.npaId !== 'N/A') {
-          this.showModal = true;
-          setTimeout(() => this.cdr.detectChanges(), 0);
-        } else {
-          this.errorMessage = 'NPA created but could not extract ID. Response: ' + JSON.stringify(response);
+          this.showModal.set(true);
           this.cdr.detectChanges();
+        } else {
+          this.errorMessage.set('NPA created but could not extract ID.');
         }
       },
       error: (error) => {
-        this.isSubmitting = false;
+        this.isSubmitting.set(false);
         
-        let errorMessage = 'Failed to create NPA. Please try again.';
+        let errorMsg = 'Failed to create NPA. Please try again.';
         
         if (error.error && typeof error.error === 'string') {
-          errorMessage = error.error;
-        } else if (error.error && error.error.message) {
-          errorMessage = error.error.message;
+          errorMsg = error.error;
+        } else if (error.error?.message) {
+          errorMsg = error.error.message;
         } else if (error.message) {
-          errorMessage = error.message;
+          errorMsg = error.message;
         } else if (error.status) {
-          errorMessage = `Server error (${error.status}): ${error.statusText || 'Unknown error'}`;
+          errorMsg = `Server error (${error.status}): ${error.statusText || 'Unknown error'}`;
         }
         
-        this.errorMessage = errorMessage;
+        this.errorMessage.set(errorMsg);
         this.cdr.detectChanges();
       }
     });
   }
 
   closeModal(): void {
-    this.showModal = false;
+    this.showModal.set(false);
     this.cdr.detectChanges();
   }
 

@@ -1,374 +1,323 @@
-import { Component, OnInit, OnDestroy, AfterViewInit, ChangeDetectorRef } from '@angular/core';
+import { Component, OnInit, OnDestroy, ChangeDetectorRef, signal, computed } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { ActivatedRoute, Router, NavigationEnd } from '@angular/router';
 import { HttpClient } from '@angular/common/http';
-import { BasicDetailsOfTheBorrower, BoardMember } from '../../interface/basic-details-of-borrower';
 import { AuthService } from '../../services/auth.service';
-import { Subscription } from 'rxjs';
-import { filter } from 'rxjs/operators';
+import { NpaApiService } from '../../services/npa-api.service';
+import { Subscription, filter, finalize } from 'rxjs';
+import {
+  NpaResponse,
+  Task,
+  CompletedTask,
+  RegionalOffice,
+  Facility,
+  SecurityDetail,
+  AccordionState
+} from '../../types/npa.types';
+import { AccordionComponent } from '../../components/shared/accordion/accordion.component';
 
-// Facility interfaces
-interface FacilityDto {
-  id: number;
-  srNo: number;
-  nameOfFacility: string;
-  tenorOfFacility: string;
-  amount: number;
-  dateOfSanction: string;
-  sanctionReferenceNo: string;
-  documentationDate: string;
-  disbursedAmount: number;
-  outstandingAmount: number;
-  bankingArrangements: string;
-}
-
-interface FacilitySanctionedDto {
-  id: number;
-  facilities: FacilityDto[];
-}
-
-// Security Details interfaces
-interface SecurityDetailDto {
-  id: number;
-  srNo: number;
-  typeOfSecurity: string;
-  typeOfAsset: string;
-  propertyDetails: string;
-  typeOfCharge: string;
-  chargeDetails: string;
-  chargeCreationDate: string;
-  freeFromEncumbrances: string;
-}
-
-interface ValuationDto {
-  id: number;
-  nameOfValuer: string;
-  dateOfReport: string;
-  fmv: string; // Fair Market Value
-  rv: string; // Realizable Value
-  dsv: string; // Distress Sale Value
-  guidelineGovtRate: string;
-}
-
-interface LegalDocumentsDto {
-  id: number;
-  loanAgreementDate: string;
-  deedOfHypothecationDate: string;
-  boardResolutionDate: string;
-}
-
-interface SecurityDetailsDto {
-  id: number;
-  securities: SecurityDetailDto[];
-  valuation: ValuationDto;
-  legalDocuments: LegalDocumentsDto;
-}
-
-// Complete NPA interface
-interface NpaData {
-  npaId: number;
-  basicDetails?: BasicDetailsOfTheBorrower;
-  facilitySanctioned?: FacilitySanctionedDto;
-  securityDetails?: SecurityDetailsDto;
-  releaseDetails?: any;
-  postDatedChequesDetails?: any;
-  repaymentSchedule?: any;
-  restructuringDetails?: any;
-  revisedRepaymentSchedule?: any;
-  correspondence?: any;
-  username?: string;
-  userType?: string;
-  divisionName?: string;
-  regionalOfficeName?: string;
-  processInstanceId?: string;
-  loanAmount?: number;
-  divisionalMeetingAmount?: number;
-  afterVetSaleNoticeAmount?: number;
-}
-
-interface Task {
-  taskId: string | null;
-  taskKey: string | null;
-  taskName: string | null;
-  assignee: string | null;
-  candidateGroups: string[] | null;
-  canCurrentUserAct: boolean;
-  processInstanceId: string | null;
-  npaId: number | null;
-}
-
+/**
+ * NPA Detail Component - Refactored Version
+ * Features:
+ * - Modern Angular signals for state management
+ * - Centralized API calls via NpaApiService
+ * - Cleaner code organization
+ * - Reusable accordion component
+ */
 @Component({
   selector: 'app-npa-detail',
   standalone: true,
-  imports: [CommonModule, FormsModule],
+  imports: [CommonModule, FormsModule, AccordionComponent],
   templateUrl: './npa-detail.component.html',
-  styleUrl: './npa-detail.component.css'
+  styleUrls: ['./npa-detail.component.css']
 })
-export class NpaDetailComponent implements OnInit, OnDestroy, AfterViewInit {
-  npaId: string = '';
-  npaData: NpaData | null = null;
-  loading: boolean = true;
-  error: string | null = null;
-  
-  // Task related properties
-  currentTask: Task | null = null;
-  taskLoading: boolean = false;
-  taskError: string | null = null;
-  
-  // Modal related properties
-  showTaskModal: boolean = false;
-  taskNotes: string = '';
+export class NpaDetailComponent implements OnInit, OnDestroy {
+  // Signal-based state management
+  readonly npaId = signal<string>('');
+  readonly npaData = signal<NpaResponse | null>(null);
+  readonly loading = signal<boolean>(true);
+  readonly error = signal<string | null>(null);
+
+  // Task state
+  readonly currentTask = signal<Task | null>(null);
+  readonly taskLoading = signal<boolean>(false);
+  readonly taskError = signal<string | null>(null);
+
+  // Modal state
+  readonly showTaskModal = signal<boolean>(false);
+  readonly submittingTask = signal<boolean>(false);
+  taskNotes = '';
   selectedFiles: File[] = [];
-  submittingTask: boolean = false;
   submitError: string | null = null;
   amount: number | null = null;
-  
-  // Regional Offices (ROS) related properties
-  regionalOffices: any[] = [];
-  selectedRegionalOffice: string = '';
-  loadingRegionalOffices: boolean = false;
-  
-  // Completed tasks history properties
-  completedTasks: any[] = [];
-  loadingCompletedTasks: boolean = false;
-  completedTasksError: string | null = null;
-  
-  private npaSubscription: Subscription | null = null;
-  private taskSubscription: Subscription | null = null;
-  private navigationSubscription: Subscription | null = null;
-  private historySubscription: Subscription | null = null;
+
+  // Regional Offices
+  readonly regionalOffices = signal<RegionalOffice[]>([]);
+  readonly loadingRegionalOffices = signal<boolean>(false);
+  selectedRegionalOffice = '';
+
+  // Completed tasks
+  readonly completedTasks = signal<CompletedTask[]>([]);
+  readonly loadingCompletedTasks = signal<boolean>(false);
+  readonly completedTasksError = signal<string | null>(null);
+
+  // Accordion state
+  readonly accordionState: AccordionState = {
+    basicDetails: true,
+    facilitySanctioned: false,
+    securityDetails: false
+  };
+
+  // Computed properties for cleaner templates
+  readonly hasBoardMembers = computed(() => (this.npaData()?.basicDetails?.boardMembers?.length || 0) > 0);
+  readonly hasFacilities = computed(() => (this.npaData()?.facilitySanctioned?.facilities?.length || 0) > 0);
+  readonly hasSecurities = computed(() => (this.npaData()?.securityDetails?.securities?.length || 0) > 0);
+  readonly hasValuation = computed(() => !!this.npaData()?.securityDetails?.valuation);
+  readonly hasLegalDocuments = computed(() => !!this.npaData()?.securityDetails?.legalDocuments);
+  readonly valuation = computed(() => this.npaData()?.securityDetails?.valuation || null);
+  readonly legalDocuments = computed(() => this.npaData()?.securityDetails?.legalDocuments || null);
+
+  private subscriptions: Subscription[] = [];
 
   constructor(
     private route: ActivatedRoute,
     private router: Router,
-    private http: HttpClient,
     private authService: AuthService,
+    private npaApiService: NpaApiService,
     private cdr: ChangeDetectorRef
   ) {}
 
   ngOnInit(): void {
-    console.log('NpaDetail component initialized');
-    this.npaId = this.route.snapshot.paramMap.get('id') || '';
-    
-    // Subscribe to router events to reload data when navigating to this route
-    this.navigationSubscription = this.router.events
+    const id = this.route.snapshot.paramMap.get('id');
+    if (id) {
+      this.npaId.set(id);
+      this.loadData();
+      this.setupNavigationListener();
+    } else {
+      this.error.set('NPA ID not provided');
+      this.loading.set(false);
+    }
+  }
+
+  /**
+   * Load all NPA data
+   */
+  private loadData(): void {
+    const id = this.npaId();
+    if (!id) return;
+
+    this.loading.set(true);
+    this.error.set(null);
+
+    // Fetch NPA details, current task, and completed tasks in parallel
+    Promise.all([
+      this.fetchNpaDetails(),
+      this.fetchCurrentTask(),
+      this.fetchCompletedTasks()
+    ]).finally(() => {
+      this.loading.set(false);
+      this.cdr.detectChanges();
+    });
+  }
+
+  /**
+   * Setup router navigation listener
+   */
+  private setupNavigationListener(): void {
+    const navSubscription = this.router.events
       .pipe(filter(event => event instanceof NavigationEnd))
       .subscribe((event: any) => {
-        if (event instanceof NavigationEnd) {
-          // Check if we're navigating to an NPA detail route
-          if (event.urlAfterRedirects.includes('/dashboard/npa-detail/')) {
-            console.log('Navigated to NPA detail route, reloading data');
-            // Get the new NPA ID from the route
-            const newNpaId = this.route.snapshot.paramMap.get('id') || '';
-            if (newNpaId !== this.npaId) {
-              this.npaId = newNpaId;
-            }
-            this.fetchNpaDetails();
-            this.fetchCurrentTask();
-            this.fetchCompletedTasks();
+        if (event.urlAfterRedirects.includes('/dashboard/npa-detail/')) {
+          const newNpaId = this.route.snapshot.paramMap.get('id');
+          if (newNpaId && newNpaId !== this.npaId()) {
+            this.npaId.set(newNpaId);
+            this.loadData();
           }
         }
       });
-    
-    if (this.npaId) {
-      this.fetchNpaDetails();
-      this.fetchCurrentTask();
-      this.fetchCompletedTasks();
-    } else {
-      this.error = 'NPA ID not provided';
-      this.loading = false;
-      this.cdr.detectChanges();
-    }
+
+    this.subscriptions.push(navSubscription);
   }
 
-  accordionState: { [key: string]: boolean } = {
-    basicDetails: true,    // Expanded by default
-    facilitySanctioned: false,  // Collapsed by default
-    securityDetails: false,  // Collapsed by default
-  };
-
-toggleAccordion(section: string): void {
-  this.accordionState[section] = !this.accordionState[section];
-}
-
-  fetchNpaDetails(): void {
-    // Prevent multiple simultaneous calls
-    if (this.loading && this.npaSubscription) {
-      console.log('Already loading NPA details, skipping duplicate call');
-      return;
-    }
-
+  /**
+   * Fetch NPA details from API
+   */
+  private fetchNpaDetails(): Promise<void> {
     const token = this.authService.getToken();
-    
-    // Debug logs
-    console.log('=== NPA Detail Authentication Debug ===');
-    console.log('Token from AuthService:', token);
-    console.log('Is user logged in:', this.authService.isLoggedIn());
-    console.log('User info:', this.authService.getUserInfo());
-    console.log('Fetching NPA ID:', this.npaId);
-    
+    const id = this.npaId();
+
     if (!token) {
-      this.error = 'Authentication token not found. Please login again.';
-      this.loading = false;
-      this.cdr.detectChanges();
-      return;
+      this.error.set('Authentication token not found. Please login again.');
+      return Promise.resolve();
     }
 
-    console.log('Starting to load NPA details...');
-    this.loading = true;
-    this.error = null;
-    this.cdr.detectChanges();
-
-    const headers = {
-      'Content-Type': 'application/json',
-      'Authorization': `Bearer ${token}`
-    };
-
-    this.npaSubscription = this.http.get<NpaData>(`http://localhost:8080/api/npa/${this.npaId}`, { headers })
-      .subscribe({
-        next: (response) => {
-          console.log('NPA details loaded successfully:', response);
-          this.npaData = response;
-          this.loading = false;
-          this.npaSubscription = null;
-          this.cdr.detectChanges();
+    return new Promise((resolve) => {
+      this.npaApiService.getNpaById(+id).subscribe({
+        next: (data) => {
+          this.npaData.set(data);
+          resolve();
         },
         error: (error) => {
           console.error('Error fetching NPA details:', error);
-          this.error = 'Failed to load NPA details. Please try again.';
-          this.loading = false;
-          this.npaSubscription = null;
-          this.cdr.detectChanges();
+          this.error.set('Failed to load NPA details. Please try again.');
+          resolve();
         }
       });
+    });
   }
 
-  fetchCurrentTask(): void {
+  /**
+   * Fetch current task from API
+   */
+  private fetchCurrentTask(): Promise<void> {
     const token = this.authService.getToken();
-    
+    const id = this.npaId();
+
     if (!token) {
-      this.taskError = 'Authentication token not found. Please login again.';
-      this.taskLoading = false;
-      return;
+      this.taskError.set('Authentication token not found.');
+      return Promise.resolve();
     }
 
-    console.log('Fetching current task for NPA ID:', this.npaId);
-    this.taskLoading = true;
-    this.taskError = null;
-
-    const headers = {
-      'Content-Type': 'application/json',
-      'Authorization': `Bearer ${token}`
-    };
-
-    this.taskSubscription = this.http.get<any>(`http://localhost:8080/api/workflow/task/by-npa/${this.npaId}`, { headers })
-      .subscribe({
-        next: (response) => {
-          console.log('Current task loaded successfully:', response);
-          this.currentTask = response;
-          this.taskLoading = false;
-          this.taskSubscription = null;
-          this.cdr.detectChanges();
+    return new Promise((resolve) => {
+      this.taskLoading.set(true);
+      this.npaApiService.getCurrentTaskByNpaId(+id).subscribe({
+        next: (task) => {
+          this.currentTask.set(task);
+          this.taskLoading.set(false);
+          resolve();
         },
         error: (error) => {
           console.error('Error fetching current task:', error);
-          this.taskError = 'Failed to load current task.';
-          this.taskLoading = false;
-          this.taskSubscription = null;
-          this.cdr.detectChanges();
+          this.taskError.set('Failed to load current task.');
+          this.taskLoading.set(false);
+          resolve();
         }
       });
+    });
   }
 
-  fetchRegionalOffices(): void {
+  /**
+   * Fetch completed tasks from API
+   */
+  private fetchCompletedTasks(): Promise<void> {
     const token = this.authService.getToken();
-    
+    const id = this.npaId();
+
     if (!token) {
-      console.error('Authentication token not found');
-      return;
+      this.completedTasksError.set('Authentication token not found.');
+      return Promise.resolve();
     }
 
-    console.log('Fetching regional offices...');
-    this.loadingRegionalOffices = true;
-
-    const headers = {
-      'Content-Type': 'application/json',
-      'Authorization': `Bearer ${token}`
-    };
-
-    this.http.get<any[]>('http://localhost:8080/api/users/regional-offices', { headers })
-      .subscribe({
-        next: (response) => {
-          console.log('Regional offices loaded successfully:', response);
-          this.regionalOffices = response;
-          this.loadingRegionalOffices = false;
-          this.cdr.detectChanges();
+    return new Promise((resolve) => {
+      this.loadingCompletedTasks.set(true);
+      this.npaApiService.getCompletedTasks(+id).subscribe({
+        next: (tasks) => {
+          this.completedTasks.set(tasks);
+          this.loadingCompletedTasks.set(false);
+          resolve();
         },
         error: (error) => {
-          console.error('Error fetching regional offices:', error);
-          this.loadingRegionalOffices = false;
-          this.cdr.detectChanges();
+          console.error('Error fetching completed tasks:', error);
+          this.completedTasksError.set('Failed to load completed tasks.');
+          this.loadingCompletedTasks.set(false);
+          resolve();
         }
       });
+    });
   }
 
+  /**
+   * Toggle accordion section
+   */
+  toggleAccordion(section: string): void {
+    this.accordionState[section] = !this.accordionState[section];
+  }
+
+  /**
+   * Open task submission modal
+   */
   openTaskModal(): void {
-    if (this.currentTask && this.currentTask.canCurrentUserAct) {
-      this.showTaskModal = true;
-      this.taskNotes = '';
-      this.selectedFiles = [];
-      this.submitError = null;
-      this.selectedRegionalOffice = '';
-      
-      // Fetch regional offices only when task key is 'after_vetting_13_2'
-      if (this.currentTask.taskKey === 'after_vetting_13_2') {
-        this.fetchRegionalOffices();
-      }
-      
-      this.cdr.detectChanges();
-    }
-  }
+    const task = this.currentTask();
+    if (!task?.canCurrentUserAct) return;
 
-  closeTaskModal(): void {
-    this.showTaskModal = false;
+    this.showTaskModal.set(true);
     this.taskNotes = '';
     this.selectedFiles = [];
     this.submitError = null;
     this.selectedRegionalOffice = '';
-    this.regionalOffices = [];
     this.amount = null;
-    this.cdr.detectChanges();
-  }
 
-  onFileSelected(event: Event): void {
-    const input = event.target as HTMLInputElement;
-    if (input.files && input.files.length > 0) {
-      for (let i = 0; i < input.files.length; i++) {
-        const file = input.files[i];
-        
-        // Validate file type (PDF only)
-        if (file.type !== 'application/pdf') {
-          this.submitError = `Only PDF files are allowed. ${file.name} is not a PDF.`;
-          this.cdr.detectChanges();
-          continue;
-        }
-        
-        // Validate file size (10MB limit)
-        const maxSize = 10 * 1024 * 1024; // 10MB in bytes
-        if (file.size > maxSize) {
-          this.submitError = `File ${file.name} is too large. Maximum size is 10MB.`;
-          this.cdr.detectChanges();
-          continue;
-        }
-        
-        this.selectedFiles.push(file);
-        console.log('File selected:', file.name, 'Size:', (file.size / 1024 / 1024).toFixed(2), 'MB');
-      }
-      this.cdr.detectChanges();
+    // Fetch regional offices for specific task
+    if (task.taskKey === 'after_vetting_13_2') {
+      this.fetchRegionalOffices();
     }
   }
 
+  /**
+   * Close task submission modal
+   */
+  closeTaskModal(): void {
+    this.showTaskModal.set(false);
+    this.taskNotes = '';
+    this.selectedFiles = [];
+    this.submitError = null;
+    this.selectedRegionalOffice = '';
+    this.regionalOffices.set([]);
+    this.amount = null;
+  }
+
+  /**
+   * Fetch regional offices
+   */
+  private fetchRegionalOffices(): void {
+    const token = this.authService.getToken();
+    if (!token) return;
+
+    this.loadingRegionalOffices.set(true);
+    const subscription = this.npaApiService.getRegionalOffices().subscribe({
+      next: (offices) => {
+        this.regionalOffices.set(offices);
+        this.loadingRegionalOffices.set(false);
+      },
+      error: (error) => {
+        console.error('Error fetching regional offices:', error);
+        this.loadingRegionalOffices.set(false);
+      }
+    });
+    this.subscriptions.push(subscription);
+  }
+
+  /**
+   * Handle file selection
+   */
+  onFileSelected(event: Event): void {
+    const input = event.target as HTMLInputElement;
+    if (!input.files?.length) return;
+
+    Array.from(input.files).forEach(file => {
+      // Validate file type
+      if (file.type !== 'application/pdf') {
+        this.submitError = `Only PDF files are allowed. ${file.name} is not a PDF.`;
+        return;
+      }
+
+      // Validate file size (10MB limit)
+      const maxSize = 10 * 1024 * 1024;
+      if (file.size > maxSize) {
+        this.submitError = `File ${file.name} is too large. Maximum size is 10MB.`;
+        return;
+      }
+
+      this.selectedFiles.push(file);
+    });
+
+    this.cdr.detectChanges();
+  }
+
+  /**
+   * Remove selected file
+   */
   removeFile(index: number): void {
     if (index >= 0 && index < this.selectedFiles.length) {
       this.selectedFiles.splice(index, 1);
@@ -376,237 +325,109 @@ toggleAccordion(section: string): void {
     }
   }
 
+  /**
+   * Complete current task
+   */
   async completeTask(): Promise<void> {
-    if (!this.currentTask || !this.currentTask.taskId) {
-      return;
-    }
+    const task = this.currentTask();
+    if (!task?.taskId) return;
 
     const token = this.authService.getToken();
-    
     if (!token) {
-      this.submitError = 'Authentication token not found. Please login again.';
+      this.submitError = 'Authentication token not found.';
       return;
     }
 
-    console.log('Starting task completion with file upload...');
-    this.submittingTask = true;
+    this.submittingTask.set(true);
     this.submitError = null;
 
     try {
-      // Step 1: Upload files first
-      const attachmentIds: string[] = [];
-      
-      if (this.selectedFiles.length > 0) {
-        console.log('Uploading', this.selectedFiles.length, 'files...');
-        
-        for (const file of this.selectedFiles) {
-          try {
-            const attachmentId = await this.uploadFile(file);
-            attachmentIds.push(attachmentId);
-            console.log('File uploaded successfully:', file.name, 'ID:', attachmentId);
-          } catch (error) {
-            console.error('Failed to upload file:', file.name, error);
-            this.submitError = `Failed to upload file: ${file.name}`;
-            this.submittingTask = false;
-            this.cdr.detectChanges();
-            return;
-          }
-        }
-      }
+      // Upload files first
+      const attachmentIds = await this.uploadFiles(task.taskId);
 
-      // Step 2: Complete the task with attachment IDs
-      console.log('Completing task with', attachmentIds.length, 'attachments');
-      
-      const headers = {
-        'Content-Type': 'application/json',
-        'Authorization': `Bearer ${token}`
+      // Build payload
+      const payload = this.buildTaskPayload(task);
+
+      // Complete task
+      const request = {
+        taskId: task.taskId,
+        payload,
+        attachmentIds,
+        note: this.taskNotes
       };
 
-      // Build payload with notes and attachment IDs
-      const payload: any = {
-        field1: 'value1'
-      };
-
-      if (this.taskNotes) {
-        payload.notes = this.taskNotes;
-      }
-
-      // Add regional office to payload when task key is 'after_vetting_13_2'
-      if (this.currentTask.taskKey === 'after_vetting_13_2' && this.selectedRegionalOffice) {
-        payload.regionalOffice = this.selectedRegionalOffice;
-      }
-
-      // Add amount to payload for specific tasks
-      const tasksWithAmount = ['loan_amount', 'Loan_loan_amount', 'after_vet_sale_notice', 'divisional_meeting'];
-      if (this.currentTask.taskKey && tasksWithAmount.includes(this.currentTask.taskKey) && this.amount !== null) {
-        payload.amount = this.amount;
-      }
-
-      const requestBody = {
-        taskId: this.currentTask.taskId,
-        payload: payload,
-        attachmentIds: attachmentIds,
-        note: this.taskNotes || ''
-      };
-
-      console.log('Task completion request:', requestBody);
-
-      this.http.post<any>('http://localhost:8080/api/workflow/task/complete', requestBody, { headers })
-        .subscribe({
-          next: (response) => {
-            console.log('Task completed successfully:', response);
-            this.submittingTask = false;
-            this.showTaskModal = false;
-            // Refresh the task to get updated status
-            this.fetchCurrentTask();
-            this.fetchCompletedTasks();
-            this.cdr.detectChanges();
-          },
-          error: (error) => {
-            console.error('Error completing task:', error);
-            this.submittingTask = false;
-            this.submitError = 'Failed to complete task. Please try again.';
-            this.cdr.detectChanges();
-          }
-        });
-
-    } catch (error) {
-      console.error('Error in task completion process:', error);
-      this.submittingTask = false;
-      this.submitError = 'Failed to complete task. Please try again.';
-      this.cdr.detectChanges();
-    }
-  }
-
-  private uploadFile(file: File): Promise<string> {
-    const token = this.authService.getToken();
-    
-    if (!token) {
-      return Promise.reject('Authentication token not found');
-    }
-
-    return new Promise((resolve, reject) => {
-      const formData = new FormData();
-      formData.append('file', file);
-      formData.append('taskId', this.currentTask?.taskId || '');
-
-      const headers = {
-        'Authorization': `Bearer ${token}`
-      };
-
-      console.log('Uploading file:', file.name, 'to taskId:', this.currentTask?.taskId);
-
-      this.http.post<any>('http://localhost:8080/api/files/upload', formData, { headers })
-        .subscribe({
-          next: (response) => {
-            console.log('File upload response:', response);
-            resolve(response.id.toString());
-          },
-          error: (error) => {
-            console.error('File upload error:', error);
-            reject(error);
-          }
-        });
-    });
-  }
-
-  goBack(): void {
-    this.router.navigate(['/dashboard/all-npa']);
-  }
-
-  editNpa(): void {
-    this.router.navigate([`/edit-npa/${this.npaId}`]);
-  }
-
-  ngAfterViewInit(): void {
-    console.log('NpaDetail component view initialized');
-  }
-
-  ngOnDestroy(): void {
-    if (this.npaSubscription) {
-      this.npaSubscription.unsubscribe();
-      this.npaSubscription = null;
-    }
-    if (this.taskSubscription) {
-      this.taskSubscription.unsubscribe();
-      this.taskSubscription = null;
-    }
-    if (this.navigationSubscription) {
-      this.navigationSubscription.unsubscribe();
-      this.navigationSubscription = null;
-    }
-    if (this.historySubscription) {
-      this.historySubscription.unsubscribe();
-      this.historySubscription = null;
-    }
-    console.log('NpaDetail component destroyed');
-  }
-
-  refreshNpaDetails(): void {
-    console.log('Refreshing NPA details');
-    this.fetchNpaDetails();
-  }
-
-  fetchCompletedTasks(): void {
-    const token = this.authService.getToken();
-    
-    if (!token) {
-      this.completedTasksError = 'Authentication token not found. Please login again.';
-      this.loadingCompletedTasks = false;
-      return;
-    }
-
-    console.log('Fetching completed tasks for NPA ID:', this.npaId);
-    this.loadingCompletedTasks = true;
-    this.completedTasksError = null;
-
-    const headers = {
-      'Content-Type': 'application/json',
-      'Authorization': `Bearer ${token}`
-    };
-
-    this.historySubscription = this.http.get<any[]>(`http://localhost:8080/api/npa/${this.npaId}/history`, { headers })
-      .subscribe({
-        next: (response) => {
-          console.log('Completed tasks loaded successfully:', response);
-          this.completedTasks = response;
-          this.loadingCompletedTasks = false;
-          this.historySubscription = null;
-          this.cdr.detectChanges();
+      this.npaApiService.completeTask(request).subscribe({
+        next: () => {
+          this.submittingTask.set(false);
+          this.showTaskModal.set(false);
+          this.fetchCurrentTask();
+          this.fetchCompletedTasks();
         },
         error: (error) => {
-          console.error('Error fetching completed tasks:', error);
-          this.completedTasksError = 'Failed to load completed tasks history.';
-          this.loadingCompletedTasks = false;
-          this.historySubscription = null;
-          this.cdr.detectChanges();
+          console.error('Error completing task:', error);
+          this.submitError = 'Failed to complete task. Please try again.';
+          this.submittingTask.set(false);
         }
       });
+    } catch (error) {
+      console.error('Error in task completion:', error);
+      this.submitError = 'Failed to complete task.';
+      this.submittingTask.set(false);
+    }
   }
 
-  downloadAttachment(attachmentId: string, fileName: string, isHistoryAttachment: boolean = false): void {
-    const token = this.authService.getToken();
-    
-    if (!token) {
-      console.error('Authentication token not found');
-      return;
+  /**
+   * Upload selected files
+   */
+  private async uploadFiles(taskId: string): Promise<string[]> {
+    const attachmentIds: string[] = [];
+
+    for (const file of this.selectedFiles) {
+      try {
+        const response = await this.npaApiService.uploadFile(file, taskId).toPromise();
+        if (response?.id) {
+          attachmentIds.push(response.id.toString());
+        }
+      } catch (error) {
+        console.error('Failed to upload file:', file.name, error);
+        throw error;
+      }
     }
 
-    const headers = {
-      'Authorization': `Bearer ${token}`
-    };
+    return attachmentIds;
+  }
 
-    const downloadUrl = isHistoryAttachment 
-      ? `http://localhost:8080/api/files/history/download/${attachmentId}`
-      : `http://localhost:8080/api/files/download/${attachmentId}`;
+  /**
+   * Build task payload based on task key
+   */
+  private buildTaskPayload(task: Task): any {
+    const payload: any = { field1: 'value1' };
 
-    console.log('Downloading attachment:', attachmentId, 'isHistory:', isHistoryAttachment);
+    if (this.taskNotes) {
+      payload.notes = this.taskNotes;
+    }
 
-    this.http.get(downloadUrl, { 
-      headers,
-      responseType: 'blob' 
-    }).subscribe({
-      next: (blob: Blob) => {
+    if (task.taskKey === 'after_vetting_13_2' && this.selectedRegionalOffice) {
+      payload.regionalOffice = this.selectedRegionalOffice;
+    }
+
+    const tasksWithAmount = ['loan_amount', 'Loan_loan_amount', 'after_vet_sale_notice', 'divisional_meeting'];
+    if (task.taskKey && tasksWithAmount.includes(task.taskKey) && this.amount !== null) {
+      payload.amount = this.amount;
+    }
+
+    return payload;
+  }
+
+  /**
+   * Download attachment
+   */
+  downloadAttachment(attachmentId: string, fileName: string, isHistory: boolean = false): void {
+    const token = this.authService.getToken();
+    if (!token) return;
+
+    this.npaApiService.downloadAttachment(attachmentId, isHistory).subscribe({
+      next: (blob) => {
         const url = window.URL.createObjectURL(blob);
         const a = document.createElement('a');
         a.href = url;
@@ -615,7 +436,6 @@ toggleAccordion(section: string): void {
         a.click();
         document.body.removeChild(a);
         window.URL.revokeObjectURL(url);
-        console.log('File downloaded successfully:', fileName);
       },
       error: (error) => {
         console.error('Error downloading attachment:', error);
@@ -623,67 +443,52 @@ toggleAccordion(section: string): void {
     });
   }
 
-  // Facility calculation methods
-  getTotalSanctionedAmount(): number {
-    if (!this.npaData?.facilitySanctioned?.facilities) {
-      return 0;
-    }
-    return this.npaData.facilitySanctioned.facilities.reduce((total: number, facility: FacilityDto) => {
-      return total + (facility.amount || 0);
-    }, 0);
+  /**
+   * Navigate back to NPA list
+   */
+  goBack(): void {
+    this.router.navigate(['/dashboard/all-npa']);
   }
 
-  getTotalOutstandingAmount(): number {
-    if (!this.npaData?.facilitySanctioned?.facilities) {
-      return 0;
-    }
-    return this.npaData.facilitySanctioned.facilities.reduce((total: number, facility: FacilityDto) => {
-      return total + (facility.outstandingAmount || 0);
-    }, 0);
+  /**
+   * Navigate to edit NPA page
+   */
+  editNpa(): void {
+    this.router.navigate([`/edit-npa/${this.npaId()}`]);
   }
 
-  // Safe getter methods
-  get facilities() {
-    return this.npaData?.facilitySanctioned?.facilities || [];
+  /**
+   * Refresh NPA data
+   */
+  refreshNpaDetails(): void {
+    this.loadData();
+  }
+
+  // ============================================================================
+  // Computed Helper Methods for Template
+  // ============================================================================
+
+  get facilities(): Facility[] {
+    return this.npaData()?.facilitySanctioned?.facilities || [];
   }
 
   get boardMembers() {
-    return this.npaData?.basicDetails?.boardMembers || [];
+    return this.npaData()?.basicDetails?.boardMembers || [];
   }
 
-  get hasBoardMembers() {
-    return this.boardMembers.length > 0;
+  get securities(): SecurityDetail[] {
+    return this.npaData()?.securityDetails?.securities || [];
   }
 
-  get securities() {
-    return this.npaData?.securityDetails?.securities || [];
+  getTotalSanctionedAmount(): number {
+    return this.facilities.reduce((total, facility) => total + (facility.amount || 0), 0);
   }
 
-  get valuation() {
-    return this.npaData?.securityDetails?.valuation;
+  getTotalOutstandingAmount(): number {
+    return this.facilities.reduce((total, facility) => total + (facility.outstandingAmount || 0), 0);
   }
 
-  get legalDocuments() {
-    return this.npaData?.securityDetails?.legalDocuments;
-  }
-
-  get hasFacilities() {
-    return this.facilities.length > 0;
-  }
-
-  get hasSecurities() {
-    return this.securities.length > 0;
-  }
-
-  get hasValuation() {
-    return this.valuation !== undefined && this.valuation !== null;
-  }
-
-  get hasLegalDocuments() {
-    return this.legalDocuments !== undefined && this.legalDocuments !== null;
-  }
-
-  get hasAnySecurityData() {
-    return this.hasSecurities || this.hasValuation || this.hasLegalDocuments;
+  ngOnDestroy(): void {
+    this.subscriptions.forEach(sub => sub.unsubscribe());
   }
 }
