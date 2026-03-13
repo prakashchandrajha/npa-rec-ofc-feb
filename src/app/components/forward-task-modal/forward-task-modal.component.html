@@ -1,0 +1,93 @@
+<!-- Modal Overlay -->
+<div *ngIf="isVisible" class="fixed inset-0 z-50 overflow-y-auto">
+  <div class="flex items-center justify-center min-h-screen px-4">
+    <!-- Modal Backdrop -->
+    <div class="fixed inset-0 bg-black opacity-50" (click)="closeModal()"></div>
+    
+    <!-- Modal Panel -->
+    <div class="relative bg-white rounded-lg shadow-xl max-w-md w-full mx-auto z-10">
+      <!-- Modal Header -->
+      <div class="flex items-center justify-between p-6 border-b border-gray-200">
+        <h3 class="text-lg font-semibold text-gray-900">Forward Task</h3>
+        <button 
+          (click)="closeModal()"
+          class="text-gray-400 hover:text-gray-500 focus:outline-none">
+          <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
+          </svg>
+        </button>
+      </div>
+
+      <!-- Modal Body -->
+      <div class="p-6">
+        <!-- Loading State -->
+        <div *ngIf="loading" class="flex flex-col items-center justify-center py-8">
+          <div class="w-8 h-8 border-4 border-gray-200 border-t-blue-500 rounded-full animate-spin"></div>
+          <p class="mt-2 text-sm text-gray-600">Loading users...</p>
+        </div>
+
+        <!-- Error State -->
+        <div *ngIf="error" class="mb-4 p-3 bg-red-50 border-l-4 border-red-500 text-red-700 rounded">
+          <p class="text-sm">{{ error }}</p>
+        </div>
+
+        <!-- Form Content -->
+        <div *ngIf="!loading">
+          <!-- User Selection -->
+          <div class="mb-4">
+            <label for="userSelect" class="block text-sm font-medium text-gray-700 mb-2">
+              Forward To <span class="text-red-500">*</span>
+            </label>
+            <select 
+              id="userSelect"
+              [(ngModel)]="selectedUserId"
+              class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
+              <option value="">Select a recovery user</option>
+              <option *ngFor="let user of recoveryUsers" [value]="user.id">
+                {{ user.displayName }} ({{ user.username }})
+              </option>
+            </select>
+          </div>
+
+          <!-- Forward Note -->
+          <div class="mb-4">
+            <label for="forwardNote" class="block text-sm font-medium text-gray-700 mb-2">
+              Note (Optional)
+            </label>
+            <textarea 
+              id="forwardNote"
+              [(ngModel)]="forwardNote"
+              rows="3"
+              placeholder="Add a note for the recipient..."
+              class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
+            </textarea>
+          </div>
+
+          <!-- Info Message -->
+          <div class="mb-4 p-3 bg-blue-50 border-l-4 border-blue-500 text-blue-700 rounded">
+            <p class="text-sm">
+              <strong>Note:</strong> This task will be immediately assigned to the selected user.
+            </p>
+          </div>
+        </div>
+      </div>
+
+      <!-- Modal Footer -->
+      <div class="flex justify-end space-x-3 p-6 border-t border-gray-200">
+        <button 
+          (click)="closeModal()"
+          [disabled]="loading"
+          class="px-4 py-2 text-sm font-medium text-gray-700 bg-gray-100 border border-gray-300 rounded-md hover:bg-gray-200 focus:outline-none focus:ring-2 focus:ring-gray-500 disabled:opacity-50">
+          Cancel
+        </button>
+        <button 
+          (click)="onForward()"
+          [disabled]="loading || !selectedUserId"
+          class="px-4 py-2 text-sm font-medium text-white bg-blue-600 border border-transparent rounded-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 disabled:opacity-50 disabled:cursor-not-allowed">
+          <span *ngIf="!loading">Forward Task</span>
+          <span *ngIf="loading">Forwarding...</span>
+        </button>
+      </div>
+    </div>
+  </div>
+</div>

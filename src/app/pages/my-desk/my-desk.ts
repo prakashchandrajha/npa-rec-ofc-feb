@@ -4,6 +4,7 @@ import { RouterModule, Router, NavigationEnd } from '@angular/router';
 import { filter } from 'rxjs/operators';
 import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { AuthService } from '../../services/auth.service';
+import { ForwardTaskModalComponent } from '../../components/forward-task-modal/forward-task-modal.component';
 
 interface Task {
   taskId: string;
@@ -36,7 +37,7 @@ interface Task {
 
 @Component({
   selector: 'app-my-desk',
-  imports: [CommonModule, RouterModule],
+  imports: [CommonModule, RouterModule, ForwardTaskModalComponent],
   templateUrl: './my-desk.html',
   styleUrl: './my-desk.css',
 })
@@ -48,6 +49,10 @@ export class MyDesk implements OnInit, OnDestroy {
   private retryCount = 0;
   private apiUrl = 'http://localhost:8080/api/workflow/tasks/my-desk';
   private loadedOnce = false;
+
+  // Forward functionality properties
+  showForwardModal = false;
+  selectedTaskId = '';
 
   constructor(
     private http: HttpClient,
@@ -167,5 +172,33 @@ export class MyDesk implements OnInit, OnDestroy {
         this.cdr.detectChanges();
       }
     });
+  }
+
+  // Forward functionality methods
+  openForwardModal(taskId: string): void {
+    this.selectedTaskId = taskId;
+    this.showForwardModal = true;
+  }
+
+  closeForwardModal(): void {
+    this.showForwardModal = false;
+    this.selectedTaskId = '';
+  }
+
+  onForwardSuccess(): void {
+    // Reload tasks to reflect the changes
+    this.loadTasks();
+  }
+
+  // Check if current user is a recovery user
+  isRecoveryUser(): boolean {
+    const userInfo = this.authService.getUserInfo();
+    return userInfo?.userType === 'RECOVERY';
+  }
+
+  // Get current username
+  getCurrentUsername(): string {
+    const userInfo = this.authService.getUserInfo();
+    return userInfo?.username || '';
   }
 }
