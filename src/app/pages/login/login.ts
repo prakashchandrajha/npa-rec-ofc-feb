@@ -32,7 +32,8 @@ export class Login {
         // Save user info
         const userInfo = {
           username: response.username || this.username,
-          division: response.division || 'NPA'
+          division: response.division || 'NPA',
+          userType: response.userType || 'USER'
         };
         this.authService.setUserInfo(userInfo);
         

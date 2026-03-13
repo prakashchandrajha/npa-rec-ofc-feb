@@ -1,9 +1,12 @@
 import { Component, OnInit, OnDestroy, ChangeDetectorRef } from '@angular/core';
 import { CommonModule } from '@angular/common';
+import { FormsModule } from '@angular/forms';
 import { RouterModule, Router, NavigationEnd } from '@angular/router';
 import { filter } from 'rxjs/operators';
 import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { AuthService } from '../../services/auth.service';
+import { UserService, User } from '../../services/user.service';
+import { WorkflowService } from '../../services/workflow.service';
 
 interface Task {
   taskId: string;
@@ -36,7 +39,7 @@ interface Task {
 
 @Component({
   selector: 'app-my-desk',
-  imports: [CommonModule, RouterModule],
+  imports: [CommonModule, RouterModule, FormsModule],
   templateUrl: './my-desk.html',
   styleUrl: './my-desk.css',
 })
@@ -44,6 +47,19 @@ export class MyDesk implements OnInit, OnDestroy {
   tasks: Task[] = [];
   loading = false;
   error = '';
+  
+  // For task assignment
+  showAssignModal = false;
+  selectedTask: Task | null = null;
+  recoveryUsers: User[] = [];
+  selectedChildUsername = '';
+  assigningTask = false;
+  assignmentError = '';
+  assignmentSuccess = '';
+  
+  // Current user info
+  currentUserType: string = '';
+  
   private navigationSubscription: any;
   private retryCount = 0;
   private apiUrl = 'http://localhost:8080/api/workflow/tasks/my-desk';
@@ -51,9 +67,11 @@ export class MyDesk implements OnInit, OnDestroy {
 
   constructor(
     private http: HttpClient,
-    private authService: AuthService
-    , private router: Router
-    , private cdr: ChangeDetectorRef
+    private authService: AuthService,
+    private userService: UserService,
+    private workflowService: WorkflowService,
+    private router: Router,
+    private cdr: ChangeDetectorRef
   ) {
     // subscribe to navigation events here so we get the very first NavigationEnd
     // that brings us to the route.  Doing this in the constructor avoids the
@@ -87,6 +105,15 @@ export class MyDesk implements OnInit, OnDestroy {
 
   ngOnInit(): void {
     console.log('MyDesk ngOnInit');
+    // Get current user info
+    const userInfo = this.authService.getUserInfo();
+    console.log('UserInfo from localStorage:', userInfo);
+    if (userInfo) {
+      this.currentUserType = userInfo.userType || '';
+      console.log('Current user type set to:', this.currentUserType);
+    } else {
+      console.warn('No userInfo found in localStorage');
+    }
     // no additional work here; navigation handling is performed in the
     // constructor so that the first NavigationEnd is caught reliably.
   }
@@ -165,6 +192,123 @@ export class MyDesk implements OnInit, OnDestroy {
         this.error = 'Failed to load tasks';
         this.loading = false;
         this.cdr.detectChanges();
+      }
+    });
+  }
+
+  // Check if current user is a recovery user who can assign tasks
+  isRecoveryUser(): boolean {
+    return this.currentUserType === 'RECOVERY';
+  }
+
+  // Open the assignment modal
+  openAssignModal(task: Task): void {
+    this.selectedTask = task;
+    this.selectedChildUsername = '';
+    this.assignmentError = '';
+    this.assignmentSuccess = '';
+    this.showAssignModal = true;
+    this.loadRecoveryUsers();
+  }
+
+  // Close the assignment modal
+  closeAssignModal(): void {
+    this.showAssignModal = false;
+    this.selectedTask = null;
+    this.selectedChildUsername = '';
+    this.assignmentError = '';
+    this.assignmentSuccess = '';
+  }
+
+  // Load recovery users for assignment
+  loadRecoveryUsers(): void {
+    console.log('Loading recovery users...');
+    this.userService.getRecoveryUsers().subscribe({
+      next: (users) => {
+        console.log('All users received:', users);
+        // Filter out the current user from the list
+        const currentUsername = this.authService.getUserInfo()?.username;
+        console.log('Current username:', currentUsername);
+        this.recoveryUsers = users.filter(u => u.username !== currentUsername);
+        console.log('Filtered recovery users:', this.recoveryUsers);
+        this.cdr.detectChanges();
+      },
+      error: (err) => {
+        console.error('Error loading recovery users:', err);
+        this.assignmentError = 'Failed to load recovery users: ' + (err.message || 'Unknown error');
+        this.cdr.detectChanges();
+      }
+    });
+  }
+
+  // Assign task to selected child user
+  assignTask(): void {
+    if (!this.selectedTask || !this.selectedChildUsername) {
+      this.assignmentError = 'Please select a user to assign the task';
+      return;
+    }
+
+    this.assigningTask = true;
+    this.assignmentError = '';
+    this.assignmentSuccess = '';
+
+    const request = {
+      taskId: this.selectedTask.taskId,
+      childUsername: this.selectedChildUsername
+    };
+
+    this.workflowService.forwardTask(request).subscribe({
+      next: () => {
+        console.log('Task assigned successfully');
+        this.assignmentSuccess = 'Task assigned successfully!';
+        this.assigningTask = false;
+        // Close modal and refresh tasks after a short delay
+        setTimeout(() => {
+          this.closeAssignModal();
+          this.loadTasks();
+        }, 1500);
+        this.cdr.detectChanges();
+      },
+      error: (err) => {
+        console.error('Error assigning task:', err);
+        this.assignmentError = 'Failed to assign task. Please try again.';
+        this.assigningTask = false;
+        this.cdr.detectChanges();
+      }
+    });
+  }
+
+  // Check if current user can forward task (recovery user with canCurrentUserAct)
+  canForwardTask(task: Task): boolean {
+    return this.isRecoveryUser() && task.canCurrentUserAct;
+  }
+
+  // Open forward dialog (alias for openAssignModal)
+  openForwardDialog(task: Task): void {
+    this.openAssignModal(task);
+  }
+
+  // Complete task from my desk
+  completeTask(task: Task): void {
+    if (!task.canCurrentUserAct) {
+      console.error('User cannot act on this task');
+      return;
+    }
+
+    const request = {
+      taskId: task.taskId,
+      npaId: task.npaId,
+      variables: {}
+    };
+
+    this.workflowService.completeTask(request).subscribe({
+      next: () => {
+        console.log('Task completed successfully');
+        this.loadTasks(); // Refresh tasks
+      },
+      error: (err) => {
+        console.error('Error completing task:', err);
+        this.error = 'Failed to complete task. Please try again.';
       }
     });
   }

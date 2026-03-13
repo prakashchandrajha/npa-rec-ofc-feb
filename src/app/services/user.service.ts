@@ -1,6 +1,7 @@
 import { Injectable } from '@angular/core';
 import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { Observable } from 'rxjs';
+import { map } from 'rxjs/operators';
 
 export interface User {
   userId?: number;
@@ -62,5 +63,14 @@ export class UserService {
     return this.http.delete<void>(`${this.adminUrl}/${id}`, {
       headers: this.getAuthHeaders()
     });
+  }
+
+  getRecoveryUsers(): Observable<User[]> {
+    // Use auth headers since user is logged in
+    return this.http.get<User[]>(this.publicUrl, {
+      headers: this.getAuthHeaders()
+    }).pipe(
+      map(users => users.filter(user => user.userType === 'RECOVERY'))
+    );
   }
 }

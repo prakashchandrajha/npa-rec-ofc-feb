@@ -1,5 +1,5 @@
 import { Injectable } from '@angular/core';
-import { HttpClient, HttpParams } from '@angular/common/http';
+import { HttpClient, HttpParams, HttpHeaders } from '@angular/common/http';
 import { Observable } from 'rxjs';
 import { environment } from '../../environments/environment';
 import {
@@ -25,31 +25,42 @@ export class NpaApiService {
   constructor(private http: HttpClient) {}
 
   /**
+   * Get authentication headers
+   */
+  private getAuthHeaders(): HttpHeaders {
+    const token = localStorage.getItem('token');
+    return new HttpHeaders({
+      'Content-Type': 'application/json',
+      'Authorization': `Bearer ${token}`
+    });
+  }
+
+  /**
    * Get NPA details by ID
    */
   getNpaById(npaId: number): Observable<NpaResponse> {
-    return this.http.get<NpaResponse>(`${this.baseUrl}/npa/${npaId}`);
+    return this.http.get<NpaResponse>(`${this.baseUrl}/npa/${npaId}`, { headers: this.getAuthHeaders() });
   }
 
   /**
    * Get current task for an NPA
    */
   getCurrentTaskByNpaId(npaId: number): Observable<Task> {
-    return this.http.get<Task>(`${this.baseUrl}/workflow/task/by-npa/${npaId}`);
+    return this.http.get<Task>(`${this.baseUrl}/workflow/task/by-npa/${npaId}`, { headers: this.getAuthHeaders() });
   }
 
   /**
    * Get completed tasks history for an NPA
    */
   getCompletedTasks(npaId: number): Observable<CompletedTask[]> {
-    return this.http.get<CompletedTask[]>(`${this.baseUrl}/npa/${npaId}/history`);
+    return this.http.get<CompletedTask[]>(`${this.baseUrl}/npa/${npaId}/history`, { headers: this.getAuthHeaders() });
   }
 
   /**
    * Get list of regional offices
    */
   getRegionalOffices(): Observable<RegionalOffice[]> {
-    return this.http.get<RegionalOffice[]>(`${this.baseUrl}/users/regional-offices`);
+    return this.http.get<RegionalOffice[]>(`${this.baseUrl}/users/regional-offices`, { headers: this.getAuthHeaders() });
   }
 
   /**
@@ -58,7 +69,8 @@ export class NpaApiService {
   completeTask(request: TaskCompletionRequest): Observable<TaskCompletionResponse> {
     return this.http.post<TaskCompletionResponse>(
       `${this.baseUrl}/workflow/task/complete`,
-      request
+      request,
+      { headers: this.getAuthHeaders() }
     );
   }
 
@@ -69,7 +81,12 @@ export class NpaApiService {
     const formData = new FormData();
     formData.append('file', file);
     formData.append('taskId', taskId);
-    return this.http.post<FileUploadResponse>(`${this.baseUrl}/files/upload`, formData);
+    const token = localStorage.getItem('token');
+    const headers = new HttpHeaders({
+      'Authorization': `Bearer ${token}`
+      // Don't set Content-Type for FormData - browser sets it automatically with boundary
+    });
+    return this.http.post<FileUploadResponse>(`${this.baseUrl}/files/upload`, formData, { headers });
   }
 
   /**
@@ -78,7 +95,8 @@ export class NpaApiService {
   downloadAttachment(attachmentId: string, isHistory: boolean = false): Observable<Blob> {
     const endpoint = isHistory ? 'history' : '';
     return this.http.get(`${this.baseUrl}/files/${endpoint}/download/${attachmentId}`, {
-      responseType: 'blob'
+      responseType: 'blob',
+      headers: this.getAuthHeaders()
     });
   }
 }

@@ -6,6 +6,7 @@ import { Observable } from 'rxjs';
 export interface UserInfo {
   username: string;
   division: string;
+  userType?: string;
 }
 
 @Injectable({
