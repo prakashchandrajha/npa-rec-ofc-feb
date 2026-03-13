@@ -11,12 +11,15 @@ import { CommonModule } from '@angular/common';
 })
 export class Sidebar implements OnInit {
   userInfo: UserInfo | null = null;
+  isDivisionUser: boolean = false;
 
   constructor(private authService: AuthService) {}
 
   ngOnInit(): void {
     this.userInfo = this.authService.getUserInfo();
+    this.isDivisionUser = this.userInfo?.userType === 'DIVISION';
     console.log('Sidebar initialized, userInfo:', this.userInfo);
+    console.log('isDivisionUser:', this.isDivisionUser);
   }
 
   logout(): void {
