@@ -10,6 +10,7 @@ export interface BasicDetailsPayload {
   divisionName: string;
   accountName: string;
   npaDate: string;
+  regionalOffice?: string;
   businessActivity?: string;
   registeredAddress?: string;
   factoryRunningCondition?: string;
@@ -45,6 +46,7 @@ export class BasicDetailsService implements INpaSectionService<BasicDetailsPaylo
       divisionName: formData.divisionName || '',
       accountName: formData.accountName || '',
       npaDate: formData.npaClassificationDate || '',
+      regionalOffice: formData.regionalOffice || '',
       businessActivity: formData.businessActivity || '',
       registeredAddress: formData.registeredAddress || '',
       factoryRunningCondition: formData.factoryRunningCondition || '',
@@ -63,6 +65,7 @@ export class BasicDetailsService implements INpaSectionService<BasicDetailsPaylo
       divisionName: apiData.divisionName || '',
       accountName: apiData.accountName || '',
       npaClassificationDate: apiData.npaDate || '',
+      regionalOffice: apiData.regionalOffice || '',
       businessActivity: apiData.businessActivity || '',
       registeredAddress: apiData.registeredAddress || '',
       factoryRunningCondition: (apiData.factoryRunningCondition as 'yes' | 'no') || '',
