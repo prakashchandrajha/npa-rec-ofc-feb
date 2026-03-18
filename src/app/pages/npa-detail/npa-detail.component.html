@@ -494,9 +494,317 @@
                 <p class="text-lg font-medium text-gray-500 mb-2">No Security Details Available</p>
               </div>
             }
-          </app-accordion>
+           </app-accordion>
+ 
+           <!-- Accordion 4: Release Details -->
+           <app-accordion
+             title="Release Details"
+             [expanded]="accordionState['releaseDetails']"
+             icon="default"
+             (expandedChange)="accordionState['releaseDetails'] = $event">
 
-        </div>
+             @if (npaData()?.releaseDetails?.releases && npaData()?.releaseDetails?.releases.length > 0) {
+               <div class="overflow-x-auto">
+                 <table class="w-full text-left border-collapse">
+                   <thead>
+                     <tr class="bg-gray-50 border-b border-gray-200">
+                       <th class="px-6 py-3 text-xs font-semibold text-gray-600 uppercase tracking-wider">Sr. No.</th>
+                       <th class="px-6 py-3 text-xs font-semibold text-gray-600 uppercase tracking-wider">Date of Release</th>
+                       <th class="px-6 py-3 text-xs font-semibold text-gray-600 uppercase tracking-wider">Against Release Letter</th>
+                       <th class="px-6 py-3 text-xs font-semibold text-gray-600 uppercase tracking-wider">Amount</th>
+                     </tr>
+                   </thead>
+                   <tbody class="divide-y divide-gray-200">
+                     @for (release of npaData()?.releaseDetails?.releases; track release.id) {
+                       <tr class="hover:bg-blue-50 transition-colors">
+                         <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">{{ release.srNo }}</td>
+                         <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-600">{{ release.dateOfRelease || '-' }}</td>
+                         <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-600">{{ release.againstReleaseLetter || '-' }}</td>
+                         <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900 font-semibold">₹ {{ release.amount | number:'1.2-2' }}</td>
+                       </tr>
+                     }
+                   </tbody>
+                 </table>
+               </div>
+             } @else {
+               <div class="text-center py-8 text-gray-500">
+                 <svg class="mx-auto h-12 w-12 text-gray-300 mb-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                   <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/>
+                 </svg>
+                 <p class="text-lg font-medium text-gray-500 mb-2">No Release Details Available</p>
+               </div>
+             }
+           </app-accordion>
+ 
+           <!-- Accordion 5: Post Dated Cheques Details -->
+           <app-accordion
+             title="Post Dated Cheques Details"
+             [expanded]="accordionState['postDatedChequesDetails']"
+             icon="default"
+             (expandedChange)="accordionState['postDatedChequesDetails'] = $event">
+
+             @if (npaData()?.postDatedChequesDetails) {
+               <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                 <div class="space-y-1">
+                   <label class="text-xs font-semibold text-gray-500 uppercase tracking-wider">PDC Available</label>
+                   <div class="flex items-center p-3 bg-gray-50 rounded-lg border border-gray-200">
+                     <span class="text-gray-900 font-medium">{{ npaData()?.postDatedChequesDetails?.pdcAvailable || 'Not specified' }}</span>
+                   </div>
+                 </div>
+                 <div class="space-y-1">
+                   <label class="text-xs font-semibold text-gray-500 uppercase tracking-wider">Number of PDC Available</label>
+                   <div class="flex items-center p-3 bg-gray-50 rounded-lg border border-gray-200">
+                     <span class="text-gray-900 font-medium">{{ npaData()?.postDatedChequesDetails?.numberOfPDCAvailable || 'Not specified' }}</span>
+                   </div>
+                 </div>
+                 <div class="space-y-1">
+                   <label class="text-xs font-semibold text-gray-500 uppercase tracking-wider">PDC Presented in Bank</label>
+                   <div class="flex items-center p-3 bg-gray-50 rounded-lg border border-gray-200">
+                     <span class="text-gray-900 font-medium">{{ npaData()?.postDatedChequesDetails?.pdcPresentedInBank || 'Not specified' }}</span>
+                   </div>
+                 </div>
+                 <div class="space-y-1">
+                   <label class="text-xs font-semibold text-gray-500 uppercase tracking-wider">PDC Not Presented Reason</label>
+                   <div class="flex items-center p-3 bg-gray-50 rounded-lg border border-gray-200">
+                     <span class="text-gray-900 font-medium">{{ npaData()?.postDatedChequesDetails?.pdcNotPresentedReason || 'Not specified' }}</span>
+                   </div>
+                 </div>
+                 <div class="space-y-1">
+                   <label class="text-xs font-semibold text-gray-500 uppercase tracking-wider">PDC Dishonored</label>
+                   <div class="flex items-center p-3 bg-gray-50 rounded-lg border border-gray-200">
+                     <span class="text-gray-900 font-medium">{{ npaData()?.postDatedChequesDetails?.pdcDishonored || 'Not specified' }}</span>
+                   </div>
+                 </div>
+                 <div class="space-y-1">
+                   <label class="text-xs font-semibold text-gray-500 uppercase tracking-wider">Check Return Memo Date</label>
+                   <div class="flex items-center p-3 bg-gray-50 rounded-lg border border-gray-200">
+                     <span class="text-gray-900 font-medium">{{ npaData()?.postDatedChequesDetails?.checkReturnMemoDate || 'Not specified' }}</span>
+                   </div>
+                 </div>
+                 <div class="space-y-1">
+                   <label class="text-xs font-semibold text-gray-500 uppercase tracking-wider">Legal Notice Issued</label>
+                   <div class="flex items-center p-3 bg-gray-50 rounded-lg border border-gray-200">
+                     <span class="text-gray-900 font-medium">{{ npaData()?.postDatedChequesDetails?.legalNoticeIssued || 'Not specified' }}</span>
+                   </div>
+                 </div>
+                 <div class="space-y-1">
+                   <label class="text-xs font-semibold text-gray-500 uppercase tracking-wider">Legal Notice Date</label>
+                   <div class="flex items-center p-3 bg-gray-50 rounded-lg border border-gray-200">
+                     <span class="text-gray-900 font-medium">{{ npaData()?.postDatedChequesDetails?.legalNoticeDate || 'Not specified' }}</span>
+                   </div>
+                 </div>
+                 <div class="space-y-1">
+                   <label class="text-xs font-semibold text-gray-500 uppercase tracking-wider">Case Filed Under 138</label>
+                   <div class="flex items-center p-3 bg-gray-50 rounded-lg border border-gray-200">
+                     <span class="text-gray-900 font-medium">{{ npaData()?.postDatedChequesDetails?.caseFiledUnder138 || 'Not specified' }}</span>
+                   </div>
+                 </div>
+                 <div class="space-y-1">
+                   <label class="text-xs font-semibold text-gray-500 uppercase tracking-wider">Case Filing Date</label>
+                   <div class="flex items-center p-3 bg-gray-50 rounded-lg border border-gray-200">
+                     <span class="text-gray-900 font-medium">{{ npaData()?.postDatedChequesDetails?.caseFilingDate || 'Not specified' }}</span>
+                   </div>
+                 </div>
+                 <div class="space-y-1">
+                   <label class="text-xs font-semibold text-gray-500 uppercase tracking-wider">Case Number</label>
+                   <div class="flex items-center p-3 bg-gray-50 rounded-lg border border-gray-200">
+                     <span class="text-gray-900 font-medium">{{ npaData()?.postDatedChequesDetails?.caseNumber || 'Not specified' }}</span>
+                   </div>
+                 </div>
+                 <div class="space-y-1">
+                   <label class="text-xs font-semibold text-gray-500 uppercase tracking-wider">Present Status</label>
+                   <div class="flex items-center p-3 bg-gray-50 rounded-lg border border-gray-200">
+                     <span class="text-gray-900 font-medium">{{ npaData()?.postDatedChequesDetails?.presentStatus || 'Not specified' }}</span>
+                   </div>
+                 </div>
+                 <div class="space-y-1">
+                   <label class="text-xs font-semibold text-gray-500 uppercase tracking-wider">Case Not Filed Reason</label>
+                   <div class="flex items-center p-3 bg-gray-50 rounded-lg border border-gray-200">
+                     <span class="text-gray-900 font-medium">{{ npaData()?.postDatedChequesDetails?.caseNotFiledReason || 'Not specified' }}</span>
+                   </div>
+                 </div>
+               </div>
+             } @else {
+               <div class="text-center py-8 text-gray-500">
+                 <svg class="mx-auto h-12 w-12 text-gray-300 mb-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                   <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4"/>
+                 </svg>
+                 <p class="text-lg font-medium text-gray-500 mb-2">No Post Dated Cheques Details Available</p>
+               </div>
+             }
+           </app-accordion>
+ 
+           <!-- Accordion 6: Repayment Schedule -->
+           <app-accordion
+             title="Repayment Schedule"
+             [expanded]="accordionState['repaymentSchedule']"
+             icon="default"
+             (expandedChange)="accordionState['repaymentSchedule'] = $event">
+
+             @if (npaData()?.repaymentSchedule?.schedules && npaData()?.repaymentSchedule?.schedules.length > 0) {
+               <div class="overflow-x-auto">
+                 <table class="w-full text-left border-collapse">
+                   <thead>
+                     <tr class="bg-gray-50 border-b border-gray-200">
+                       <th class="px-6 py-3 text-xs font-semibold text-gray-600 uppercase tracking-wider">Sr. No.</th>
+                       <th class="px-6 py-3 text-xs font-semibold text-gray-600 uppercase tracking-wider">Installment Date</th>
+                       <th class="px-6 py-3 text-xs font-semibold text-gray-600 uppercase tracking-wider">Installment Amount</th>
+                       <th class="px-6 py-3 text-xs font-semibold text-gray-600 uppercase tracking-wider">Date of Actual Receipt</th>
+                     </tr>
+                   </thead>
+                   <tbody class="divide-y divide-gray-200">
+                     @for (schedule of npaData()?.repaymentSchedule?.schedules; track schedule.id) {
+                       <tr class="hover:bg-blue-50 transition-colors">
+                         <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">{{ schedule.srNo }}</td>
+                         <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-600">{{ schedule.installmentDate || '-' }}</td>
+                         <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900 font-semibold">₹ {{ schedule.installmentAmount | number:'1.2-2' }}</td>
+                         <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-600">{{ schedule.dateOfActualReceipt || '-' }}</td>
+                       </tr>
+                     }
+                   </tbody>
+                 </table>
+               </div>
+             } @else {
+               <div class="text-center py-8 text-gray-500">
+                 <svg class="mx-auto h-12 w-12 text-gray-300 mb-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                   <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/>
+                 </svg>
+                 <p class="text-lg font-medium text-gray-500 mb-2">No Repayment Schedule Available</p>
+               </div>
+             }
+           </app-accordion>
+ 
+           <!-- Accordion 7: Restructuring Details -->
+           <app-accordion
+             title="Restructuring Details"
+             [expanded]="accordionState['restructuringDetails']"
+             icon="default"
+             (expandedChange)="accordionState['restructuringDetails'] = $event">
+
+             @if (npaData()?.restructuringDetails) {
+               <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                 <div class="space-y-1">
+                   <label class="text-xs font-semibold text-gray-500 uppercase tracking-wider">Restructured</label>
+                   <div class="flex items-center p-3 bg-gray-50 rounded-lg border border-gray-200">
+                     <span class="text-gray-900 font-medium">{{ npaData()?.restructuringDetails?.restructured || 'Not specified' }}</span>
+                   </div>
+                 </div>
+                 <div class="space-y-1">
+                   <label class="text-xs font-semibold text-gray-500 uppercase tracking-wider">Restructuring Date</label>
+                   <div class="flex items-center p-3 bg-gray-50 rounded-lg border border-gray-200">
+                     <span class="text-gray-900 font-medium">{{ npaData()?.restructuringDetails?.restructuringDate || 'Not specified' }}</span>
+                   </div>
+                 </div>
+                 <div class="space-y-1">
+                   <label class="text-xs font-semibold text-gray-500 uppercase tracking-wider">Reference No.</label>
+                   <div class="flex items-center p-3 bg-gray-50 rounded-lg border border-gray-200">
+                     <span class="text-gray-900 font-medium">{{ npaData()?.restructuringDetails?.referenceNo || 'Not specified' }}</span>
+                   </div>
+                 </div>
+                 <div class="space-y-1">
+                   <label class="text-xs font-semibold text-gray-500 uppercase tracking-wider">Restructuring Term</label>
+                   <div class="flex items-center p-3 bg-gray-50 rounded-lg border border-gray-200">
+                     <span class="text-gray-900 font-medium">{{ npaData()?.restructuringDetails?.restructuringTerm || 'Not specified' }}</span>
+                   </div>
+                 </div>
+                 <div class="space-y-1 md:col-span-2">
+                   <label class="text-xs font-semibold text-gray-500 uppercase tracking-wider">Non Repayment Non Compliance</label>
+                   <div class="flex items-center p-3 bg-gray-50 rounded-lg border border-gray-200">
+                     <span class="text-gray-900 font-medium">{{ npaData()?.restructuringDetails?.nonRepaymentNonCompliance || 'Not specified' }}</span>
+                   </div>
+                 </div>
+               </div>
+             } @else {
+               <div class="text-center py-8 text-gray-500">
+                 <svg class="mx-auto h-12 w-12 text-gray-300 mb-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                   <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/>
+                 </svg>
+                 <p class="text-lg font-medium text-gray-500 mb-2">No Restructuring Details Available</p>
+               </div>
+             }
+           </app-accordion>
+ 
+           <!-- Accordion 8: Correspondence -->
+           <app-accordion
+             title="Correspondence"
+             [expanded]="accordionState['correspondence']"
+             icon="default"
+             (expandedChange)="accordionState['correspondence'] = $event">
+
+             @if (npaData()?.correspondence?.correspondences && npaData()?.correspondence?.correspondences.length > 0) {
+               <div class="overflow-x-auto">
+                 <table class="w-full text-left border-collapse">
+                   <thead>
+                     <tr class="bg-gray-50 border-b border-gray-200">
+                       <th class="px-6 py-3 text-xs font-semibold text-gray-600 uppercase tracking-wider">Sr. No.</th>
+                       <th class="px-6 py-3 text-xs font-semibold text-gray-600 uppercase tracking-wider">Particulars</th>
+                       <th class="px-6 py-3 text-xs font-semibold text-gray-600 uppercase tracking-wider">Date</th>
+                       <th class="px-6 py-3 text-xs font-semibold text-gray-600 uppercase tracking-wider">Outcome</th>
+                     </tr>
+                   </thead>
+                   <tbody class="divide-y divide-gray-200">
+                     @for (corr of npaData()?.correspondence?.correspondences; track corr.id) {
+                       <tr class="hover:bg-blue-50 transition-colors">
+                         <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">{{ corr.srNo }}</td>
+                         <td class="px-6 py-4 text-sm text-gray-600 max-w-xs">{{ corr.particulars || '-' }}</td>
+                         <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-600">{{ corr.date || '-' }}</td>
+                         <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-600">{{ corr.outcome || '-' }}</td>
+                       </tr>
+                     }
+                   </tbody>
+                 </table>
+               </div>
+             } @else {
+               <div class="text-center py-8 text-gray-500">
+                 <svg class="mx-auto h-12 w-12 text-gray-300 mb-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                   <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/>
+                 </svg>
+                 <p class="text-lg font-medium text-gray-500 mb-2">No Correspondence Available</p>
+               </div>
+             }
+           </app-accordion>
+ 
+           <!-- Accordion 9: Revised Repayment Schedule -->
+           <app-accordion
+             title="Revised Repayment Schedule"
+             [expanded]="accordionState['revisedRepaymentSchedule']"
+             icon="default"
+             (expandedChange)="accordionState['revisedRepaymentSchedule'] = $event">
+
+             @if (npaData()?.revisedRepaymentSchedule?.schedules && npaData()?.revisedRepaymentSchedule?.schedules.length > 0) {
+               <div class="overflow-x-auto">
+                 <table class="w-full text-left border-collapse">
+                   <thead>
+                     <tr class="bg-gray-50 border-b border-gray-200">
+                       <th class="px-6 py-3 text-xs font-semibold text-gray-600 uppercase tracking-wider">Sr. No.</th>
+                       <th class="px-6 py-3 text-xs font-semibold text-gray-600 uppercase tracking-wider">Installment Date</th>
+                       <th class="px-6 py-3 text-xs font-semibold text-gray-600 uppercase tracking-wider">Installment Amount</th>
+                       <th class="px-6 py-3 text-xs font-semibold text-gray-600 uppercase tracking-wider">Date of Actual Receipt</th>
+                     </tr>
+                   </thead>
+                   <tbody class="divide-y divide-gray-200">
+                     @for (schedule of npaData()?.revisedRepaymentSchedule?.schedules; track schedule.id) {
+                       <tr class="hover:bg-blue-50 transition-colors">
+                         <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">{{ schedule.srNo }}</td>
+                         <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-600">{{ schedule.installmentDate || '-' }}</td>
+                         <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900 font-semibold">₹ {{ schedule.installmentAmount | number:'1.2-2' }}</td>
+                         <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-600">{{ schedule.dateOfActualReceipt || '-' }}</td>
+                       </tr>
+                     }
+                   </tbody>
+                 </table>
+               </div>
+             } @else {
+               <div class="text-center py-8 text-gray-500">
+                 <svg class="mx-auto h-12 w-12 text-gray-300 mb-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                   <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/>
+                 </svg>
+                 <p class="text-lg font-medium text-gray-500 mb-2">No Revised Repayment Schedule Available</p>
+               </div>
+             }
+           </app-accordion>
+ 
+         </div>
 
         <!-- RIGHT COLUMN: Task Management (4 columns) -->
         <div class="xl:col-span-4 space-y-6">
