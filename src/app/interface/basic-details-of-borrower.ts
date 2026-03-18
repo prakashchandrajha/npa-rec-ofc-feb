@@ -7,6 +7,7 @@ export interface BasicDetailsOfTheBorrower {
   regionalOffice: string;
   accountName: string;
   npaClassificationDate: string; // Format: YYYY-MM-DD
+  npaDate: string; // Format: YYYY-MM-DD (matches API response)
   businessActivity: string;
   registeredAddress: string;
   corporateOffice: string;
