@@ -283,6 +283,19 @@ export class MyDesk implements OnInit, OnDestroy {
     return this.isRecoveryUser() && task.canCurrentUserAct;
   }
 
+  /**
+   * Check if the NPA is overdue based on the NPA date
+   * @param npaDateString The NPA date string (can be undefined)
+   * @returns true if overdue, false otherwise
+   */
+  isOverdue(npaDateString: string | undefined): boolean {
+    if (!npaDateString) return false;
+    const npaDate = new Date(npaDateString);
+    const today = new Date();
+    today.setHours(0,0,0,0);
+    return npaDate < today;
+  }
+
   // Open forward dialog (alias for openAssignModal)
   openForwardDialog(task: Task): void {
     this.openAssignModal(task);

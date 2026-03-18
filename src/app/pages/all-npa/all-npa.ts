@@ -4,6 +4,7 @@ import { RouterModule, Router, NavigationEnd } from '@angular/router';
 import { filter } from 'rxjs/operators';
 import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { AuthService } from '../../services/auth.service';
+import { WorkflowService } from '../../services/workflow.service';
 
 interface NpaRecord {
   npaId: number;
@@ -24,7 +25,6 @@ interface NpaRecord {
   amount: number | null;
   status?: string;
   createdAt?: string;
-  taskName?: string;
   task?: {
     taskName: string;
     taskId: string;
@@ -48,6 +48,7 @@ export class AllNpa implements OnInit, OnDestroy {
   constructor(
     private http: HttpClient,
     private authService: AuthService,
+    private workflowService: WorkflowService,
     private router: Router,
     private cdr: ChangeDetectorRef
   ) {
@@ -86,6 +87,19 @@ export class AllNpa implements OnInit, OnDestroy {
     }
   }
 
+  /**
+   * Check if the NPA is overdue based on the NPA date
+   * @param npaDateString The NPA date string (can be undefined)
+   * @returns true if overdue, false otherwise
+   */
+  isOverdue(npaDateString: string | undefined): boolean {
+    if (!npaDateString) return false;
+    const npaDate = new Date(npaDateString);
+    const today = new Date();
+    today.setHours(0,0,0,0);
+    return npaDate < today;
+  }
+
   loadAllNpa(): void {
     const timestamp = new Date().toISOString();
     console.log(`[${timestamp}] loadAllNpa called, loading flag before:`, this.loading);
@@ -114,6 +128,7 @@ export class AllNpa implements OnInit, OnDestroy {
       'Content-Type': 'application/json'
     });
 
+    // First get all NPA records
     this.http.get<any>(this.apiUrl, { headers }).subscribe({
       next: (response) => {
         const responseTimestamp = new Date().toISOString();
@@ -130,10 +145,30 @@ export class AllNpa implements OnInit, OnDestroy {
           return [];
         };
         
-        this.npaRecords = extract(response);
-        console.log(`[${responseTimestamp}] Final NPA records array:`, this.npaRecords);
-        this.loading = false;
-        this.cdr.detectChanges();
+        const npaRecords = extract(response);
+        console.log(`[${responseTimestamp}] Raw NPA records array:`, npaRecords);
+        
+        // Now get task information for each NPA
+        const tasksPromises = npaRecords.map((npa) => {
+          return this.workflowService.getTaskByNpa(npa.npaId).toPromise()
+            .then((task: any) => {
+              if (task && task.taskName) {
+                npa.task = task;
+              }
+              return npa;
+            })
+            .catch((err: any) => {
+              console.warn(`Failed to get task for NPA ${npa.npaId}:`, err);
+              return npa;
+            });
+        });
+        
+        Promise.all(tasksPromises).then((updatedRecords) => {
+          this.npaRecords = updatedRecords;
+          console.log(`[${responseTimestamp}] Final NPA records array with tasks:`, this.npaRecords);
+          this.loading = false;
+          this.cdr.detectChanges();
+        });
       },
       error: (err) => {
         console.error('Error fetching NPA records:', err);
