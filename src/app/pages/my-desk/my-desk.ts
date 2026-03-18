@@ -216,7 +216,7 @@ export class MyDesk implements OnInit, OnDestroy {
 
   // Check if current user is a recovery user who can assign tasks
   isRecoveryUser(): boolean {
-    return this.currentUserType === 'RECOVERY';
+    return this.authService.getUserInfo()?.username === 'recovery';
   }
 
   // Open the assignment modal

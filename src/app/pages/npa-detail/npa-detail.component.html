@@ -855,6 +855,22 @@
                   </div>
                 }
 
+                <!-- Forward Button - Only for recovery user -->
+                @if (currentTask()?.canCurrentUserAct && isRecoveryUser()) {
+                  <div class="pt-4 border-t border-gray-200">
+                    <button
+                      (click)="openTaskModal()"
+                      class="w-full group relative flex justify-center py-3 px-4 border border-transparent text-sm font-medium rounded-lg text-white bg-gradient-to-r from-green-600 to-green-500 hover:from-green-500 hover:to-green-400 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500 shadow-md hover:shadow-lg transition-all duration-200">
+                      <span class="absolute left-0 inset-y-0 flex items-center pl-3">
+                        <svg class="h-5 w-5 text-green-200 group-hover:text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 7l5 5m0 0l-5 5m5-5H6"/>
+                        </svg>
+                      </span>
+                      Forward Task
+                    </button>
+                  </div>
+                }
+
                 @if (!currentTask()?.canCurrentUserAct) {
                   <div class="pt-4 border-t border-gray-200">
                     <div class="p-3 bg-gray-100 rounded-lg text-center border border-gray-200">

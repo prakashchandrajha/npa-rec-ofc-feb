@@ -77,7 +77,7 @@ export class NpaDetailComponent implements OnInit, OnDestroy {
   readonly hasLegalDocuments = computed(() => !!this.npaData()?.securityDetails?.legalDocuments);
   readonly valuation = computed(() => this.npaData()?.securityDetails?.valuation || null);
   readonly legalDocuments = computed(() => this.npaData()?.securityDetails?.legalDocuments || null);
-  readonly isRecoveryUser = computed(() => this.authService.getUserInfo()?.userType === 'RECOVERY');
+  readonly isRecoveryUser = computed(() => this.authService.getUserInfo()?.username === 'recovery');
 
   private subscriptions: Subscription[] = [];
 
