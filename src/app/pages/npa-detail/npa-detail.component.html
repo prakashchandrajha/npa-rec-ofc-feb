@@ -840,7 +840,7 @@
                 </div>
 
                 <!-- Action Button -->
-                @if (currentTask()?.canCurrentUserAct) {
+                @if (currentTask()?.canCurrentUserAct && !isRecoveryUser()) {
                   <div class="pt-4 border-t border-gray-200">
                     <button
                       (click)="openTaskModal()"
