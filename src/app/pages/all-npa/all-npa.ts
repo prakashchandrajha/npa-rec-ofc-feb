@@ -90,14 +90,26 @@ export class AllNpa implements OnInit, OnDestroy {
   /**
    * Check if the NPA is overdue based on the NPA date
    * @param npaDateString The NPA date string (can be undefined)
-   * @returns true if overdue, false otherwise
+   * @returns string with overdue days or "Not Overdue"
    */
-  isOverdue(npaDateString: string | undefined): boolean {
-    if (!npaDateString) return false;
+  isOverdue(npaDateString: string | undefined): string {
+    if (!npaDateString) return "Not Overdue";
     const npaDate = new Date(npaDateString);
     const today = new Date();
     today.setHours(0,0,0,0);
-    return npaDate < today;
+    
+    // Calculate difference in days
+    const diffTime = today.getTime() - npaDate.getTime();
+    const daysPassed = Math.floor(diffTime / (1000 * 60 * 60 * 24));
+    
+    // Assuming 1 day allowed before overdue
+    const allowedDays = 1;
+    
+    if (daysPassed > allowedDays) {
+      const overdueDays = daysPassed - allowedDays;
+      return overdueDays === 1 ? "1 day due" : `${overdueDays} days due`;
+    }
+    return "Not Overdue";
   }
 
   loadAllNpa(): void {

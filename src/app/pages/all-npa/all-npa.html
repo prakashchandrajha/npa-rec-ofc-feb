@@ -76,13 +76,13 @@
                    </div>
                  </td>
                  <td class="px-6 py-4 whitespace-nowrap">
-                   <span *ngIf="isOverdue(npa.basicDetails?.npaDate)" class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-red-100 text-red-800">
-                     Overdue
-                   </span>
-                   <span *ngIf="!isOverdue(npa.basicDetails?.npaDate)" class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-green-100 text-green-800">
-                     Not Overdue
-                   </span>
-                 </td>
+                    <span *ngIf="isOverdue(npa.basicDetails?.npaDate)" class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-red-100 text-red-800">
+                      {{ isOverdue(npa.basicDetails?.npaDate) }}
+                    </span>
+                    <span *ngIf="!isOverdue(npa.basicDetails?.npaDate)" class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-green-100 text-green-800">
+                      Not Overdue
+                    </span>
+                  </td>
                  <td class="px-6 py-4 whitespace-nowrap text-center">
                   <button 
                     [routerLink]="['/dashboard/npa-detail', npa.npaId]" 

@@ -7,6 +7,7 @@ import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { AuthService } from '../../services/auth.service';
 import { UserService, User } from '../../services/user.service';
 import { WorkflowService } from '../../services/workflow.service';
+import { TaskManager } from '../../services/task-manager';
 
 interface Task {
   taskId: string;
@@ -37,6 +38,15 @@ interface Task {
   };
 }
 
+interface TaskWithStatus {
+  taskName: string;
+  npaDate: string;
+  allowedDays: number;
+  daysPassed: number;
+  overdueDays: number;
+  status: string;
+}
+
 @Component({
   selector: 'app-my-desk',
   imports: [CommonModule, RouterModule, FormsModule],
@@ -60,6 +70,10 @@ export class MyDesk implements OnInit, OnDestroy {
   // Current user info
   currentUserType: string = '';
   
+  // Task management
+  taskManager: TaskManager = new TaskManager();
+  computedTasks: TaskWithStatus[] = [];
+  
   private navigationSubscription: any;
   private retryCount = 0;
   private apiUrl = 'http://localhost:8080/api/workflow/tasks/my-desk';
@@ -73,6 +87,10 @@ export class MyDesk implements OnInit, OnDestroy {
     private router: Router,
     private cdr: ChangeDetectorRef
   ) {
+    // Initialize task manager and update statuses
+    this.updateTaskStatuses();
+    console.log('Task Manager initialized with:', this.taskManager.getTasks());
+    this.printTaskReport();
     // subscribe to navigation events here so we get the very first NavigationEnd
     // that brings us to the route.  Doing this in the constructor avoids the
     // double-call bug we were observing when setting up the subscription in
@@ -286,14 +304,25 @@ export class MyDesk implements OnInit, OnDestroy {
   /**
    * Check if the NPA is overdue based on the NPA date
    * @param npaDateString The NPA date string (can be undefined)
-   * @returns true if overdue, false otherwise
+   * @returns string with overdue days or "Not Overdue"
    */
-  isOverdue(npaDateString: string | undefined): boolean {
-    if (!npaDateString) return false;
+  isOverdue(npaDateString: string | undefined): string {
+    if (!npaDateString) return "Not Overdue";
     const npaDate = new Date(npaDateString);
     const today = new Date();
     today.setHours(0,0,0,0);
-    return npaDate < today;
+    
+    const diffTime = today.getTime() - npaDate.getTime();
+    const daysPassed = Math.floor(diffTime / (1000 * 60 * 60 * 24));
+    
+    // Assuming 1 day allowed before overdue
+    const allowedDays = 1;
+    
+    if (daysPassed > allowedDays) {
+      const overdueDays = daysPassed - allowedDays;
+      return overdueDays === 1 ? "1 day due" : `${overdueDays} days due`;
+    }
+    return "Not Overdue";
   }
 
   // Open forward dialog (alias for openAssignModal)
@@ -324,5 +353,63 @@ export class MyDesk implements OnInit, OnDestroy {
         this.error = 'Failed to complete task. Please try again.';
       }
     });
+  }
+
+  // Task management methods
+  updateTaskStatuses(): void {
+    this.computedTasks = this.taskManager.updateTaskStatuses();
+    console.log('Task statuses updated:', this.computedTasks);
+  }
+
+  printTaskReport(): void {
+    this.taskManager.printReport();
+  }
+
+  getTaskStatistics(): {
+    totalTasks: number;
+    overdueTasks: number;
+    onTimeTasks: number;
+    totalWorkingHours: number;
+    totalOverdueHours: number;
+  } {
+    return this.taskManager.getTaskStatistics();
+  }
+
+  exportTasksToCSV(): string {
+    return this.taskManager.exportToCSV();
+  }
+
+  exportTasksToJSON(): string {
+    return this.taskManager.exportToJSON();
+  }
+
+  addTask(task: TaskWithStatus): void {
+    this.taskManager.addTask(task);
+    this.updateTaskStatuses();
+  }
+
+  removeTask(taskName: string): void {
+    this.taskManager.removeTask(taskName);
+    this.updateTaskStatuses();
+  }
+
+  getTaskByName(taskName: string): TaskWithStatus | undefined {
+    return this.taskManager.getTaskByName(taskName);
+  }
+
+  getTotalWorkingTime(): number {
+    return this.taskManager.getTotalWorkingTime();
+  }
+
+  getTotalOverdueWorkingTime(): number {
+    return this.taskManager.getTotalOverdueWorkingTime();
+  }
+
+  getOverdueTasks(): TaskWithStatus[] {
+    return this.taskManager.getOverdueTasks();
+  }
+
+  getOnTimeTasks(): TaskWithStatus[] {
+    return this.taskManager.getOnTimeTasks();
   }
 }
