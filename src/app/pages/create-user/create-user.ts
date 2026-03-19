@@ -21,13 +21,6 @@ export class CreateUser {
     { value: 'LOAN', label: 'Loan' }
   ];
 
-  divisions = [
-    { value: 'SUGAR', label: 'Sugar' },
-    { value: 'TEXTILE', label: 'Textile' },
-    { value: 'CHEMICAL', label: 'Chemical' },
-    { value: 'STEEL', label: 'Steel' }
-  ];
-
   formData: User = {
     username: '',
     password: '',

@@ -35,14 +35,15 @@
     </div>
 
     <div class="mb-4" *ngIf="shouldShowDivisionField">
-      <label for="divisionName" class="block text-sm font-medium text-gray-700">Division</label>
-      <select id="divisionName" name="divisionName" [(ngModel)]="formData.divisionName"
-        class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm"
-        required>
-        <option *ngFor="let div of divisions" [value]="div.value">
-          {{ div.label }}
-        </option>
-      </select>
+      <label for="divisionName" class="block text-sm font-medium text-gray-700 mb-1">Division Name *</label>
+      <input type="text" id="divisionName" name="divisionName" [(ngModel)]="formData.divisionName"
+        required [disabled]="!shouldShowDivisionField"
+        class="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500"
+        placeholder="Enter Division Name">
+      <div *ngIf="userForm.submitted && !formData.divisionName && shouldShowDivisionField"
+        class="text-red-500 text-sm mt-1">
+        Division Name is required
+      </div>
     </div>
 
     <!-- Regional Office Field - Shown only when user type is REGIONAL_OFFICE -->
