@@ -298,8 +298,12 @@ export class NpaDetailComponent implements OnInit, OnDestroy {
 
     Array.from(input.files).forEach(file => {
       // Validate file type
-      if (file.type !== 'application/pdf') {
-        this.submitError = `Only PDF files are allowed. ${file.name} is not a PDF.`;
+      const contentType = file.type;
+      const isPdf = contentType === 'application/pdf';
+      const isDocx = contentType === 'application/vnd.openxmlformats-officedocument.wordprocessingml.document';
+      
+      if (!isPdf && !isDocx) {
+        this.submitError = `Only PDF and DOCX files are allowed. ${file.name} is not a valid file type.`;
         return;
       }
 
