@@ -13,8 +13,13 @@ export interface BasicDetailsPayload {
   regionalOffice?: string;
   businessActivity?: string;
   registeredAddress?: string;
+  corporateOffice?: string;
+  factoryAddress?: string;
   factoryRunningCondition?: string;
+  factoryNotRunningSince?: string;
   factoryLeasedOut?: string;
+  lesseeName?: string;
+  lesseeContactDetails?: string;
   boardMembers?: BoardMember[];
 }
 
@@ -49,8 +54,13 @@ export class BasicDetailsService implements INpaSectionService<BasicDetailsPaylo
       regionalOffice: formData.regionalOffice || '',
       businessActivity: formData.businessActivity || '',
       registeredAddress: formData.registeredAddress || '',
+      corporateOffice: formData.corporateOffice || '',
+      factoryAddress: formData.factoryAddress || '',
       factoryRunningCondition: formData.factoryRunningCondition || '',
+      factoryNotRunningSince: formData.factoryNotRunningSince || '',
       factoryLeasedOut: formData.factoryLeasedOut || '',
+      lesseeName: formData.lesseeName || '',
+      lesseeContactDetails: formData.lesseeContactDetails || '',
       boardMembers: formData.boardMembers || []
     };
   }
@@ -68,8 +78,13 @@ export class BasicDetailsService implements INpaSectionService<BasicDetailsPaylo
       regionalOffice: apiData.regionalOffice || '',
       businessActivity: apiData.businessActivity || '',
       registeredAddress: apiData.registeredAddress || '',
+      corporateOffice: apiData.corporateOffice || '',
+      factoryAddress: apiData.factoryAddress || '',
       factoryRunningCondition: (apiData.factoryRunningCondition as 'yes' | 'no') || '',
+      factoryNotRunningSince: apiData.factoryNotRunningSince || '',
       factoryLeasedOut: (apiData.factoryLeasedOut as 'yes' | 'no') || '',
+      lesseeName: apiData.lesseeName || '',
+      lesseeContactDetails: apiData.lesseeContactDetails || '',
       boardMembers: apiData.boardMembers || []
     };
   }

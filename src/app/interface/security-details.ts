@@ -53,7 +53,8 @@ export const SECURITY_TYPES = [
   'Machinery',
   'Fixed Deposit',
   'Gold/Ornaments',
-  'Other'
+  'Other',
+  'Land & Building'
 ];
 
 /**
