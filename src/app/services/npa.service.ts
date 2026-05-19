@@ -11,6 +11,7 @@ import { RepaymentScheduleService } from './sections/repayment-schedule.service'
 import { RestructuringDetailsService } from './sections/restructuring-details.service';
 import { CorrespondenceService } from './sections/correspondence.service';
 import { RevisedRepaymentScheduleService } from './sections/revised-repayment-schedule.service';
+import { environment } from '../../environments/environment';
 
 /**
  * Facade service for NPA operations
@@ -20,7 +21,7 @@ import { RevisedRepaymentScheduleService } from './sections/revised-repayment-sc
   providedIn: 'root'
 })
 export class NpaService {
-  private apiUrl = 'http://localhost:8080/api/npa';
+  private apiUrl = `${environment.apiUrl}/npa`;
 
   constructor(
     private http: HttpClient,

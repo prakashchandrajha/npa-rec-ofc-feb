@@ -2,6 +2,7 @@ import { Injectable } from '@angular/core';
 import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { Observable } from 'rxjs';
 import { map } from 'rxjs/operators';
+import { environment } from '../../environments/environment';
 
 export interface User {
   userId?: number;
@@ -18,9 +19,9 @@ export interface User {
   providedIn: 'root'
 })
 export class UserService {
-  private adminUrl = 'http://localhost:8080/api/admin/users';
-  private publicUrl = 'http://localhost:8080/api/users';
-  private loginUrl = 'http://localhost:8080/api/auth/login';
+  private adminUrl = `${environment.apiUrl}/admin/users`;
+  private publicUrl = `${environment.apiUrl}/users`;
+  private loginUrl = `${environment.apiUrl}/auth/login`;
 
   constructor(private http: HttpClient) { }
 

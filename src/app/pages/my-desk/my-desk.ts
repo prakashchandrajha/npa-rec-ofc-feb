@@ -8,6 +8,7 @@ import { AuthService } from '../../services/auth.service';
 import { UserService, User } from '../../services/user.service';
 import { WorkflowService } from '../../services/workflow.service';
 import { TaskManager } from '../../services/task-manager';
+import { environment } from '../../../environments/environment';
 
 interface Task {
   taskId: string;
@@ -76,7 +77,7 @@ export class MyDesk implements OnInit, OnDestroy {
   
   private navigationSubscription: any;
   private retryCount = 0;
-  private apiUrl = 'http://localhost:8080/api/workflow/tasks/my-desk';
+  private apiUrl = `${environment.apiUrl}/workflow/tasks/my-desk`;
   private loadedOnce = false;
 
   constructor(

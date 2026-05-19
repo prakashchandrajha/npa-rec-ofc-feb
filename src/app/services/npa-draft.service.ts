@@ -1,6 +1,7 @@
 import { Injectable } from '@angular/core';
 import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { Observable } from 'rxjs';
+import { environment } from '../../environments/environment';
 
 export interface NpaDraft {
   draftId?: number;
@@ -17,7 +18,7 @@ export interface NpaDraft {
   providedIn: 'root'
 })
 export class NpaDraftService {
-  private apiUrl = 'http://localhost:8080/api/npa-draft';
+  private apiUrl = `${environment.apiUrl}/npa-draft`;
 
   constructor(private http: HttpClient) {}
 

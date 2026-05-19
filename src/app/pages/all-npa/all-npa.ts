@@ -5,6 +5,7 @@ import { filter } from 'rxjs/operators';
 import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { AuthService } from '../../services/auth.service';
 import { WorkflowService } from '../../services/workflow.service';
+import { environment } from '../../../environments/environment';
 
 interface NpaRecord {
   npaId: number;
@@ -38,12 +39,12 @@ interface NpaRecord {
   styleUrl: './all-npa.css',
 })
 export class AllNpa implements OnInit, OnDestroy {
-  npaRecords: NpaRecord[] = [];
-  loading = false;
-  error = '';
-  private navigationSubscription: any;
-  private apiUrl = 'http://localhost:8080/api/npa';
-  private loadedOnce = false;
+   npaRecords: NpaRecord[] = [];
+   loading = false;
+   error = '';
+   private navigationSubscription: any;
+   private apiUrl = `${environment.apiUrl}/npa`;
+   private loadedOnce = false;
 
   constructor(
     private http: HttpClient,
