@@ -297,9 +297,9 @@ export class MyDesk implements OnInit, OnDestroy {
     });
   }
 
-  // Check if current user can forward task (recovery user with canCurrentUserAct or ADMIN)
+  // Check if current user can forward task (recovery user with canCurrentUserAct)
   canForwardTask(task: Task): boolean {
-    return (this.isRecoveryUser() || this.currentUserType === 'ADMIN') && task.canCurrentUserAct;
+    return this.isRecoveryUser() && task.canCurrentUserAct;
   }
 
   /**

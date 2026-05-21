@@ -528,63 +528,69 @@ export class NpaFormComponent implements AfterViewInit, OnInit {
     return this.npaService.buildPayload(sections);
   }
 
-  /**
-   * Handle form submission
-   */
-  onSubmit(): void {
-    this.errorMessage.set('');
+    /**
+    * Handle form submission
+    */
+   onSubmit(): void {
+     this.errorMessage.set('');
 
-    if (!this.validateAllSections()) {
-      return;
-    }
+     if (!this.validateAllSections()) {
+       return;
+     }
 
-    this.isSubmitting.set(true);
-    const payload = this.collectFormData();
+     this.isSubmitting.set(true);
+     const payload = this.collectFormData();
 
-    this.npaService.createNpa(payload).subscribe({
-      next: (response) => {
-        this.isSubmitting.set(false);
-        
-        // Extract NPA ID from response
-        const possibleIdKeys = ['id', 'npaId', 'npa_id', 'NPA_ID', 'Id', 'ID'];
-        let foundId = 'N/A';
-        
-        for (const key of possibleIdKeys) {
-          if (response && (response as any)[key] !== undefined) {
-            foundId = (response as any)[key];
-            break;
-          }
-        }
-        
-        this.npaId = foundId.toString();
-        
-        if (this.npaId !== 'N/A') {
-          this.showModal.set(true);
-          this.cdr.detectChanges();
-        } else {
-          this.errorMessage.set('NPA created but could not extract ID.');
-        }
-      },
-      error: (error) => {
-        this.isSubmitting.set(false);
-        
-        let errorMsg = 'Failed to create NPA. Please try again.';
-        
-        if (error.error && typeof error.error === 'string') {
-          errorMsg = error.error;
-        } else if (error.error?.message) {
-          errorMsg = error.error.message;
-        } else if (error.message) {
-          errorMsg = error.message;
-        } else if (error.status) {
-          errorMsg = `Server error (${error.status}): ${error.statusText || 'Unknown error'}`;
-        }
-        
-        this.errorMessage.set(errorMsg);
-        this.cdr.detectChanges();
-      }
-    });
-  }
+     this.npaService.createNpa(payload).subscribe({
+       next: (response) => {
+         this.isSubmitting.set(false);
+         
+         // Extract NPA ID from response
+         const possibleIdKeys = ['id', 'npaId', 'npa_id', 'NPA_ID', 'Id', 'ID'];
+         let foundId = 'N/A';
+         
+         for (const key of possibleIdKeys) {
+           if (response && (response as any)[key] !== undefined) {
+             foundId = (response as any)[key];
+             break;
+           }
+         }
+         
+         this.npaId = foundId.toString();
+         
+         if (this.npaId !== 'N/A') {
+           // If submitting from a draft, mark the draft as submitted so it disappears from the drafts list
+           if (this.draftId) {
+             this.draftService.submitDraft(this.draftId).subscribe({
+               error: (err) => console.warn('Failed to mark draft as submitted:', err)
+             });
+           }
+           this.showModal.set(true);
+           this.cdr.detectChanges();
+         } else {
+           this.errorMessage.set('NPA created but could not extract ID.');
+         }
+       },
+       error: (error) => {
+         this.isSubmitting.set(false);
+         
+         let errorMsg = 'Failed to create NPA. Please try again.';
+         
+         if (error.error && typeof error.error === 'string') {
+           errorMsg = error.error;
+         } else if (error.error?.message) {
+           errorMsg = error.error.message;
+         } else if (error.message) {
+           errorMsg = error.message;
+         } else if (error.status) {
+           errorMsg = `Server error (${error.status}): ${error.statusText || 'Unknown error'}`;
+         }
+         
+         this.errorMessage.set(errorMsg);
+         this.cdr.detectChanges();
+       }
+     });
+   }
 
   closeModal(): void {
     this.showModal.set(false);
